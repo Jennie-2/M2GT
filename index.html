@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
 <meta charset="UTF-8"/>
@@ -34,7 +35,7 @@ input,textarea{font-family:inherit}
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;
-  background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px}
+background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px}
 .nav-back{background:none;border:none;padding:4px;display:flex;align-items:center;border-radius:8px}
 .nav-title{flex:1;font-size:17px;font-weight:700;letter-spacing:-.4px}
 .nav-badge{background:#EBF3FE;color:#3182F6;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700}
@@ -49,7 +50,7 @@ input,textarea{font-family:inherit}
 .login-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .login-logo{font-size:15px;font-weight:800;color:#3182F6;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .login-coach-btn{display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;
-  padding:8px 14px;font-size:13px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
+padding:8px 14px;font-size:13px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
 .login-coach-btn:active{background:#E8EBED}
 .login-greeting{font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
 .login-greeting span{color:#3182F6}
@@ -62,7 +63,7 @@ input,textarea{font-family:inherit}
 
 /* MEMBER CONTAINER */
 .member-container{margin:16px 20px 0;background:#fff;border-radius:20px;padding:14px 16px 8px;
-  box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05)}
+box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05)}
 .search-wrap{display:flex;align-items:center;gap:10px;background:#F2F4F6;border-radius:12px;padding:0 14px;height:46px}
 .search-wrap input{flex:1;background:none;border:none;outline:none;font-size:15px;color:#1A1A2E}
 .search-clear{background:none;border:none;display:flex;align-items:center}
@@ -73,24 +74,22 @@ input,textarea{font-family:inherit}
 /* MEMBER GRID */
 .member-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px 0}
 .member-cell{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;
-  cursor:pointer;padding:10px 4px;border-radius:14px;transition:background .12s;-webkit-tap-highlight-color:transparent}
+cursor:pointer;padding:10px 4px;border-radius:14px;transition:background .12s;-webkit-tap-highlight-color:transparent}
 .member-cell:active{background:#EBF3FE}
 .member-cell-av{width:50px;height:50px;border-radius:50%;background:#EBF3FE;color:#3182F6;
-  font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;
-  position:relative;flex-shrink:0;box-shadow:0 2px 8px rgba(49,130,246,.12)}
+font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;
+position:relative;flex-shrink:0;box-shadow:0 2px 8px rgba(49,130,246,.12)}
 .member-cell-dot{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#00C471;border:2px solid #fff}
 .member-cell-name{font-size:12px;font-weight:600;color:#1A1A2E;text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ACTION CARDS */
 .login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px 0}
 .action-card{background:#fff;border:none;border-radius:20px;padding:18px 16px;cursor:pointer;text-align:left;
-  box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05);transition:transform .12s;-webkit-tap-highlight-color:transparent}
+box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05);transition:transform .12s;-webkit-tap-highlight-color:transparent}
 .action-card:active{transform:scale(.97)}
 .action-card-icon{font-size:26px;margin-bottom:10px}
 .action-card-title{font-size:14px;font-weight:800;color:#1A1A2E;margin-bottom:4px}
 .action-card-sub{font-size:12px;color:#8B95A1;line-height:1.4}
-
-
 
 /* Avatar picker */
 [data-pick-avatar]:active{transform:scale(.92);transition:transform .1s}
@@ -111,7 +110,7 @@ input,textarea{font-family:inherit}
 .pin-modal-title{font-size:19px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
 .pin-modal-sub{font-size:14px;color:#8B95A1;margin-bottom:20px}
 .pin-input{width:100%;height:54px;background:#F2F4F6;border:1.5px solid transparent;border-radius:14px;
-  padding:0 18px;font-size:22px;outline:none;letter-spacing:10px;color:#1A1A2E;text-align:center;transition:border-color .15s}
+padding:0 18px;font-size:22px;outline:none;letter-spacing:10px;color:#1A1A2E;text-align:center;transition:border-color .15s}
 .pin-input:focus{border-color:#3182F6;background:#EBF3FE}
 .pin-input.err{border-color:#F04452;background:#FFF0F1}
 .err-msg{font-size:13px;color:#F04452;margin-top:8px;text-align:center}
@@ -128,7 +127,7 @@ input,textarea{font-family:inherit}
 .wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:16px}
 .wod-row.done{border-left:3px solid #3182F6}
 .wod-badge{width:28px;height:28px;border-radius:8px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .wod-badge.done{background:#3182F6;color:#fff}
 .wod-content{flex:1}
 .wod-name{font-size:14px;font-weight:700;line-height:1.35}
@@ -145,7 +144,7 @@ input,textarea{font-family:inherit}
 .time-input-row{display:flex;align-items:center;gap:6px;margin-top:10px}
 .time-field-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
 .time-field{width:100%;height:52px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;
-  padding:0;font-size:22px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
+padding:0;font-size:22px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
 .time-field::-webkit-inner-spin-button,.time-field::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .time-field-label{font-size:11px;font-weight:700;color:#8B95A1;margin-top:4px;letter-spacing:.3px}
 .time-sep{font-size:22px;font-weight:800;color:#B0B8C1;padding-bottom:18px;flex-shrink:0}
@@ -241,10 +240,10 @@ input,textarea{font-family:inherit}
 
 /* TOAST */
 .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
-  background:#1A1A2E;color:#fff;padding:13px 22px;border-radius:14px;
-  font-size:14px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;
-  box-shadow:0 8px 32px rgba(0,0,0,.22);z-index:9999;pointer-events:none;
-  animation:toastIn .22s ease,toastOut .3s ease 1.7s forwards}
+background:#1A1A2E;color:#fff;padding:13px 22px;border-radius:14px;
+font-size:14px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;
+box-shadow:0 8px 32px rgba(0,0,0,.22);z-index:9999;pointer-events:none;
+animation:toastIn .22s ease,toastOut .3s ease 1.7s forwards}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 @keyframes toastOut{to{opacity:0;transform:translateX(-50%) translateY(8px)}}
 
@@ -269,6 +268,7 @@ input,textarea{font-family:inherit}
 .wod-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:150;padding:0}
 .wod-edit-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px}
 </style>
+
 </head>
 <body>
 <div id="app"><div class="loading"><div class="spinner"></div><div style="color:#8B95A1;font-size:14px">불러오는 중...</div></div></div>
@@ -348,6 +348,8 @@ let S = {
   registerModal:false,
   registerName:"",
   registerErr:"",
+  registerStep:1,      // 1=이름입력 2=캐릭터선택
+  registerAvatar:null, // 선택한 캐릭터 인덱스
 };
 
 /* ── Firebase sync ── */
@@ -522,15 +524,40 @@ function renderLogin() {
   </div>
   ${S.registerModal ? `
   <div class="modal-overlay" id="mo-register">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-title">이름 등록</div>
-      <div style="font-size:14px;color:#8B95A1;margin-bottom:4px">처음 오셨군요! 이름을 입력해주세요</div>
-      <input class="modal-input" id="inp-register-name" placeholder="이름 입력" value="${S.registerName}" autocomplete="off"/>
-      ${S.registerErr ? `<div class="err-msg" style="text-align:left">${S.registerErr}</div>` : ""}
-      <div class="modal-btns">
-        <button class="modal-btn-cancel" id="btn-register-cancel">취소</button>
-        <button class="modal-btn-save" id="btn-register-save">등록하기</button>
-      </div>
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:22px 18px 18px;width:calc(100% - 40px);max-width:340px">
+      ${S.registerStep===1 ? `
+        <!-- Step 1: 이름 입력 -->
+        <div class="modal-title" style="margin-bottom:6px">처음 오셨나요? 👋</div>
+        <div style="font-size:13px;color:#8B95A1;margin-bottom:16px">이름을 입력해주세요</div>
+        <input class="modal-input" id="inp-register-name" placeholder="이름 입력" value="${S.registerName}" autocomplete="off"/>
+        ${S.registerErr ? `<div class="err-msg" style="text-align:left;margin-top:6px">${S.registerErr}</div>` : ""}
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="modal-btn-cancel" id="btn-register-cancel" style="flex:1;height:48px">취소</button>
+          <button class="modal-btn-save" id="btn-register-next" style="flex:2;height:48px">다음 →</button>
+        </div>
+      ` : `
+        <!-- Step 2: 캐릭터 선택 -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <button id="btn-register-back" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1">←</button>
+          <div class="modal-title" style="margin:0">캐릭터 선택</div>
+          <div style="font-size:12px;color:#8B95A1;margin-left:auto">선택 안 해도 됩니다</div>
+        </div>
+        <div style="overflow-y:auto;max-height:340px">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+            ${AVATARS.map((src,i) => `
+              <button data-reg-avatar="${i}" style="
+                position:relative;width:100%;aspect-ratio:1;
+                border:3px solid ${S.registerAvatar===i?"#3182F6":"transparent"};
+                border-radius:14px;padding:0;cursor:pointer;overflow:hidden;
+                background:#F2F4F6;box-sizing:border-box">
+                <img src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/>
+              </button>`).join("")}
+          </div>
+        </div>
+        <button class="modal-btn-save" id="btn-register-save" style="width:100%;height:48px;margin-top:14px;border-radius:12px">
+          ${S.registerName} 으로 시작하기 🎉
+        </button>
+      `}
     </div>
   </div>` : ""}
   ${S.pinModal ? `<div class="pin-modal-overlay" id="pin-overlay">
@@ -624,7 +651,7 @@ function renderMember() {
             </button>`).join("")}
         </div>
       </div>
-      <button class="btn-cancel" id="btn-avatar-cancel" style="width:100%;height:44px;margin-top:12px;border-radius:12px">취소</button>
+      <button class="btn-cancel" id="btn-avatar-cancel" style="width:auto;align-self:center;height:36px;padding:0 24px;margin-top:10px;border-radius:99px;display:block;margin-left:auto;margin-right:auto;font-size:13px">취소</button>
     </div>
   </div>` : "";
 
@@ -797,309 +824,302 @@ function renderCoach() {
           <textarea id="inp-coach-msg" maxlength="100"
             style="width:100%;height:120px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.6;resize:none;outline:none;font-family:inherit;color:#1A1A2E;box-sizing:border-box"
             placeholder="회원들에게 전할 메시지 (최대 100자)">${coachMessage}</textarea>
-          <div style="display:flex;justify-content:flex-end;margin-top:6px"><span id="msg-counter" style="font-size:12px;color:#B0B8C1">${coachMessage.length}/100</span></div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button id="btn-msg-clear" class="btn-cancel" style="flex:1;height:44px">지우기</button>
-            <button id="btn-msg-save" class="btn-save" style="flex:2;height:44px">저장</button>
-          </div>
-        </div>
-      </div>`}
-    ${renameModal}${delModal}${wodEditOverlay}
+
+```
+      <div style="display:flex;justify-content:flex-end;margin-top:6px"><span id="msg-counter" style="font-size:12px;color:#B0B8C1">${coachMessage.length}/100</span></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btn-msg-clear" class="btn-cancel" style="flex:1;height:44px">지우기</button>
+        <button id="btn-msg-save" class="btn-save" style="flex:2;height:44px">저장</button>
+      </div>
+    </div>
+  </div>`}
+${renameModal}${delModal}${wodEditOverlay}
+```
+
   </div>`;
 }
 
 /* ── WOD ROW ── */
 function wodRowHtml(wod,rec,isEd,memberId,showDel) {
-  let body="";
-  if (isEd) {
-    body=`<div class="edit-area">
-      <div class="time-input-row">
-        <div class="time-field-wrap"><input class="time-field" id="inp-min" type="number" min="0" max="99" placeholder="0" value="${S.timeVal.min}" inputmode="numeric"/><span class="time-field-label">분</span></div>
-        <span class="time-sep">:</span>
-        <div class="time-field-wrap"><input class="time-field" id="inp-sec" type="number" min="0" max="59" placeholder="00" value="${S.timeVal.sec}" inputmode="numeric"/><span class="time-field-label">초</span></div>
-      </div>
-      <input class="edit-sub" id="inp-escale" placeholder="스케일 (선택 · RX, Scaled 등)" value="${S.editVal.scale}" style="margin-top:4px"/>
-      <div class="edit-btns" style="margin-top:2px">
-        <button class="btn-cancel" id="btn-edit-cancel">취소</button>
-        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}">저장</button>
-      </div></div>`;
-  } else if (rec) {
-    body=`<div class="rec-row">
-      <span class="rec-val">${rec.value}</span>
-      ${rec.scale?`<span class="rec-scale">${rec.scale}</span>`:""}
-      <span class="rec-date">${rec.date}</span>
-      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}">${ico.edit}</button>
-      ${showDel?`<button class="icon-btn" data-drec="${memberId}" data-dwid="${wod.id}">${ico.trash}</button>`:""}
-    </div>`;
-  } else {
-    body=`<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>`;
-  }
-  return `<div class="wod-row${rec?" done":""}">
-    <div class="wod-badge${rec?" done":""}">${wod.id}</div>
-    <div class="wod-content">
-      <div class="wod-name">${wod.name}</div>
-      ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""}
-      ${body}
-    </div></div>`;
+let body=””;
+if (isEd) {
+body=`<div class="edit-area"> <div class="time-input-row"> <div class="time-field-wrap"><input class="time-field" id="inp-min" type="number" min="0" max="99" placeholder="0" value="${S.timeVal.min}" inputmode="numeric"/><span class="time-field-label">분</span></div> <span class="time-sep">:</span> <div class="time-field-wrap"><input class="time-field" id="inp-sec" type="number" min="0" max="59" placeholder="00" value="${S.timeVal.sec}" inputmode="numeric"/><span class="time-field-label">초</span></div> </div> <input class="edit-sub" id="inp-escale" placeholder="스케일 (선택 · RX, Scaled 등)" value="${S.editVal.scale}" style="margin-top:4px"/> <div class="edit-btns" style="margin-top:2px"> <button class="btn-cancel" id="btn-edit-cancel">취소</button> <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}">저장</button> </div></div>`;
+} else if (rec) {
+body=`<div class="rec-row"> <span class="rec-val">${rec.value}</span> ${rec.scale?`<span class="rec-scale">${rec.scale}</span>`:""} <span class="rec-date">${rec.date}</span> <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}">${ico.edit}</button> ${showDel?`<button class="icon-btn" data-drec="${memberId}" data-dwid="${wod.id}">${ico.trash}</button>`:""} </div>`;
+} else {
+body=`<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>`;
+}
+return `<div class="wod-row${rec?" done":""}"> <div class="wod-badge${rec?" done":""}">${wod.id}</div> <div class="wod-content"> <div class="wod-name">${wod.name}</div> ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""} ${body} </div></div>`;
 }
 
 /* ══ BIND ══ */
 function updateMemberGrid() {
-  const container = document.getElementById("member-grid-container");
-  if (!container) return;
-  const fil = members.filter(m => m.name.includes(S.search));
-  container.innerHTML = fil.length===0
-    ? `<div class="empty-search">"${S.search}" 검색 결과가 없어요</div>`
-    : `<div class="member-grid">${fil.map(m => {
-        const hasDone = Object.keys(m.records).length>0;
-        return `<button class="member-cell" data-login="${m.id}">
-          <div class="member-cell-av">${m.name[0]}${hasDone?`<div class="member-cell-dot"></div>`:""} </div>
-          <span class="member-cell-name">${m.name}</span></button>`;
-      }).join("")}</div>`;
-  container.querySelectorAll("[data-login]").forEach(el => {
-    el.addEventListener("click", () => { S.activeMemberId=el.dataset.login; S.memberTab="my"; S.view="member"; render(); });
-  });
-  const cb = document.getElementById("btn-clear");
-  if (cb) cb.style.display = S.search?"flex":"none";
+const container = document.getElementById(“member-grid-container”);
+if (!container) return;
+const fil = members.filter(m => m.name.includes(S.search));
+container.innerHTML = fil.length===0
+? `<div class="empty-search">"${S.search}" 검색 결과가 없어요</div>`
+: `<div class="member-grid">${fil.map(m => { const hasDone = Object.keys(m.records).length>0; return `<button class="member-cell" data-login="${m.id}">
+<div class="member-cell-av">${m.name[0]}${hasDone?`<div class="member-cell-dot"></div>`:””} </div>
+<span class="member-cell-name">${m.name}</span></button>`; }).join("")}</div>`;
+container.querySelectorAll(”[data-login]”).forEach(el => {
+el.addEventListener(“click”, () => { S.activeMemberId=el.dataset.login; S.memberTab=“my”; S.view=“member”; render(); });
+});
+const cb = document.getElementById(“btn-clear”);
+if (cb) cb.style.display = S.search?“flex”:“none”;
 }
 
 function showToast(msg) {
-  document.querySelector(".toast")?.remove();
-  const el=document.createElement("div"); el.className="toast";
-  el.innerHTML=`<span>✓</span>${msg}`; document.body.appendChild(el);
-  setTimeout(()=>el.remove(),2100);
+document.querySelector(”.toast”)?.remove();
+const el=document.createElement(“div”); el.className=“toast”;
+el.innerHTML=`<span>✓</span>${msg}`; document.body.appendChild(el);
+setTimeout(()=>el.remove(),2100);
 }
 
 function bind() {
-  const g=id=>document.getElementById(id);
-  const on=(id,ev,fn)=>{const el=g(id);if(el)el.addEventListener(ev,fn);};
-  const qa=(sel,fn)=>document.querySelectorAll(sel).forEach(fn);
+const g=id=>document.getElementById(id);
+const on=(id,ev,fn)=>{const el=g(id);if(el)el.addEventListener(ev,fn);};
+const qa=(sel,fn)=>document.querySelectorAll(sel).forEach(fn);
 
-  /* login search */
-  const searchEl=g("inp-search");
-  if (searchEl) {
-    let composing=false;
-    searchEl.addEventListener("compositionstart",()=>{composing=true;});
-    searchEl.addEventListener("compositionend",e=>{composing=false;S.search=e.target.value;updateMemberGrid();});
-    searchEl.addEventListener("input",e=>{if(composing)return;S.search=e.target.value;updateMemberGrid();});
-  }
-  on("btn-clear","click",()=>{S.search="";const el=g("inp-search");if(el)el.value="";updateMemberGrid();});
-  on("btn-rank","click",()=>{S.view="rank";render();});
-  on("btn-show-register","click",()=>{S.registerModal=true;S.registerName="";S.registerErr="";render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
-  on("btn-register-cancel","click",()=>{S.registerModal=false;render();});
-  document.getElementById("mo-register")?.addEventListener("click",()=>{S.registerModal=false;render();});
-  on("inp-register-name","input",e=>{S.registerName=e.target.value;S.registerErr="";});
-  on("inp-register-name","keydown",e=>{if(e.key==="Enter")doRegisterMember();});
-  on("btn-register-save","click",doRegisterMember);
-  on("btn-open-pin","click",()=>{S.pinModal=true;S.pin="";S.pinErr=false;render();setTimeout(()=>g("inp-pin")?.focus(),60);});
-  on("pin-overlay","click",()=>{S.pinModal=false;S.pin="";S.pinErr=false;render();});
-  on("inp-pin","input",e=>{S.pin=e.target.value;S.pinErr=false;});
-  on("inp-pin","keydown",e=>{if(e.key==="Enter")doLogin();});
-  on("btn-pin","click",doLogin);
+/* login search */
+const searchEl=g(“inp-search”);
+if (searchEl) {
+let composing=false;
+searchEl.addEventListener(“compositionstart”,()=>{composing=true;});
+searchEl.addEventListener(“compositionend”,e=>{composing=false;S.search=e.target.value;updateMemberGrid();});
+searchEl.addEventListener(“input”,e=>{if(composing)return;S.search=e.target.value;updateMemberGrid();});
+}
+on(“btn-clear”,“click”,()=>{S.search=””;const el=g(“inp-search”);if(el)el.value=””;updateMemberGrid();});
+on(“btn-rank”,“click”,()=>{S.view=“rank”;render();});
+on(“btn-show-register”,“click”,()=>{S.registerModal=true;S.registerStep=1;S.registerName=””;S.registerErr=””;S.registerAvatar=null;render();setTimeout(()=>document.getElementById(“inp-register-name”)?.focus(),60);});
+on(“btn-register-cancel”,“click”,()=>{S.registerModal=false;render();});
+document.getElementById(“mo-register”)?.addEventListener(“click”,()=>{S.registerModal=false;render();});
+on(“inp-register-name”,“input”,e=>{S.registerName=e.target.value;S.registerErr=””;});
+on(“inp-register-name”,“keydown”,e=>{if(e.key===“Enter”)doRegisterNext();});
+on(“btn-register-next”,“click”,doRegisterNext);
+on(“btn-register-back”,“click”,()=>{S.registerStep=1;render();setTimeout(()=>document.getElementById(“inp-register-name”)?.focus(),60);});
+on(“btn-register-save”,“click”,doRegisterMember);
+document.querySelectorAll(”[data-reg-avatar]”).forEach(el=>el.addEventListener(“click”,()=>{
+S.registerAvatar=parseInt(el.dataset.regAvatar);render();
+}));
+on(“btn-open-pin”,“click”,()=>{S.pinModal=true;S.pin=””;S.pinErr=false;render();setTimeout(()=>g(“inp-pin”)?.focus(),60);});
+on(“pin-overlay”,“click”,()=>{S.pinModal=false;S.pin=””;S.pinErr=false;render();});
+on(“inp-pin”,“input”,e=>{S.pin=e.target.value;S.pinErr=false;});
+on(“inp-pin”,“keydown”,e=>{if(e.key===“Enter”)doLogin();});
+on(“btn-pin”,“click”,doLogin);
 
-  /* member login */
-  qa("[data-login]",el=>el.addEventListener("click",()=>{S.activeMemberId=el.dataset.login;S.memberTab="my";S.view="member";render();}));
+/* member login */
+qa(”[data-login]”,el=>el.addEventListener(“click”,()=>{S.activeMemberId=el.dataset.login;S.memberTab=“my”;S.view=“member”;render();}));
 
-  /* rank */
-  on("btn-rank-back","click",()=>{S.view="login";render();});
+/* rank */
+on(“btn-rank-back”,“click”,()=>{S.view=“login”;render();});
 
-  /* member nav */
-  on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
-  qa("[data-mtab]",el=>el.addEventListener("click",()=>{S.memberTab=el.dataset.mtab;render();}));
+/* member nav */
+on(“btn-member-back”,“click”,()=>{S.view=“login”;S.editing=null;render();});
+qa(”[data-mtab]”,el=>el.addEventListener(“click”,()=>{S.memberTab=el.dataset.mtab;render();}));
 
-  /* avatar picker */
-  on("btn-pick-avatar","click",()=>{S.avatarModal=S.activeMemberId;render();});
-  on("btn-avatar-cancel","click",()=>{S.avatarModal=false;render();});
-  on("btn-avatar-reset","click",()=>{
-    fbUpdate(`members/${S.activeMemberId}`,{avatar:null});
-    S.avatarModal=false;
-  });
-  g("mo-avatar")?.addEventListener("click",()=>{S.avatarModal=false;render();});
-  qa("[data-pick-avatar]",el=>el.addEventListener("click",e=>{
-    e.stopPropagation();
-    const idx=parseInt(el.dataset.pickAvatar);
-    fbUpdate(`members/${S.activeMemberId}`,{avatar:idx});
-    S.avatarModal=false;
-    render();
-    showToast("캐릭터가 저장됐어요! 🐾");
-  }));
+/* avatar picker */
+on(“btn-pick-avatar”,“click”,()=>{S.avatarModal=S.activeMemberId;render();});
+on(“btn-avatar-cancel”,“click”,()=>{S.avatarModal=false;render();});
+on(“btn-avatar-reset”,“click”,()=>{
+fbUpdate(`members/${S.activeMemberId}`,{avatar:null});
+S.avatarModal=false;
+});
+g(“mo-avatar”)?.addEventListener(“click”,()=>{S.avatarModal=false;render();});
+qa(”[data-pick-avatar]”,el=>el.addEventListener(“click”,e=>{
+e.stopPropagation();
+const idx=parseInt(el.dataset.pickAvatar);
+fbUpdate(`members/${S.activeMemberId}`,{avatar:idx});
+S.avatarModal=false;
+render();
+showToast(“캐릭터가 저장됐어요! 🐾”);
+}));
 
-  /* coach nav */
-  on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;render();});
-  qa("[data-ctab]",el=>el.addEventListener("click",()=>{S.coachTab=el.dataset.ctab;render();}));
+/* coach nav */
+on(“btn-coach-back”,“click”,()=>{S.view=“login”;S.editing=null;S.panelId=null;render();});
+qa(”[data-ctab]”,el=>el.addEventListener(“click”,()=>{S.coachTab=el.dataset.ctab;render();}));
 
-  /* select member */
-  qa("[data-sel]",el=>el.addEventListener("click",()=>{S.panelId=el.dataset.sel;S.editing=null;render();}));
+/* select member */
+qa(”[data-sel]”,el=>el.addEventListener(“click”,()=>{S.panelId=el.dataset.sel;S.editing=null;render();}));
 
-  /* add member */
-  on("btn-add-member","click",()=>{S.addingMember=true;render();setTimeout(()=>g("inp-newname")?.focus(),50);});
-  on("inp-newname","input",e=>{S.newName=e.target.value;});
-  on("inp-newname","keydown",e=>{if(e.key==="Enter")doAddMember();});
-  on("btn-add-cancel","click",()=>{S.addingMember=false;S.newName="";render();});
-  on("btn-add-save","click",doAddMember);
+/* add member */
+on(“btn-add-member”,“click”,()=>{S.addingMember=true;render();setTimeout(()=>g(“inp-newname”)?.focus(),50);});
+on(“inp-newname”,“input”,e=>{S.newName=e.target.value;});
+on(“inp-newname”,“keydown”,e=>{if(e.key===“Enter”)doAddMember();});
+on(“btn-add-cancel”,“click”,()=>{S.addingMember=false;S.newName=””;render();});
+on(“btn-add-save”,“click”,doAddMember);
 
-  /* rename member */
-  qa("[data-rename]",el=>el.addEventListener("click",e=>{
-    e.stopPropagation();S.editingMember={id:el.dataset.rename,name:el.dataset.rname};
-    render();setTimeout(()=>g("inp-rename")?.focus(),50);
-  }));
-  on("btn-rename-cancel","click",()=>{S.editingMember=null;render();});
-  on("btn-rename-save","click",doRename);
-  on("inp-rename","keydown",e=>{if(e.key==="Enter")doRename();});
-  g("mo-rename")?.addEventListener("click",()=>{S.editingMember=null;render();});
+/* rename member */
+qa(”[data-rename]”,el=>el.addEventListener(“click”,e=>{
+e.stopPropagation();S.editingMember={id:el.dataset.rename,name:el.dataset.rname};
+render();setTimeout(()=>g(“inp-rename”)?.focus(),50);
+}));
+on(“btn-rename-cancel”,“click”,()=>{S.editingMember=null;render();});
+on(“btn-rename-save”,“click”,doRename);
+on(“inp-rename”,“keydown”,e=>{if(e.key===“Enter”)doRename();});
+g(“mo-rename”)?.addEventListener(“click”,()=>{S.editingMember=null;render();});
 
-  /* delete member */
-  qa("[data-delconfirm]",el=>el.addEventListener("click",e=>{
-    e.stopPropagation();S.confirmDelete=el.dataset.delconfirm;render();
-  }));
-  on("btn-del-cancel","click",()=>{S.confirmDelete=null;render();});
-  on("btn-del-ok","click",()=>doDeleteMember(S.confirmDelete));
-  g("mo-del")?.addEventListener("click",()=>{S.confirmDelete=null;render();});
+/* delete member */
+qa(”[data-delconfirm]”,el=>el.addEventListener(“click”,e=>{
+e.stopPropagation();S.confirmDelete=el.dataset.delconfirm;render();
+}));
+on(“btn-del-cancel”,“click”,()=>{S.confirmDelete=null;render();});
+on(“btn-del-ok”,“click”,()=>doDeleteMember(S.confirmDelete));
+g(“mo-del”)?.addEventListener(“click”,()=>{S.confirmDelete=null;render();});
 
-  /* record edit */
-  qa("[data-oedit]",el=>el.addEventListener("click",()=>{
-    const mid=el.dataset.oedit,wid=parseInt(el.dataset.owid);
-    const m=members.find(x=>x.id===mid); const r=m?.records[wid]||{};
-    S.editing={memberId:mid,wodId:wid}; S.editVal={scale:r.scale||""};
-    const match=r.value?.match(/^(\d+)'(\d+)/);
-    S.timeVal=match?{min:match[1],sec:match[2]}:{min:"",sec:""};
-    render();setTimeout(()=>g("inp-min")?.focus(),50);
-  }));
-  on("btn-edit-cancel","click",()=>{S.editing=null;render();});
-  on("inp-min","input",e=>{S.timeVal.min=e.target.value;});
-  on("inp-sec","input",e=>{S.timeVal.sec=e.target.value;});
-  on("inp-escale","input",e=>{S.editVal.scale=e.target.value;});
-  on("inp-sec","keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid));}});
-  qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid))));
-  qa("[data-drec]",el=>el.addEventListener("click",()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
+/* record edit */
+qa(”[data-oedit]”,el=>el.addEventListener(“click”,()=>{
+const mid=el.dataset.oedit,wid=parseInt(el.dataset.owid);
+const m=members.find(x=>x.id===mid); const r=m?.records[wid]||{};
+S.editing={memberId:mid,wodId:wid}; S.editVal={scale:r.scale||””};
+const match=r.value?.match(/^(\d+)’(\d+)/);
+S.timeVal=match?{min:match[1],sec:match[2]}:{min:””,sec:””};
+render();setTimeout(()=>g(“inp-min”)?.focus(),50);
+}));
+on(“btn-edit-cancel”,“click”,()=>{S.editing=null;render();});
+on(“inp-min”,“input”,e=>{S.timeVal.min=e.target.value;});
+on(“inp-sec”,“input”,e=>{S.timeVal.sec=e.target.value;});
+on(“inp-escale”,“input”,e=>{S.editVal.scale=e.target.value;});
+on(“inp-sec”,“keydown”,e=>{if(e.key===“Enter”){const btn=document.querySelector(”[data-save]”);if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid));}});
+qa(”[data-save]”,el=>el.addEventListener(“click”,()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid))));
+qa(”[data-drec]”,el=>el.addEventListener(“click”,()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
 
-  /* WOD manager */
-  on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:""};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
-  on("wod-inp-name","input",e=>{S.wodFormVal.name=e.target.value;});
-  on("wod-inp-detail","input",e=>{S.wodFormVal.detail=e.target.value;});
-  on("btn-wod-add-cancel","click",()=>{S.showWodForm=false;render();});
-  on("btn-wod-add-save","click",doAddWod);
-  qa("[data-wod-edit]",el=>el.addEventListener("click",()=>{
-    const wod=WODS.find(w=>w.id===parseInt(el.dataset.wodEdit));
-    if(wod){S.editingWod={...wod};render();setTimeout(()=>g("wod-edit-name")?.focus(),50);}
-  }));
-  on("btn-wod-edit-cancel","click",()=>{S.editingWod=null;render();});
-  on("btn-wod-edit-save","click",doEditWod);
-  on("wod-edit-name","keydown",e=>{if(e.key==="Enter")g("wod-edit-detail")?.focus();});
-  on("wod-edit-detail","keydown",e=>{if(e.key==="Enter")doEditWod();});
-  g("wod-edit-overlay")?.addEventListener("click",()=>{S.editingWod=null;render();});
-  qa("[data-wod-del]",el=>el.addEventListener("click",()=>doDeleteWod(parseInt(el.dataset.wodDel))));
+/* WOD manager */
+on(“btn-wod-add-toggle”,“click”,()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:””,detail:””};render();setTimeout(()=>g(“wod-inp-name”)?.focus(),50);});
+on(“wod-inp-name”,“input”,e=>{S.wodFormVal.name=e.target.value;});
+on(“wod-inp-detail”,“input”,e=>{S.wodFormVal.detail=e.target.value;});
+on(“btn-wod-add-cancel”,“click”,()=>{S.showWodForm=false;render();});
+on(“btn-wod-add-save”,“click”,doAddWod);
+qa(”[data-wod-edit]”,el=>el.addEventListener(“click”,()=>{
+const wod=WODS.find(w=>w.id===parseInt(el.dataset.wodEdit));
+if(wod){S.editingWod={…wod};render();setTimeout(()=>g(“wod-edit-name”)?.focus(),50);}
+}));
+on(“btn-wod-edit-cancel”,“click”,()=>{S.editingWod=null;render();});
+on(“btn-wod-edit-save”,“click”,doEditWod);
+on(“wod-edit-name”,“keydown”,e=>{if(e.key===“Enter”)g(“wod-edit-detail”)?.focus();});
+on(“wod-edit-detail”,“keydown”,e=>{if(e.key===“Enter”)doEditWod();});
+g(“wod-edit-overlay”)?.addEventListener(“click”,()=>{S.editingWod=null;render();});
+qa(”[data-wod-del]”,el=>el.addEventListener(“click”,()=>doDeleteWod(parseInt(el.dataset.wodDel))));
 
-  /* coach message */
-  const msgEl=g("inp-coach-msg"); const counterEl=g("msg-counter");
-  if(msgEl) msgEl.addEventListener("input",()=>{if(counterEl)counterEl.textContent=`${msgEl.value.length}/100`;});
-  on("btn-msg-save","click",()=>{const val=g("inp-coach-msg")?.value.trim()??"";fbSet("coachMessage",val);showToast("한마디가 저장됐어요!");});
-  on("btn-msg-clear","click",()=>{const el=g("inp-coach-msg");if(el){el.value="";if(counterEl)counterEl.textContent="0/100";}fbSet("coachMessage","");showToast("한마디를 지웠어요");});
+/* coach message */
+const msgEl=g(“inp-coach-msg”); const counterEl=g(“msg-counter”);
+if(msgEl) msgEl.addEventListener(“input”,()=>{if(counterEl)counterEl.textContent=`${msgEl.value.length}/100`;});
+on(“btn-msg-save”,“click”,()=>{const val=g(“inp-coach-msg”)?.value.trim()??””;fbSet(“coachMessage”,val);showToast(“한마디가 저장됐어요!”);});
+on(“btn-msg-clear”,“click”,()=>{const el=g(“inp-coach-msg”);if(el){el.value=””;if(counterEl)counterEl.textContent=“0/100”;}fbSet(“coachMessage”,””);showToast(“한마디를 지웠어요”);});
 
-  /* PWA install */
-  on("install-btn","click",doInstall);
+/* PWA install */
+on(“install-btn”,“click”,doInstall);
 }
 
 /* ══ ACTIONS ══ */
 function doLogin() {
-  const el=document.getElementById("inp-pin"); const v=el?el.value:S.pin;
-  if(v===PIN){S.view="coach";S.pin="";S.pinErr=false;S.pinModal=false;render();}
-  else{S.pinErr=true;render();setTimeout(()=>document.getElementById("inp-pin")?.focus(),50);}
+const el=document.getElementById(“inp-pin”); const v=el?el.value:S.pin;
+if(v===PIN){S.view=“coach”;S.pin=””;S.pinErr=false;S.pinModal=false;render();}
+else{S.pinErr=true;render();setTimeout(()=>document.getElementById(“inp-pin”)?.focus(),50);}
 }
 
 function doSaveRecord(mid,wid) {
-  const min=parseInt(document.getElementById("inp-min")?.value??S.timeVal.min)||0;
-  const sec=parseInt(document.getElementById("inp-sec")?.value??S.timeVal.sec)||0;
-  const scale=(document.getElementById("inp-escale")?.value??S.editVal.scale).trim();
-  if(min===0&&sec===0)return;
-  const value=`${min}'${String(sec).padStart(2,"0")}"`;
-  S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};render();
-  fbSet(`members/${mid}/records/${wid}`,{value,scale,date:today()});
-  const wod=WODS.find(w=>w.id===wid);
-  showToast(`${wod?.name??"WOD"} 기록 저장 완료!`);
+const min=parseInt(document.getElementById(“inp-min”)?.value??S.timeVal.min)||0;
+const sec=parseInt(document.getElementById(“inp-sec”)?.value??S.timeVal.sec)||0;
+const scale=(document.getElementById(“inp-escale”)?.value??S.editVal.scale).trim();
+if(min===0&&sec===0)return;
+const value=`${min}'${String(sec).padStart(2,"0")}"`;
+S.editing=null;S.timeVal={min:””,sec:””};S.editVal={value:””,scale:””};render();
+fbSet(`members/${mid}/records/${wid}`,{value,scale,date:today()});
+const wod=WODS.find(w=>w.id===wid);
+showToast(`${wod?.name??"WOD"} 기록 저장 완료!`);
 }
 
 function doAddMember() {
-  const name=(document.getElementById("inp-newname")?.value||S.newName).trim();
-  if(!name)return;
-  fbPush("members",{name,records:{}});
-  S.addingMember=false;S.newName="";
+const name=(document.getElementById(“inp-newname”)?.value||S.newName).trim();
+if(!name)return;
+fbPush(“members”,{name,records:{}});
+S.addingMember=false;S.newName=””;
+}
+
+function doRegisterNext() {
+const nameEl = document.getElementById(“inp-register-name”);
+const name = (nameEl?.value || S.registerName).trim();
+if (!name) { S.registerErr=“이름을 입력해주세요”; render(); return; }
+// 중복 체크 — 이미 등록된 회원이면 바로 입장
+const dup = members.find(m => m.name === name);
+if (dup) {
+S.registerModal=false; S.registerName=””; S.registerErr=””;
+S.activeMemberId=dup.id; S.memberTab=“my”; S.view=“member”;
+saveLastMember(dup.id); render(); return;
+}
+S.registerName = name;
+S.registerStep = 2;
+render();
 }
 
 function doRegisterMember() {
-  const name=(document.getElementById("inp-register-name")?.value||S.registerName).trim();
-  if(!name){S.registerErr="이름을 입력해주세요";render();return;}
-  // 중복 체크
-  const dup = members.find(m=>m.name===name);
-  if(dup){
-    // 이미 등록된 회원이면 바로 입장
-    S.registerModal=false;S.registerName="";S.registerErr="";
-    S.activeMemberId=dup.id;S.memberTab="my";S.view="member";
-    saveLastMember(dup.id);
-    render();return;
-  }
-  // 신규 등록
-  fbPush("members",{name,records:{}}).then(ref=>{
-    S.registerModal=false;S.registerName="";S.registerErr="";
-    S.activeMemberId=ref.key;S.memberTab="my";S.view="member";
-    saveLastMember(ref.key);
-    render();
-    showToast(`${name}님 환영해요! 🎉`);
-  });
+const name = S.registerName.trim();
+if (!name) return;
+const avatarIdx = S.registerAvatar;
+const data = avatarIdx !== null ? {name, records:{}, avatar:avatarIdx} : {name, records:{}};
+fbPush(“members”, data).then(ref=>{
+S.registerModal=false; S.registerName=””; S.registerErr=””; S.registerAvatar=null; S.registerStep=1;
+S.activeMemberId=ref.key; S.memberTab=“my”; S.view=“member”;
+saveLastMember(ref.key);
+render();
+showToast(`${name}님 환영해요! 🎉`);
+});
 }
 
 function doRename() {
-  const name=(document.getElementById("inp-rename")?.value||S.editingMember?.name||"").trim();
-  if(!name||!S.editingMember)return;
-  fbUpdate(`members/${S.editingMember.id}`,{name});S.editingMember=null;
+const name=(document.getElementById(“inp-rename”)?.value||S.editingMember?.name||””).trim();
+if(!name||!S.editingMember)return;
+fbUpdate(`members/${S.editingMember.id}`,{name});S.editingMember=null;
 }
 
 function doDeleteMember(id) {
-  fbRemove(`members/${id}`);if(S.panelId===id)S.panelId=null;S.confirmDelete=null;
+fbRemove(`members/${id}`);if(S.panelId===id)S.panelId=null;S.confirmDelete=null;
 }
 
 /* WOD actions */
 function doAddWod() {
-  const name=(document.getElementById("wod-inp-name")?.value||S.wodFormVal.name).trim();
-  const detail=(document.getElementById("wod-inp-detail")?.value||S.wodFormVal.detail).trim();
-  if(!name)return;
-  const maxId=WODS.length>0?Math.max(...WODS.map(w=>w.id)):0;
-  const newId=maxId+1;
-  fbSet(`wods/${newId}`,{name,detail});
-  S.showWodForm=false;S.wodFormVal={name:"",detail:""};
-  showToast(`WOD ${newId} 추가됐어요!`);
+const name=(document.getElementById(“wod-inp-name”)?.value||S.wodFormVal.name).trim();
+const detail=(document.getElementById(“wod-inp-detail”)?.value||S.wodFormVal.detail).trim();
+if(!name)return;
+const maxId=WODS.length>0?Math.max(…WODS.map(w=>w.id)):0;
+const newId=maxId+1;
+fbSet(`wods/${newId}`,{name,detail});
+S.showWodForm=false;S.wodFormVal={name:””,detail:””};
+showToast(`WOD ${newId} 추가됐어요!`);
 }
 
 function doEditWod() {
-  const name=(document.getElementById("wod-edit-name")?.value||S.editingWod?.name||"").trim();
-  const detail=(document.getElementById("wod-edit-detail")?.value||S.editingWod?.detail||"").trim();
-  if(!name||!S.editingWod)return;
-  fbSet(`wods/${S.editingWod.id}`,{name,detail});
-  S.editingWod=null;showToast("WOD가 수정됐어요!");
+const name=(document.getElementById(“wod-edit-name”)?.value||S.editingWod?.name||””).trim();
+const detail=(document.getElementById(“wod-edit-detail”)?.value||S.editingWod?.detail||””).trim();
+if(!name||!S.editingWod)return;
+fbSet(`wods/${S.editingWod.id}`,{name,detail});
+S.editingWod=null;showToast(“WOD가 수정됐어요!”);
 }
 
 function doDeleteWod(id) {
-  if(WODS.length<=1){showToast("WOD는 최소 1개 필요해요");return;}
-  fbRemove(`wods/${id}`);
-  // 해당 WOD 기록도 정리
-  members.forEach(m=>{if(m.records[id])fbRemove(`members/${m.id}/records/${id}`)});
-  showToast("WOD가 삭제됐어요");
+if(WODS.length<=1){showToast(“WOD는 최소 1개 필요해요”);return;}
+fbRemove(`wods/${id}`);
+// 해당 WOD 기록도 정리
+members.forEach(m=>{if(m.records[id])fbRemove(`members/${m.id}/records/${id}`)});
+showToast(“WOD가 삭제됐어요”);
 }
 
 /* PWA install */
 let deferredPrompt=null;
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;showInstallBanner();});
+window.addEventListener(“beforeinstallprompt”,e=>{e.preventDefault();deferredPrompt=e;showInstallBanner();});
 function showInstallBanner(){
-  if(document.getElementById("install-banner"))return;
-  const b=document.createElement("div");b.id="install-banner";
-  b.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:14px;display:flex;align-items:center;gap:12px;z-index:9000;box-shadow:0 8px 32px rgba(0,0,0,.25);font-family:inherit;white-space:nowrap;font-size:14px;font-weight:600;";
-  b.innerHTML=`<span style="font-size:20px">📲</span><span>홈 화면에 추가하기</span><button id="install-btn" style="background:#3182F6;border:none;color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">추가</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8B95A1;font-size:18px;cursor:pointer;padding:0 2px;">×</button>`;
-  document.body.appendChild(b);
+if(document.getElementById(“install-banner”))return;
+const b=document.createElement(“div”);b.id=“install-banner”;
+b.style.cssText=“position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:14px;display:flex;align-items:center;gap:12px;z-index:9000;box-shadow:0 8px 32px rgba(0,0,0,.25);font-family:inherit;white-space:nowrap;font-size:14px;font-weight:600;”;
+b.innerHTML=`<span style="font-size:20px">📲</span><span>홈 화면에 추가하기</span><button id="install-btn" style="background:#3182F6;border:none;color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">추가</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8B95A1;font-size:18px;cursor:pointer;padding:0 2px;">×</button>`;
+document.body.appendChild(b);
 }
 async function doInstall(){
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById("install-banner")?.remove();
+if(!deferredPrompt)return;
+deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById(“install-banner”)?.remove();
 }
 </script>
+
 </body>
 </html>
