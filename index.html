@@ -309,28 +309,28 @@ const db = getDatabase(fbApp);
 
 /* ── DEFAULT WODs (Firebase에 없을 때만 사용) ── */
 const DEFAULT_WODS = [
-  {id:1, group:"STRENGTH", name:"BSQ 5RM",        detail:"Back Squat"},
-  {id:2, group:"STRENGTH", name:"FSQ 5RM",        detail:"Front Squat"},
-  {id:3, group:"STRENGTH", name:"BENCH PRESS 5RM",detail:""},
-  {id:4, group:"STRENGTH", name:"DL 5RM",         detail:"Deadlift"},
-  {id:5, group:"STRENGTH", name:"OHP 5RM",        detail:"Overhead Press"},
-  {id:6, group:"CARDIO",   name:"1K RUN",         detail:""},
-  {id:7, group:"CARDIO",   name:"3K RUN",         detail:""},
-  {id:8, group:"CARDIO",   name:"5K RUN",         detail:""},
-  {id:9, group:"CARDIO",   name:"1K ROW",         detail:""},
-  {id:10,group:"CARDIO",   name:"3K ROW",         detail:""},
-  {id:11,group:"CARDIO",   name:"5K ROW",         detail:""},
-  {id:12,group:"WOD",      name:"AMRAP 20'",     detail:"5 Pull Up · 10 Push Up · 15 Air Squat"},
-  {id:13,group:"WOD",      name:"50-40-30-20-10", detail:"Double Under + Sit Up"},
-  {id:14,group:"WOD",      name:"1-10 TTB",       detail:"Toes To Bar + BP Bar Touch"},
-  {id:15,group:"WOD",      name:"5R 400M RUN",    detail:"30 Box Jump + 30 WBS"},
-  {id:16,group:"WOD",      name:"150 WBS",        detail:"20 / 14 lb"},
-  {id:17,group:"WOD",      name:"100 KBSN",       detail:"24 / 16 kg"},
-  {id:18,group:"WOD",      name:"5R 400M RUN",    detail:"15 OHS (40/30)"},
-  {id:19,group:"WOD",      name:"21-15-9",        detail:"Pull Up + Thruster (40/30)"},
-  {id:20,group:"WOD",      name:"30 SNATCH",      detail:"60 / 40 kg"},
-  {id:21,group:"WOD",      name:"30 CLEAN & JERK",detail:"60 / 40 kg"},
-  {id:22,group:"WOD",      name:"21-15-9 DL",     detail:"DL (100/75) + HSPU"}
+  {id:1, group:"STRENGTH", type:"weight", name:"BSQ 5RM",        detail:"Back Squat"},
+  {id:2, group:"STRENGTH", type:"weight", name:"FSQ 5RM",        detail:"Front Squat"},
+  {id:3, group:"STRENGTH", type:"weight", name:"BENCH PRESS 5RM",detail:""},
+  {id:4, group:"STRENGTH", type:"weight", name:"DL 5RM",         detail:"Deadlift"},
+  {id:5, group:"STRENGTH", type:"weight", name:"OHP 5RM",        detail:"Overhead Press"},
+  {id:6, group:"CARDIO",   type:"time",   name:"1K RUN",         detail:""},
+  {id:7, group:"CARDIO",   type:"time",   name:"3K RUN",         detail:""},
+  {id:8, group:"CARDIO",   type:"time",   name:"5K RUN",         detail:""},
+  {id:9, group:"CARDIO",   type:"time",   name:"1K ROW",         detail:""},
+  {id:10,group:"CARDIO",   type:"time",   name:"3K ROW",         detail:""},
+  {id:11,group:"CARDIO",   type:"time",   name:"5K ROW",         detail:""},
+  {id:12,group:"WOD",      type:"rounds", name:"AMRAP 20'",     detail:"5 Pull Up · 10 Push Up · 15 Air Squat"},
+  {id:13,group:"WOD",      type:"time",   name:"50-40-30-20-10", detail:"Double Under + Sit Up"},
+  {id:14,group:"WOD",      type:"time",   name:"1-10 TTB",       detail:"Toes To Bar + BP Bar Touch"},
+  {id:15,group:"WOD",      type:"time",   name:"5R 400M RUN",    detail:"30 Box Jump + 30 WBS"},
+  {id:16,group:"WOD",      type:"time",   name:"150 WBS",        detail:"20 / 14 lb"},
+  {id:17,group:"WOD",      type:"time",   name:"100 KBSN",       detail:"24 / 16 kg"},
+  {id:18,group:"WOD",      type:"time",   name:"5R 400M RUN",    detail:"15 OHS (40/30)"},
+  {id:19,group:"WOD",      type:"time",   name:"21-15-9",        detail:"Pull Up + Thruster (40/30)"},
+  {id:20,group:"WOD",      type:"time",   name:"30 SNATCH",      detail:"60 / 40 kg"},
+  {id:21,group:"WOD",      type:"time",   name:"30 CLEAN & JERK",detail:"60 / 40 kg"},
+  {id:22,group:"WOD",      type:"time",   name:"21-15-9 DL",     detail:"DL (100/75) + HSPU"}
 ];
 
 const PIN = "1234";
@@ -351,8 +351,8 @@ let S = {
   timeVal:{min:"",sec:""},
   // WOD manager
   showWodForm:false,
-  wodFormVal:{name:"",detail:""},
-  editingWod:null,  // {id,name,detail}
+  wodFormVal:{name:"",detail:"",group:"WOD",type:"time"},
+  editingWod:null,  // {id,name,detail,group,type}
   // avatar picker
   avatarModal:false,  // memberId being picked for
   // new member register
@@ -369,10 +369,10 @@ onValue(ref(db,"wods"), snap => {
   const raw = snap.val();
   if (raw) {
     WODS = Object.entries(raw)
-      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD"}))
+      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time"}))
       .sort((a,b) => a.id - b.id);
   } else {
-    DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD"}));
+    DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD", type:w.type||"time"}));
   }
   render();
 });
@@ -737,15 +737,7 @@ function renderCoach() {
           ${ico.plus} WOD 추가
         </button>
       </div>
-      ${S.showWodForm ? `
-      <div class="wod-add-form">
-        <input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: 30 CLEAN &amp; JERK)" value="${S.wodFormVal.name}"/>
-        <input class="wod-input" id="wod-inp-detail" placeholder="세부사항 (예: 60/35 kg) 선택사항" value="${S.wodFormVal.detail}"/>
-        <div style="display:flex;gap:7px">
-          <button class="btn-cancel" id="btn-wod-add-cancel">취소</button>
-          <button class="btn-save" id="btn-wod-add-save">추가</button>
-        </div>
-      </div>` : ""}
+      ${S.showWodForm ? renderWodAddForm() : ""}
       ${WODS.map((wod,idx) => `
       <div class="wod-manager-row">
         <div class="wod-manager-num">${wod.id}</div>
@@ -840,6 +832,62 @@ function renderCoach() {
   </div>`;
 }
 
+/* ── WOD Edit Chips (group + type, for edit overlay) ── */
+function renderWodEditChips(wod) {
+  if (!wod) return "";
+  const groups = ["STRENGTH","CARDIO","WOD"];
+  const types  = [{key:"time",label:"⏱ 시간"},{key:"weight",label:"🏋️ 무게"},{key:"rounds",label:"🔄 라운드"},{key:"reps",label:"🔢 횟수"}];
+  const g = wod.group || "WOD";
+  const t = wod.type  || "time";
+  const gChips = groups.map(function(v){
+    const a=g===v;
+    return '<button data-wod-group="'+v+'" style="flex:1;height:32px;border-radius:8px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:11px;font-weight:700;cursor:pointer">'+v+'</button>';
+  }).join("");
+  const tChips = types.map(function(v){
+    const a=t===v.key;
+    return '<button data-wod-type="'+v.key+'" style="flex:1;height:32px;border-radius:8px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
+  }).join("");
+  return '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:5px">그룹</div>'
+    +'<div style="display:flex;gap:5px;margin-bottom:8px">'+gChips+'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:5px">측정 방식</div>'
+    +'<div style="display:flex;gap:5px;margin-bottom:8px">'+tChips+'</div>';
+}
+
+/* ── WOD Add Form (separate fn to avoid nested template literal issues) ── */
+function renderWodAddForm() {
+  const groups = ["STRENGTH","CARDIO","WOD"];
+  const types  = [
+    {key:"time",   label:"⏱ 시간"},
+    {key:"weight", label:"🏋️ 무게"},
+    {key:"rounds", label:"🔄 라운드"},
+    {key:"reps",   label:"🔢 횟수"},
+  ];
+  const g = S.wodFormVal.group || "WOD";
+  const t = S.wodFormVal.type  || "time";
+
+  const groupChips = groups.map(function(v) {
+    const active = g === v;
+    return '<button data-wod-form-group="' + v + '" style="flex:1;height:32px;border-radius:8px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:11px;font-weight:700;cursor:pointer">' + v + '</button>';
+  }).join("");
+
+  const typeChips = types.map(function(v) {
+    const active = t === v.key;
+    return '<button data-wod-form-type="' + v.key + '" style="flex:1;height:32px;border-radius:8px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">' + v.label + '</button>';
+  }).join("");
+
+  return '<div class="wod-add-form">'
+    + '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
+    + '<div style="display:flex;gap:5px;margin-bottom:10px">' + groupChips + '</div>'
+    + '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
+    + '<div style="display:flex;gap:5px;margin-bottom:10px">' + typeChips + '</div>'
+    + '<input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: BSQ 5RM)" value="' + (S.wodFormVal.name||"") + '"/>'
+    + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 선택사항" value="' + (S.wodFormVal.detail||"") + '"/>'
+    + '<div style="display:flex;gap:7px">'
+    + '<button class="btn-cancel" id="btn-wod-add-cancel">취소</button>'
+    + '<button class="btn-save" id="btn-wod-add-save">추가</button>'
+    + '</div></div>';
+}
+
 /* ── WOD list with group headers ── */
 function renderWodListWithGroups(wods, member, showDel) {
   const GROUP_ORDER = ["STRENGTH","CARDIO","WOD"];
@@ -863,16 +911,33 @@ function renderWodListWithGroups(wods, member, showDel) {
 function wodRowHtml(wod,rec,isEd,memberId,showDel) {
   let body="";
   if (isEd) {
-    body=`<div class="edit-area">
-      <div class="time-input-row">
-        <div class="time-field-wrap"><input class="time-field" id="inp-min" type="number" min="0" max="99" placeholder="0" value="${S.timeVal.min}" inputmode="numeric"/><span class="time-field-label">분</span></div>
-        <span class="time-sep">:</span>
-        <div class="time-field-wrap"><input class="time-field" id="inp-sec" type="number" min="0" max="59" placeholder="00" value="${S.timeVal.sec}" inputmode="numeric"/><span class="time-field-label">초</span></div>
-      </div>
+    const wtype = wod.type || "time";
+    let inputHtml = "";
+    if (wtype === "time") {
+      inputHtml = '<div class="time-input-row">'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-min" type="number" min="0" max="99" placeholder="0" value="' + S.timeVal.min + '" inputmode="numeric"/><span class="time-field-label">분</span></div>'
+        + '<span class="time-sep">:</span>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-sec" type="number" min="0" max="59" placeholder="00" value="' + S.timeVal.sec + '" inputmode="numeric"/><span class="time-field-label">초</span></div>'
+        + '</div>';
+    } else if (wtype === "weight") {
+      inputHtml = '<div class="time-input-row">'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-weight" type="number" min="0" max="999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="decimal"/><span class="time-field-label">kg</span></div>'
+        + '</div>';
+    } else if (wtype === "rounds") {
+      inputHtml = '<div class="time-input-row">'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-rounds" type="number" min="0" max="999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="numeric"/><span class="time-field-label">라운드 + 렙</span></div>'
+        + '</div>';
+    } else {
+      inputHtml = '<div class="time-input-row">'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="number" min="0" max="9999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="numeric"/><span class="time-field-label">횟수</span></div>'
+        + '</div>';
+    }
+    body = `<div class="edit-area">
+      ${inputHtml}
       <input class="edit-sub" id="inp-escale" placeholder="스케일 (선택 · RX, Scaled 등)" value="${S.editVal.scale}" style="margin-top:4px"/>
       <div class="edit-btns" style="margin-top:2px">
         <button class="btn-cancel" id="btn-edit-cancel">취소</button>
-        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}">저장</button>
+        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}">저장</button>
       </div></div>`;
   } else if (rec) {
     body=`<div class="rec-row">
@@ -1025,16 +1090,24 @@ function bind() {
   on("inp-min","input",e=>{S.timeVal.min=e.target.value;});
   on("inp-sec","input",e=>{S.timeVal.sec=e.target.value;});
   on("inp-escale","input",e=>{S.editVal.scale=e.target.value;});
-  on("inp-sec","keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid));}});
-  qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid))));
+  on("inp-sec",    "keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid),btn.dataset.wtype);}});
+  on("inp-weight", "keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid),btn.dataset.wtype);}});
+  on("inp-rounds", "keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid),btn.dataset.wtype);}});
+  on("inp-reps",   "keydown",e=>{if(e.key==="Enter"){const btn=document.querySelector("[data-save]");if(btn)doSaveRecord(btn.dataset.save,parseInt(btn.dataset.wid),btn.dataset.wtype);}});
+  on("inp-weight", "input",e=>{S.editVal.value=e.target.value;});
+  on("inp-rounds", "input",e=>{S.editVal.value=e.target.value;});
+  on("inp-reps",   "input",e=>{S.editVal.value=e.target.value;});
+  qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid),el.dataset.wtype)));
   qa("[data-drec]",el=>el.addEventListener("click",()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
 
   /* WOD manager */
-  on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:""};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
+  on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time"};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
   on("wod-inp-name","input",e=>{S.wodFormVal.name=e.target.value;});
   on("wod-inp-detail","input",e=>{S.wodFormVal.detail=e.target.value;});
   on("btn-wod-add-cancel","click",()=>{S.showWodForm=false;render();});
   on("btn-wod-add-save","click",doAddWod);
+  qa("[data-wod-form-group]",el=>el.addEventListener("click",()=>{S.wodFormVal={...S.wodFormVal,group:el.dataset.wodFormGroup};render();setTimeout(()=>g("wod-inp-name")?.focus(),0);}));
+  qa("[data-wod-form-type]",el=>el.addEventListener("click",()=>{S.wodFormVal={...S.wodFormVal,type:el.dataset.wodFormType};render();setTimeout(()=>g("wod-inp-name")?.focus(),0);}));
   qa("[data-wod-edit]",el=>el.addEventListener("click",()=>{
     const wod=WODS.find(w=>w.id===parseInt(el.dataset.wodEdit));
     if(wod){S.editingWod={...wod};render();setTimeout(()=>g("wod-edit-name")?.focus(),50);}
@@ -1047,6 +1120,10 @@ function bind() {
   qa("[data-wod-group]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
     if(S.editingWod) { S.editingWod={...S.editingWod,group:el.dataset.wodGroup}; render(); }
+  }));
+  qa("[data-wod-type]",el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    if(S.editingWod) { S.editingWod={...S.editingWod,type:el.dataset.wodType}; render(); }
   }));
   qa("[data-wod-del]",el=>el.addEventListener("click",()=>doDeleteWod(parseInt(el.dataset.wodDel))));
 
@@ -1067,15 +1144,33 @@ function doLogin() {
   else{S.pinErr=true;render();setTimeout(()=>document.getElementById("inp-pin")?.focus(),50);}
 }
 
-function doSaveRecord(mid,wid) {
-  const min=parseInt(document.getElementById("inp-min")?.value??S.timeVal.min)||0;
-  const sec=parseInt(document.getElementById("inp-sec")?.value??S.timeVal.sec)||0;
+function doSaveRecord(mid,wid,wtype) {
   const scale=(document.getElementById("inp-escale")?.value??S.editVal.scale).trim();
-  if(min===0&&sec===0)return;
-  const value=`${min}'${String(sec).padStart(2,"0")}"`;
+  const wod=WODS.find(w=>w.id===wid);
+  const t = wtype || wod?.type || "time";
+  let value = "";
+
+  if (t === "time") {
+    const min=parseInt(document.getElementById("inp-min")?.value??S.timeVal.min)||0;
+    const sec=parseInt(document.getElementById("inp-sec")?.value??S.timeVal.sec)||0;
+    if(min===0&&sec===0)return;
+    value=`${min}'${String(sec).padStart(2,"0")}"`;
+  } else if (t === "weight") {
+    const w=document.getElementById("inp-weight")?.value||S.editVal.value;
+    if(!w||parseFloat(w)===0)return;
+    value=`${parseFloat(w)}kg`;
+  } else if (t === "rounds") {
+    const r=document.getElementById("inp-rounds")?.value||S.editVal.value;
+    if(!r)return;
+    value=`${r}R`;
+  } else {
+    const r=document.getElementById("inp-reps")?.value||S.editVal.value;
+    if(!r)return;
+    value=`${r}회`;
+  }
+
   S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};render();
   fbSet(`members/${mid}/records/${wid}`,{value,scale,date:today()});
-  const wod=WODS.find(w=>w.id===wid);
   showToast(`${wod?.name??"WOD"} 기록 저장 완료!`);
 }
 
@@ -1133,7 +1228,9 @@ function doAddWod() {
   if(!name)return;
   const maxId=WODS.length>0?Math.max(...WODS.map(w=>w.id)):0;
   const newId=maxId+1;
-  fbSet(`wods/${newId}`,{name,detail,group:"WOD"});
+  const group = S.wodFormVal.group || "WOD";
+  const type  = S.wodFormVal.type  || "time";
+  fbSet(`wods/${newId}`,{name,detail,group,type});
   S.showWodForm=false;S.wodFormVal={name:"",detail:""};
   showToast(`WOD ${newId} 추가됐어요!`);
 }
@@ -1143,7 +1240,8 @@ function doEditWod() {
   const detail=(document.getElementById("wod-edit-detail")?.value||S.editingWod?.detail||"").trim();
   const group=S.editingWod?.group||"WOD";
   if(!name||!S.editingWod)return;
-  fbSet(`wods/${S.editingWod.id}`,{name,detail,group});
+  const type = S.editingWod?.type || "time";
+  fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type});
   S.editingWod=null;showToast("WOD가 수정됐어요!");
 }
 
