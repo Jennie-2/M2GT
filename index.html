@@ -420,6 +420,14 @@ function render() {
   bind();
 }
 
+/* ── Register avatar grid (separate fn to avoid nested template literals) ── */
+function renderRegisterAvatarGrid() {
+  return AVATARS.map(function(src, i) {
+    var border = S.registerAvatar === i ? "#3182F6" : "transparent";
+    return '<button data-reg-avatar="' + i + '" style="position:relative;width:100%;aspect-ratio:1;border:3px solid ' + border + ';border-radius:14px;padding:0;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="' + src + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
+  }).join("");
+}
+
 /* ── LOGIN ── */
 function renderLogin() {
   const fil    = members.filter(m => m.name.includes(S.search));
@@ -544,14 +552,7 @@ function renderLogin() {
         </div>
         <div style="overflow-y:auto;max-height:340px">
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-            ${AVATARS.map((src,i) => `
-              <button data-reg-avatar="${i}" style="
-                position:relative;width:100%;aspect-ratio:1;
-                border:3px solid ${S.registerAvatar===i?"#3182F6":"transparent"};
-                border-radius:14px;padding:0;cursor:pointer;overflow:hidden;
-                background:#F2F4F6;box-sizing:border-box">
-                <img src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/>
-              </button>`).join("")}
+            ${renderRegisterAvatarGrid()}
           </div>
         </div>
         <button class="modal-btn-save" id="btn-register-save" style="width:100%;height:48px;margin-top:14px;border-radius:12px">
