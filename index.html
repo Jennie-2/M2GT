@@ -409,10 +409,28 @@ const av = (name,size=38,active=false,avatarIdx=null) => {
   return `<div class="avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size*.38)}px;background:${active?"#3182F6":"#EBF3FE"};color:${active?"#fff":"#3182F6"}">${name[0]}</div>`;
 };
 
-const lb = (wid) => members
-  .filter(m => m.records[wid]?.value)
-  .map(m => ({name:m.name,...m.records[wid]}))
-  .sort((a,b) => a.value.localeCompare(b.value));
+function parseRecordVal(value, type) {
+  if (!value) return -Infinity;
+  if (type === "time") {
+    const m = value.match(/(\d+)'(\d+)/);
+    return m ? parseInt(m[1])*60 + parseInt(m[2]) : Infinity;
+  }
+  return parseFloat(value) || 0;
+}
+
+const lb = (wid) => {
+  const wod = WODS.find(w => w.id === wid);
+  const type = wod?.type || "time";
+  return members
+    .filter(m => m.records[wid]?.value)
+    .map(m => ({name:m.name, ...m.records[wid]}))
+    .sort((a, b) => {
+      const va = parseRecordVal(a.value, type);
+      const vb = parseRecordVal(b.value, type);
+      if (type === "time") return va - vb;  // 시간: 낮을수록 1등
+      return vb - va;                        // 무게/라운드/횟수: 높을수록 1등
+    });
+};
 
 /* ── localStorage 최근 방문자 ── */
 const LS_LAST = "mt_last_member";
@@ -600,23 +618,26 @@ function renderRank() {
     </div>
     <div class="rank-page-body">
       ${WODS.map(wod => {
-        const first = lb(wod.id)[0]||null;
+        const board = lb(wod.id);
+        const medals = ["🥇","🥈","🥉"];
+        const top3 = board.slice(0,3);
         return `<div class="rank-row-card">
           <div class="rank-row-wod-info">
             <span class="rank-row-wod-num">WOD ${wod.id}</span>
             <span class="rank-row-wod-name">${wod.name}</span>
             ${wod.detail?`<span class="rank-row-wod-detail">${wod.detail}</span>`:""}
           </div>
-          ${first
-            ? `<div class="rank-row-result">
-                <span style="font-size:26px;flex-shrink:0">🥇</span>
+          ${top3.length === 0
+            ? `<div class="rank-row-empty-box">기록 없음</div>`
+            : top3.map((r,i) => `
+              <div class="rank-row-result" style="${i>0?"border-top:1px solid #F2F4F6":""}">
+                <span style="font-size:${i===0?"26px":"20px"};flex-shrink:0;width:32px;text-align:center">${medals[i]}</span>
                 <div class="rank-first-info">
-                  <span class="rank-first-name">${first.name}</span>
-                  <span class="rank-first-val">${first.value}</span>
+                  <span class="rank-first-name">${r.name}</span>
+                  <span class="rank-first-val" style="font-size:${i===0?"22px":"17px"}">${r.value}</span>
                 </div>
-                ${first.scale?`<span class="pill-blue" style="margin-left:auto">${first.scale}</span>`:""}
-              </div>`
-            : `<div class="rank-row-empty-box">기록 없음</div>`
+                ${r.scale?`<span class="pill-blue">${r.scale}</span>`:""}
+              </div>`).join("")
           }
         </div>`;
       }).join("")}
@@ -757,7 +778,8 @@ function renderCoach() {
   const wodEditOverlay = S.editingWod ? `
   <div class="wod-edit-overlay" id="wod-edit-overlay">
     <div class="wod-edit-box" onclick="event.stopPropagation()">
-      <div class="modal-title">WOD ${S.editingWod.id} 수정</div>
+      <div class="modal-title" style="margin-bottom:4px">WOD ${S.editingWod.id} 수정</div>
+      ${renderWodEditChips(S.editingWod)}
       <input class="wod-input" id="wod-edit-name" placeholder="WOD 이름" value="${S.editingWod.name}"/>
       <input class="wod-input" id="wod-edit-detail" placeholder="세부사항 (선택)" value="${S.editingWod.detail||""}"/>
       <div style="display:flex;gap:8px">
@@ -915,21 +937,24 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel) {
     let inputHtml = "";
     if (wtype === "time") {
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap"><input class="time-field" id="inp-min" type="number" min="0" max="99" placeholder="0" value="' + S.timeVal.min + '" inputmode="numeric"/><span class="time-field-label">분</span></div>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-min" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + S.timeVal.min + '" inputmode="numeric"/><span class="time-field-label">분</span></div>'
         + '<span class="time-sep">:</span>'
-        + '<div class="time-field-wrap"><input class="time-field" id="inp-sec" type="number" min="0" max="59" placeholder="00" value="' + S.timeVal.sec + '" inputmode="numeric"/><span class="time-field-label">초</span></div>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-sec" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="00" value="' + S.timeVal.sec + '" inputmode="numeric"/><span class="time-field-label">초</span></div>'
         + '</div>';
     } else if (wtype === "weight") {
+      const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-weight" type="number" min="0" max="999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="decimal"/><span class="time-field-label">kg</span></div>'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-weight" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="' + prev + '" inputmode="decimal"/><span class="time-field-label">kg</span></div>'
         + '</div>';
     } else if (wtype === "rounds") {
+      const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-rounds" type="number" min="0" max="999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="numeric"/><span class="time-field-label">라운드 + 렙</span></div>'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">라운드 + 렙</span></div>'
         + '</div>';
     } else {
+      const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="number" min="0" max="9999" placeholder="0" value="' + (S.editVal.value||"") + '" inputmode="numeric"/><span class="time-field-label">횟수</span></div>'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">횟수</span></div>'
         + '</div>';
     }
     body = `<div class="edit-area">
@@ -944,7 +969,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel) {
       <span class="rec-val">${rec.value}</span>
       ${rec.scale?`<span class="rec-scale">${rec.scale}</span>`:""}
       <span class="rec-date">${rec.date}</span>
-      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}">${ico.edit}</button>
+      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1">${ico.edit} 수정</button>
       ${showDel?`<button class="icon-btn" data-drec="${memberId}" data-dwid="${wod.id}">${ico.trash}</button>`:""}
     </div>`;
   } else {
@@ -1081,11 +1106,18 @@ function bind() {
   qa("[data-oedit]",el=>el.addEventListener("click",()=>{
     const mid=el.dataset.oedit,wid=parseInt(el.dataset.owid);
     const m=members.find(x=>x.id===mid); const r=m?.records[wid]||{};
-    S.editing={memberId:mid,wodId:wid}; S.editVal={scale:r.scale||""};
-    const match=r.value?.match(/^(\d+)'(\d+)/);
-    S.timeVal=match?{min:match[1],sec:match[2]}:{min:"",sec:""};
-    render();setTimeout(()=>g("inp-min")?.focus(),50);
-  }));
+    const wod=WODS.find(w=>w.id===wid);
+    const wtype=wod?.type||"time";
+    S.editing={memberId:mid,wodId:wid};
+    S.editVal={scale:r.scale||"",value:r.value||""};
+    if(wtype==="time"){
+      const match=r.value?.match(/(\d+)'(\d+)/);
+      S.timeVal=match?{min:match[1],sec:match[2]}:{min:"",sec:""};
+    } else {
+      S.timeVal={min:"",sec:""};
+    }
+    render();
+    setTimeout(()=>{(g("inp-min")||g("inp-weight")||g("inp-rounds")||g("inp-reps"))?.focus();},50); }));
   on("btn-edit-cancel","click",()=>{S.editing=null;render();});
   on("inp-min","input",e=>{S.timeVal.min=e.target.value;});
   on("inp-sec","input",e=>{S.timeVal.sec=e.target.value;});
@@ -1145,7 +1177,7 @@ function doLogin() {
 }
 
 function doSaveRecord(mid,wid,wtype) {
-  const scale=(document.getElementById("inp-escale")?.value??S.editVal.scale).trim();
+  const scaleEl=document.getElementById("inp-escale"); const scale=(scaleEl?scaleEl.value:S.editVal.scale).trim();
   const wod=WODS.find(w=>w.id===wid);
   const t = wtype || wod?.type || "time";
   let value = "";
