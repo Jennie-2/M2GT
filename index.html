@@ -90,12 +90,7 @@ input,textarea{font-family:inherit}
 .action-card-title{font-size:14px;font-weight:800;color:#1A1A2E;margin-bottom:4px}
 .action-card-sub{font-size:12px;color:#8B95A1;line-height:1.4}
 
-/* MVP 카드 */
-.mvp-card{background:linear-gradient(135deg,#1A1A2E 0%,#2D3561 100%) !important;border-radius:20px;padding:18px 16px}
-.mvp-crown{font-size:26px;margin-bottom:6px}
-.mvp-name{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.4px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mvp-count{font-size:12px;color:rgba(255,255,255,.6);line-height:1.4}
-.mvp-count strong{color:#FEE500;font-weight:800}
+
 
 /* Avatar picker */
 [data-pick-avatar]:active{transform:scale(.92);transition:transform .1s}
@@ -502,10 +497,11 @@ function renderLogin() {
           <div class="action-card-sub">아직 기록이 없어요</div>
         </div>`;
 
-        return `<div class="action-card mvp-card" style="cursor:default">
-          <div class="mvp-crown">👑</div>
-          <div class="mvp-name">${mvp.name}</div>
-          <div class="mvp-count">이번 주 <strong>${mvp.count}개</strong> 기록</div>
+        return `<div class="action-card" style="cursor:default;position:relative;overflow:hidden">
+          <div style="position:absolute;top:10px;right:12px;background:#EBF3FE;color:#3182F6;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.3px">MVP</div>
+          <div style="font-size:26px;margin-bottom:8px">👑</div>
+          <div style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px;letter-spacing:-.3px">${mvp.name}</div>
+          <div style="font-size:12px;color:#8B95A1">이번 주 <strong style="color:#3182F6;font-weight:700">${mvp.count}개</strong> 기록</div>
         </div>`;
       })()}
     </div>
@@ -611,26 +607,24 @@ function renderMember() {
   // avatar modal
   const avatarModalHtml = S.avatarModal===m.id ? `
   <div class="modal-overlay" id="mo-avatar">
-    <div class="modal-box" onclick="event.stopPropagation()" style="padding:20px 16px 16px;width:calc(100% - 40px);max-width:340px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:20px 16px 16px;width:calc(100% - 40px);max-width:320px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="modal-title">캐릭터 선택</div>
-        ${m.avatar!=null?`<button class="btn-cancel" id="btn-avatar-reset" style="height:32px;padding:0 12px;font-size:12px;color:#F04452;border-radius:8px">초기화</button>`:""}
+        ${m.avatar!=null?`<button id="btn-avatar-reset" style="background:none;border:none;font-size:13px;font-weight:600;color:#F04452;cursor:pointer;padding:4px 0">초기화</button>`:""}
       </div>
-      <div style="overflow-y:auto;max-height:360px">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      <div style="overflow-y:auto;max-height:380px;margin:0 -2px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px">
           ${AVATARS.map((src,i) => `
             <button data-pick-avatar="${i}" style="
-              aspect-ratio:1;width:100%;
-              background:${m.avatar===i?"#EBF3FE":"#F2F4F6"};
-              border:2.5px solid ${m.avatar===i?"#3182F6":"transparent"};
-              border-radius:14px;padding:8px;cursor:pointer;
-              display:flex;align-items:center;justify-content:center;
-              box-sizing:border-box;flex-shrink:0">
-              <img src="${src}" style="width:100%;height:100%;object-fit:contain;display:block"/>
+              position:relative;width:100%;aspect-ratio:1;
+              border:3px solid ${m.avatar===i?"#3182F6":"transparent"};
+              border-radius:14px;padding:0;cursor:pointer;overflow:hidden;
+              background:#F2F4F6;box-sizing:border-box">
+              <img src="${src}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/>
             </button>`).join("")}
         </div>
       </div>
-      <button class="btn-cancel" id="btn-avatar-cancel" style="width:100%;height:44px;margin-top:12px">취소</button>
+      <button class="btn-cancel" id="btn-avatar-cancel" style="width:100%;height:44px;margin-top:12px;border-radius:12px">취소</button>
     </div>
   </div>` : "";
 
