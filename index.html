@@ -349,6 +349,10 @@ let S = {
   editingWod:null,  // {id,name,detail}
   // avatar picker
   avatarModal:false,  // memberId being picked for
+  // new member register
+  registerModal:false,
+  registerName:"",
+  registerErr:"",
 };
 
 /* ── Firebase sync ── */
@@ -402,6 +406,12 @@ const lb = (wid) => members
   .filter(m => m.records[wid]?.value)
   .map(m => ({name:m.name,...m.records[wid]}))
   .sort((a,b) => a.value.localeCompare(b.value));
+
+/* ── localStorage 최근 방문자 ── */
+const LS_LAST = "mt_last_member";
+function saveLastMember(id) { try { localStorage.setItem(LS_LAST, id); } catch {} }
+function loadLastMember() { try { return localStorage.getItem(LS_LAST); } catch { return null; } }
+function clearLastMember() { try { localStorage.removeItem(LS_LAST); } catch {} }
 
 /* ══ RENDER ══ */
 function render() {
@@ -499,8 +509,34 @@ function renderLogin() {
         </div>`;
       })()}
     </div>
+    <!-- 새 회원 등록 버튼 — 재방문자면 숨김 -->
+    ${(() => {
+      const lastId = loadLastMember();
+      const isReturning = lastId && members.some(m => m.id === lastId);
+      if (isReturning) return "";
+      return `<div style="padding:12px 20px 0">
+        <button id="btn-show-register" style="width:100%;height:48px;background:#fff;border:1.5px dashed #E8EBED;border-radius:16px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          처음 오셨나요? 이름 등록하기
+        </button>
+      </div>`;
+    })()}
+
     <div style="height:32px"></div>
   </div>
+  ${S.registerModal ? `
+  <div class="modal-overlay" id="mo-register">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-title">이름 등록</div>
+      <div style="font-size:14px;color:#8B95A1;margin-bottom:4px">처음 오셨군요! 이름을 입력해주세요</div>
+      <input class="modal-input" id="inp-register-name" placeholder="이름 입력" value="${S.registerName}" autocomplete="off"/>
+      ${S.registerErr ? `<div class="err-msg" style="text-align:left">${S.registerErr}</div>` : ""}
+      <div class="modal-btns">
+        <button class="modal-btn-cancel" id="btn-register-cancel">취소</button>
+        <button class="modal-btn-save" id="btn-register-save">등록하기</button>
+      </div>
+    </div>
+  </div>` : ""}
   ${S.pinModal ? `<div class="pin-modal-overlay" id="pin-overlay">
     <div class="pin-modal-box" onclick="event.stopPropagation()">
       <div class="pin-modal-title">코치 로그인</div>
@@ -575,17 +611,21 @@ function renderMember() {
   // avatar modal
   const avatarModalHtml = S.avatarModal===m.id ? `
   <div class="modal-overlay" id="mo-avatar">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:360px">
-      <div class="modal-title">캐릭터 선택</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:4px 0">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:340px;padding:24px 20px 20px">
+      <div class="modal-title" style="margin-bottom:16px">캐릭터 선택</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">
         ${AVATARS.map((src,i) => `
-          <button data-pick-avatar="${i}" style="background:${m.avatar===i?"#EBF3FE":"#F2F4F6"};border:2px solid ${m.avatar===i?"#3182F6":"transparent"};border-radius:12px;padding:6px;cursor:pointer;aspect-ratio:1">
-            <img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:8px"/>
+          <button data-pick-avatar="${i}" style="
+            background:${m.avatar===i?"#EBF3FE":"#F2F4F6"};
+            border:2.5px solid ${m.avatar===i?"#3182F6":"transparent"};
+            border-radius:14px;padding:8px;cursor:pointer;
+            width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center">
+            <img src="${src}" style="width:100%;height:100%;object-fit:contain;border-radius:6px"/>
           </button>`).join("")}
       </div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="btn-cancel" id="btn-avatar-cancel">취소</button>
-        ${m.avatar!=null?`<button class="btn-cancel" id="btn-avatar-reset" style="color:#F04452">초기화</button>`:""}
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="btn-cancel" id="btn-avatar-cancel" style="flex:1;height:44px">취소</button>
+        ${m.avatar!=null?`<button class="btn-cancel" id="btn-avatar-reset" style="flex:1;height:44px;color:#F04452">초기화</button>`:""}
       </div>
     </div>
   </div>` : "";
@@ -847,6 +887,12 @@ function bind() {
   }
   on("btn-clear","click",()=>{S.search="";const el=g("inp-search");if(el)el.value="";updateMemberGrid();});
   on("btn-rank","click",()=>{S.view="rank";render();});
+  on("btn-show-register","click",()=>{S.registerModal=true;S.registerName="";S.registerErr="";render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
+  on("btn-register-cancel","click",()=>{S.registerModal=false;render();});
+  document.getElementById("mo-register")?.addEventListener("click",()=>{S.registerModal=false;render();});
+  on("inp-register-name","input",e=>{S.registerName=e.target.value;S.registerErr="";});
+  on("inp-register-name","keydown",e=>{if(e.key==="Enter")doRegisterMember();});
+  on("btn-register-save","click",doRegisterMember);
   on("btn-open-pin","click",()=>{S.pinModal=true;S.pin="";S.pinErr=false;render();setTimeout(()=>g("inp-pin")?.focus(),60);});
   on("pin-overlay","click",()=>{S.pinModal=false;S.pin="";S.pinErr=false;render();});
   on("inp-pin","input",e=>{S.pin=e.target.value;S.pinErr=false;});
@@ -979,6 +1025,28 @@ function doAddMember() {
   if(!name)return;
   fbPush("members",{name,records:{}});
   S.addingMember=false;S.newName="";
+}
+
+function doRegisterMember() {
+  const name=(document.getElementById("inp-register-name")?.value||S.registerName).trim();
+  if(!name){S.registerErr="이름을 입력해주세요";render();return;}
+  // 중복 체크
+  const dup = members.find(m=>m.name===name);
+  if(dup){
+    // 이미 등록된 회원이면 바로 입장
+    S.registerModal=false;S.registerName="";S.registerErr="";
+    S.activeMemberId=dup.id;S.memberTab="my";S.view="member";
+    saveLastMember(dup.id);
+    render();return;
+  }
+  // 신규 등록
+  fbPush("members",{name,records:{}}).then(ref=>{
+    S.registerModal=false;S.registerName="";S.registerErr="";
+    S.activeMemberId=ref.key;S.memberTab="my";S.view="member";
+    saveLastMember(ref.key);
+    render();
+    showToast(`${name}님 환영해요! 🎉`);
+  });
 }
 
 function doRename() {
