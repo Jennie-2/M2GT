@@ -801,6 +801,7 @@ function renderCoach() {
       ${renderWodEditChips(S.editingWod)}
       <input class="wod-input" id="wod-edit-name" placeholder="WOD 이름" value="${S.editingWod.name}"/>
       <input class="wod-input" id="wod-edit-detail" placeholder="세부사항 (선택)" value="${S.editingWod.detail||""}"/>
+      <input class="wod-input" id="wod-edit-youtube" placeholder="유튜브 링크 (선택)" value="${S.editingWod.youtube||""}"/>
       <div style="display:flex;gap:8px">
         <button class="btn-cancel" id="btn-wod-edit-cancel">취소</button>
         <button class="btn-save" id="btn-wod-edit-save">저장</button>
@@ -1171,7 +1172,8 @@ function bind() {
   on("btn-wod-edit-cancel","click",()=>{S.editingWod=null;render();});
   on("btn-wod-edit-save","click",doEditWod);
   on("wod-edit-name","keydown",e=>{if(e.key==="Enter")g("wod-edit-detail")?.focus();});
-  on("wod-edit-detail","keydown",e=>{if(e.key==="Enter")doEditWod();});
+  on("wod-edit-detail","keydown",e=>{if(e.key==="Enter")g("wod-edit-youtube")?.focus();});
+  on("wod-edit-youtube","keydown",e=>{if(e.key==="Enter")doEditWod();});
   g("wod-edit-overlay")?.addEventListener("click",()=>{S.editingWod=null;render();});
   qa("[data-wod-group]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
