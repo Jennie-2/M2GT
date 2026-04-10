@@ -351,7 +351,7 @@ let S = {
   timeVal:{min:"",sec:""},
   // WOD manager
   showWodForm:false,
-  wodFormVal:{name:"",detail:"",group:"WOD",type:"time"},
+  wodFormVal:{name:"",detail:"",group:"WOD",type:"time",youtube:""},
   editingWod:null,  // {id,name,detail,group,type}
   // avatar picker
   avatarModal:false,  // memberId being picked for
@@ -369,10 +369,10 @@ onValue(ref(db,"wods"), snap => {
   const raw = snap.val();
   if (raw) {
     WODS = Object.entries(raw)
-      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time"}))
+      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time", youtube:v.youtube||""}))
       .sort((a,b) => a.id - b.id);
   } else {
-    DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD", type:w.type||"time"}));
+    DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD", type:w.type||"time", youtube:""}));
   }
   render();
 });
@@ -437,6 +437,25 @@ const LS_LAST = "mt_last_member";
 function saveLastMember(id) { try { localStorage.setItem(LS_LAST, id); } catch {} }
 function loadLastMember() { try { return localStorage.getItem(LS_LAST); } catch { return null; } }
 function clearLastMember() { try { localStorage.removeItem(LS_LAST); } catch {} }
+
+/* ── YOUTUBE ── */
+function getYoutubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function renderYoutubeCard(url) {
+  const id = getYoutubeId(url);
+  if (!id) return "";
+  const thumb = "https://img.youtube.com/vi/"+id+"/mqdefault.jpg";
+  const link  = "https://youtu.be/"+id;
+  return '<a href="'+link+'" target="_blank" rel="noopener" style="display:block;margin-top:10px;border-radius:12px;overflow:hidden;text-decoration:none;position:relative">'
+    +'<img src="'+thumb+'" style="width:100%;display:block;border-radius:12px"/>'
+    +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'
+    +'<div style="width:44px;height:44px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center">'
+    +'<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg>'
+    +'</div></div></a>';
+}
 
 /* ══ RENDER ══ */
 function render() {
@@ -904,6 +923,7 @@ function renderWodAddForm() {
     + '<div style="display:flex;gap:5px;margin-bottom:10px">' + typeChips + '</div>'
     + '<input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: BSQ 5RM)" value="' + (S.wodFormVal.name||"") + '"/>'
     + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 선택사항" value="' + (S.wodFormVal.detail||"") + '"/>'
+    + '<input class="wod-input" id="wod-inp-youtube" placeholder="유튜브 링크 (선택)" value="' + (S.wodFormVal.youtube||"") + '"/>'
     + '<div style="display:flex;gap:7px">'
     + '<button class="btn-cancel" id="btn-wod-add-cancel">취소</button>'
     + '<button class="btn-save" id="btn-wod-add-save">추가</button>'
@@ -980,6 +1000,9 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel) {
     <div class="wod-content">
       <div class="wod-name">${wod.name}</div>
       ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""}
+      ${wod.youtube
+        ? renderYoutubeCard(wod.youtube)
+        : `<p style="font-size:12px;color:#B0B8C1;margin-top:8px;line-height:1.6">아직 설명 영상이 업로드되지 않았습니다. 코치에게 문의해주시면 친절하게 설명해드리겠습니다! 😊</p>`}
       ${body}
     </div></div>`;
 }
@@ -1136,6 +1159,7 @@ function bind() {
   on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time"};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
   on("wod-inp-name","input",e=>{S.wodFormVal.name=e.target.value;});
   on("wod-inp-detail","input",e=>{S.wodFormVal.detail=e.target.value;});
+  on("wod-inp-youtube","input",e=>{S.wodFormVal.youtube=e.target.value;});
   on("btn-wod-add-cancel","click",()=>{S.showWodForm=false;render();});
   on("btn-wod-add-save","click",doAddWod);
   qa("[data-wod-form-group]",el=>el.addEventListener("click",()=>{S.wodFormVal={...S.wodFormVal,group:el.dataset.wodFormGroup};render();setTimeout(()=>g("wod-inp-name")?.focus(),0);}));
@@ -1258,11 +1282,12 @@ function doAddWod() {
   const name=(document.getElementById("wod-inp-name")?.value||S.wodFormVal.name).trim();
   const detail=(document.getElementById("wod-inp-detail")?.value||S.wodFormVal.detail).trim();
   if(!name)return;
+  const youtube=(document.getElementById("wod-inp-youtube")?.value||S.wodFormVal.youtube||"").trim();
   const maxId=WODS.length>0?Math.max(...WODS.map(w=>w.id)):0;
   const newId=maxId+1;
   const group = S.wodFormVal.group || "WOD";
   const type  = S.wodFormVal.type  || "time";
-  fbSet(`wods/${newId}`,{name,detail,group,type});
+  fbSet(`wods/${newId}`,{name,detail,group,type,youtube});
   S.showWodForm=false;S.wodFormVal={name:"",detail:""};
   showToast(`WOD ${newId} 추가됐어요!`);
 }
@@ -1273,7 +1298,8 @@ function doEditWod() {
   const group=S.editingWod?.group||"WOD";
   if(!name||!S.editingWod)return;
   const type = S.editingWod?.type || "time";
-  fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type});
+  const youtube = (document.getElementById("wod-edit-youtube")?.value || S.editingWod?.youtube || "").trim();
+  fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type,youtube});
   S.editingWod=null;showToast("WOD가 수정됐어요!");
 }
 
