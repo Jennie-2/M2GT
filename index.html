@@ -29,17 +29,17 @@ document.currentScript.after(lnk);
 html,body{height:100%}
 body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
   background:#F2F4F6;color:#1A1A2E;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-button{font-family:inherit;cursor:pointer}
+button{font-family:inherit;cursor:pointer;min-height:32px}
 input,textarea{font-family:inherit}
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;
   background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px}
-.nav-back{background:none;border:none;padding:4px;display:flex;align-items:center;border-radius:8px}
-.nav-title{flex:1;font-size:17px;font-weight:700;letter-spacing:-.4px}
+.nav-back{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
+.nav-title{flex:1;font-size:18px;font-weight:800;letter-spacing:-.4px}
 .nav-badge{background:#EBF3FE;color:#3182F6;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700}
 .tab-group{display:flex;gap:2px;background:#F2F4F6;border-radius:10px;padding:3px}
-.tab-btn{border:none;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;color:#8B95A1;background:none;white-space:nowrap}
+.tab-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#8B95A1;background:none;white-space:nowrap;min-height:32px}
 .tab-btn.active{background:#fff;color:#1A1A2E;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
 /* LOGIN PAGE */
@@ -65,7 +65,7 @@ input,textarea{font-family:inherit}
   box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05)}
 .search-wrap{display:flex;align-items:center;gap:10px;background:#F2F4F6;border-radius:12px;padding:0 14px;height:46px}
 .search-wrap input{flex:1;background:none;border:none;outline:none;font-size:15px;color:#1A1A2E}
-.search-clear{background:none;border:none;display:flex;align-items:center}
+.search-clear{background:none;border:none;display:flex;align-items:center;min-width:32px;min-height:32px;justify-content:center}
 .member-container-divider{height:1px;background:#F2F4F6;margin:14px 0 0}
 .member-container-label{font-size:13px;font-weight:700;color:#8B95A1;letter-spacing:.2px;padding:12px 4px 4px}
 .empty-search{font-size:14px;color:#8B95A1;text-align:center;padding:20px 0}
@@ -127,24 +127,25 @@ input,textarea{font-family:inherit}
 /* WOD ROWS */
 .wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:16px}
 .wod-row.done{border-left:3px solid #3182F6}
-.wod-badge{width:28px;height:28px;border-radius:8px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
+.wod-badge{width:30px;height:30px;border-radius:8px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .wod-badge.done{background:#3182F6;color:#fff}
 .wod-content{flex:1}
-.wod-name{font-size:14px;font-weight:700;line-height:1.35}
-.wod-detail{font-size:12px;color:#8B95A1;margin-top:3px}
+.wod-name{font-size:16px;font-weight:800;line-height:1.35;letter-spacing:-.3px}
+.wod-detail{font-size:12px;color:#8B95A1;margin-top:4px}
 .rec-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
-.rec-val{font-size:17px;font-weight:800;letter-spacing:-.4px}
-.rec-scale{font-size:11px;color:#3182F6;background:#EBF3FE;padding:2px 9px;border-radius:99px;font-weight:600}
-.rec-date{font-size:11px;color:#B0B8C1;margin-left:auto}
-.icon-btn{background:none;border:none;padding:4px;display:flex;align-items:center;border-radius:6px}
-.add-rec-btn{margin-top:10px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:600;color:#8B95A1}
+.rec-val{display:block;font-size:18px;font-weight:800;letter-spacing:-.4px;margin-top:8px}
+.rec-meta{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.rec-scale{font-size:12px;color:#3182F6;background:#EBF3FE;padding:2px 9px;border-radius:99px;font-weight:600}
+.rec-date{font-size:12px;color:#B0B8C1}
+.icon-btn{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
+.add-rec-btn{margin-top:10px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:10px;padding:8px 16px;font-size:14px;font-weight:600;color:#8B95A1}
 
 /* TIME INPUT */
 .edit-area{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .time-input-row{display:flex;align-items:center;gap:6px;margin-top:10px}
 .time-field-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
-.time-field{width:100%;height:52px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;
+.time-field{width:100%;height:48px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;
   padding:0;font-size:22px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
 .time-field::-webkit-inner-spin-button,.time-field::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .time-field-label{font-size:11px;font-weight:700;color:#8B95A1;margin-top:4px;letter-spacing:.3px}
@@ -161,21 +162,21 @@ input,textarea{font-family:inherit}
 .sidebar{width:185px;flex-shrink:0;background:#fff;border-right:1px solid #E8EBED;overflow-y:auto;padding:12px 8px}
 .sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 12px}
 .sidebar-count{font-size:12px;color:#8B95A1;font-weight:600}
-.add-member-btn{display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:#fff}
+.add-member-btn{display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px}
 .sidebar-row{display:flex;align-items:center;gap:10px;border-radius:12px;padding:8px;cursor:default;margin-bottom:2px}
 .sidebar-row.active{background:#EBF3FE}
 .sidebar-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .sidebar-name{font-size:14px;font-weight:600;color:#8B95A1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sidebar-name.active{color:#1A1A2E;font-weight:700}
-.sidebar-sub{font-size:11px;color:#B0B8C1}
+.sidebar-sub{font-size:12px;color:#B0B8C1}
 .sidebar-actions{display:flex;gap:2px;flex-shrink:0}
-.sidebar-icon-btn{background:none;border:none;padding:5px;border-radius:6px;display:flex;align-items:center;opacity:.65}
+.sidebar-icon-btn{background:none;border:none;padding:8px;border-radius:8px;display:flex;align-items:center;opacity:.65;min-width:32px;min-height:32px;justify-content:center}
 .add-box{background:#F2F4F6;border-radius:12px;padding:10px 8px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
 .add-input{width:100%;height:38px;background:#fff;border:1.5px solid #E8EBED;border-radius:9px;padding:0 10px;font-size:14px;outline:none;color:#1A1A2E}
 .add-input:focus{border-color:#3182F6}
 .sheet-panel{flex:1;overflow-y:auto;padding:20px;background:#F2F4F6}
 .sheet-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.sheet-name{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.sheet-name{font-size:18px;font-weight:800;letter-spacing:-.5px}
 .sheet-sub{font-size:13px;color:#8B95A1;margin-top:3px}
 .empty-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px}
 .empty-panel-text{font-size:15px;color:#8B95A1}
@@ -183,7 +184,7 @@ input,textarea{font-family:inherit}
 /* LEADERBOARD */
 .lb-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .lb-head{display:flex;align-items:baseline;gap:8px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid #F2F4F6}
-.lb-num{font-size:11px;color:#8B95A1;font-weight:700}
+.lb-num{font-size:12px;color:#8B95A1;font-weight:700}
 .lb-wod-name{font-size:14px;font-weight:700}
 .lb-empty{font-size:13px;color:#B0B8C1;padding:4px 0}
 .lb-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F8F9FA}
@@ -195,13 +196,13 @@ input,textarea{font-family:inherit}
 /* RANK PAGE */
 .rank-page{position:fixed;inset:0;background:#F2F4F6;z-index:50;display:flex;flex-direction:column}
 .rank-page-nav{display:flex;align-items:center;background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px;flex-shrink:0}
-.rank-page-body{flex:1;overflow-y:auto;padding:16px 20px 40px}
+.rank-page-body{flex:1;overflow-y:auto;padding:16px 20px 40px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
 
 /* 세로 레이아웃 카드 */
-.rank-row-card{background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.rank-row-card{background:#fff;border-radius:16px;padding:14px 14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .rank-row-wod-info{display:flex;flex-direction:column;gap:3px;padding-bottom:12px;border-bottom:1px solid #F2F4F6}
-.rank-row-wod-num{font-size:10px;font-weight:700;color:#8B95A1;letter-spacing:.5px}
-.rank-row-wod-name{font-size:15px;font-weight:800;color:#1A1A2E;letter-spacing:-.3px}
+.rank-row-wod-num{font-size:12px;font-weight:700;color:#8B95A1;letter-spacing:.5px}
+.rank-row-wod-name{font-size:16px;font-weight:800;color:#1A1A2E;letter-spacing:-.3px}
 .rank-row-wod-detail{font-size:12px;color:#B0B8C1;margin-top:1px}
 .rank-row-result{display:flex;align-items:center;gap:12px;padding-top:12px}
 .rank-first-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -212,7 +213,7 @@ input,textarea{font-family:inherit}
 /* MEMBER RANK TAB */
 .my-rank-card{background:#fff;border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .my-rank-top{display:flex;align-items:baseline;gap:8px;padding:14px 16px 12px;border-bottom:1px solid #F2F4F6}
-.my-rank-wod-num{font-size:11px;color:#8B95A1;font-weight:700;flex-shrink:0}
+.my-rank-wod-num{font-size:12px;color:#8B95A1;font-weight:700;flex-shrink:0}
 .my-rank-wod-name{font-size:14px;font-weight:700}
 .my-rank-first{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#EBF3FE}
 .my-rank-medal{font-size:24px;flex-shrink:0}
@@ -221,7 +222,7 @@ input,textarea{font-family:inherit}
 .my-rank-first-val{font-size:18px;font-weight:800;letter-spacing:-.4px;color:#3182F6}
 .my-rank-my-row{display:flex;align-items:center;gap:8px;padding:11px 16px;border-top:1px solid #F2F4F6}
 .my-rank-label{font-size:12px;color:#8B95A1;font-weight:600;flex-shrink:0}
-.my-rank-val{flex:1;font-size:15px;font-weight:800;letter-spacing:-.3px}
+.my-rank-val{flex:1;font-size:16px;font-weight:800;letter-spacing:-.3px}
 .my-rank-pos{font-size:12px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:3px 9px;border-radius:99px}
 .my-rank-top-badge{font-size:12px;font-weight:700;color:#fff;background:#3182F6;padding:3px 9px;border-radius:99px}
 .my-rank-no-rec{font-size:13px;color:#B0B8C1;padding:11px 16px;border-top:1px solid #F2F4F6}
@@ -257,10 +258,10 @@ input,textarea{font-family:inherit}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* WOD MANAGER */
-.wod-manager-row{display:flex;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #F2F4F6}
-.wod-manager-num{width:26px;height:26px;border-radius:7px;background:#EBF3FE;color:#3182F6;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wod-manager-row{display:flex;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid #F2F4F6}
+.wod-manager-num{width:30px;height:30px;border-radius:7px;background:#EBF3FE;color:#3182F6;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .wod-manager-info{flex:1;min-width:0}
-.wod-manager-name{font-size:14px;font-weight:700;color:#1A1A2E}
+.wod-manager-name{font-size:16px;font-weight:700;color:#1A1A2E}
 .wod-manager-detail{font-size:12px;color:#8B95A1;margin-top:2px}
 .wod-manager-actions{display:flex;gap:4px;flex-shrink:0}
 .wod-add-form{background:#F2F4F6;border-radius:14px;padding:14px;margin-top:12px;display:flex;flex-direction:column;gap:8px}
@@ -342,7 +343,7 @@ let WODS = [...DEFAULT_WODS];
 let coachMessage = "";
 let S = {
   view:"login", activeMemberId:null, memberTab:"my",
-  coachTab:"sheet", panelId:null,
+  coachTab:"sheet", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"",
   search:"", pin:"", pinErr:false,
   editing:null, editVal:{value:"",scale:""},
   addingMember:false, newName:"",
@@ -361,6 +362,8 @@ let S = {
   registerErr:"",
   registerStep:1,      // 1=이름입력 2=캐릭터선택
   registerAvatar:null, // 선택한 캐릭터 인덱스
+  // history view mode per wod: { [memberId_wodId]: "list"|"graph" }
+  histView:{},
 };
 
 /* ── Firebase sync ── */
@@ -660,7 +663,6 @@ function renderRank() {
           }
         </div>`;
       }).join("")}
-      <div style="height:40px"></div>
     </div></div>`;
 }
 
@@ -707,11 +709,13 @@ function renderMember() {
   return `<div style="min-height:100vh;background:#F2F4F6">
     <div class="nav">
       <button class="nav-back icon-btn" id="btn-member-back">${ico.chevL}</button>
-      <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:2px;display:flex;align-items:center;gap:6px;border-radius:10px">
+      <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;min-height:32px;gap:6px;border-radius:10px">
         ${src ? `<img src="${src}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>` : `<div style="width:30px;height:30px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
         <span style="font-size:15px;font-weight:700;color:#1A1A2E">${m.name}</span>
       </button>
       <div style="flex:1"></div>
+      <span style="font-size:13px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px">${pct}%</span>
+      <div style="width:8px"></div>
       <div class="tab-group">
         <button class="tab-btn${S.memberTab==="my"?" active":""}" data-mtab="my">내 기록</button>
         <button class="tab-btn${S.memberTab==="rank"?" active":""}" data-mtab="rank">1등</button>
@@ -719,9 +723,11 @@ function renderMember() {
     </div>
     ${avatarModalHtml}
     ${S.memberTab==="my" ? `
-      <div class="progress-strip">
-        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <span class="progress-pct">${pct}%</span>
+      <div style="background:#fff;border-bottom:1px solid #E8EBED">
+        <div style="display:flex">
+          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
+          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
+        </div>
       </div>
       ${wodRows}<div style="height:40px"></div>` 
     : `<div style="padding:16px 20px 40px">${rankRows}</div>`}
@@ -748,9 +754,7 @@ function renderCoach() {
   }).join("");
 
   const sheet = pm ? `
-    <div class="sheet-header"><div><div class="sheet-name">${pm.name}</div><div class="sheet-sub">${done}/${WODS.length} 완료 · ${pct}%</div></div></div>
-    <div class="progress-track" style="margin-bottom:16px"><div class="progress-fill" style="width:${pct}%"></div></div>
-    ${renderWodListWithGroups(WODS, pm, true)}`
+    ${renderWodListWithGroups(WODS, pm, true, true)}`
   : `<div class="empty-panel"><div style="font-size:36px">←</div><div class="empty-panel-text">회원을 선택하세요</div></div>`;
 
   const lbPanel = `<div style="padding:16px 16px 40px">
@@ -773,7 +777,7 @@ function renderCoach() {
     <div class="card" style="margin-bottom:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <div class="card-label" style="margin-bottom:0">WOD 목록 (${WODS.length}개)</div>
-        <button id="btn-wod-add-toggle" style="display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:#fff">
+        <button id="btn-wod-add-toggle" style="display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px">
           ${ico.plus} WOD 추가
         </button>
       </div>
@@ -834,26 +838,91 @@ function renderCoach() {
     <div class="edit-btns"><button class="btn-cancel" id="btn-add-cancel">취소</button><button class="btn-save" id="btn-add-save">추가</button></div>
   </div>` : "";
 
+  // 메뉴 화면
+  if (S.coachSection==="menu") {
+    const menus = [
+      {key:"sheet", icon:"👥", label:"기록 시트",  desc:"회원별 벤치마크 기록"},
+      {key:"wod",   icon:"🔥", label:"WOD 관리",   desc:"WOD 추가·수정·삭제"},
+      {key:"msg",   icon:"💬", label:"한마디",     desc:"메인 화면 공지 메시지"},
+    ];
+    return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
+      <div class="nav">
+        <button class="nav-back icon-btn" id="btn-coach-back">${ico.chevL}</button>
+        <div class="nav-title">코치 대시보드</div>
+        <div style="width:32px"></div>
+      </div>
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;flex:1">
+        ${menus.map(m=>`
+          <button data-go-section="${m.key}" style="display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:18px;padding:18px 20px;width:100%;text-align:left;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">
+            <span style="font-size:28px;flex-shrink:0">${m.icon}</span>
+            <div style="flex:1">
+              <p style="font-size:16px;font-weight:700;color:#1A1A2E">${m.label}</p>
+              <p style="font-size:12px;color:#8B95A1;margin-top:3px">${m.desc}</p>
+            </div>
+            ${ico.chevR}
+          </button>`).join("")}
+      </div>
+    </div>`;
+  }
+
+  // 섹션 화면 — 상단에 ← + 섹션명
+  const sectionLabels = {sheet:"기록 시트", rank:"순위", wod:"WOD 관리", msg:"한마디"};
   return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
     <div class="nav">
-      <button class="nav-back icon-btn" id="btn-coach-back">${ico.chevL}</button>
-      <div class="nav-title">코치 대시보드</div>
-      <div class="tab-group">
-        <button class="tab-btn${S.coachTab==="sheet"?" active":""}" data-ctab="sheet">시트</button>
-        <button class="tab-btn${S.coachTab==="rank"?" active":""}" data-ctab="rank">순위</button>
-        <button class="tab-btn${S.coachTab==="wod"?" active":""}" data-ctab="wod">WOD</button>
-        <button class="tab-btn${S.coachTab==="msg"?" active":""}" data-ctab="msg">한마디</button>
-      </div>
+      <button class="nav-back icon-btn" id="btn-coach-section-back">${ico.chevL}</button>
+      <div class="nav-title">${sectionLabels[S.coachTab]||"코치 대시보드"}</div>
+      <div style="width:32px"></div>
     </div>
-    ${S.coachTab==="sheet" ? `
-    <div class="coach-layout">
-      <div class="sidebar">
-        <div class="sidebar-head"><span class="sidebar-count">회원 ${members.length}명</span>
-          <button class="add-member-btn" id="btn-add-member">${ico.plus} 추가</button></div>
-        ${addBox}${sideRows}
+    ${S.coachTab==="sheet" ? (S.coachSheetView==="sheet" && S.panelId ? `
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #E8EBED;flex-shrink:0">
+        <button id="btn-sheet-back" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;color:#1A1A2E;min-width:32px;min-height:32px">${ico.chevL}</button>
+        <p style="font-size:17px;font-weight:800;flex:1">${members.find(m=>m.id===S.panelId)?.name||""}</p>
+        <span style="font-size:13px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px;flex-shrink:0">${pct}%</span>
       </div>
-      <div class="sheet-panel">${sheet}</div>
-    </div>`
+      <div style="background:#fff;border-bottom:1px solid #E8EBED;flex-shrink:0">
+        <div style="display:flex">
+          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer">리스트</button>
+          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[S.panelId]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${S.histView[S.panelId]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer">그래프</button>
+        </div>
+      </div>
+      <div class="sheet-panel" style="flex:1;overflow-y:auto">${sheet}</div>
+    </div>` : `
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
+        <span style="font-size:13px;font-weight:700;color:#8B95A1">회원 ${members.length}명</span>
+        <button class="add-member-btn" id="btn-add-member">${ico.plus} 추가</button>
+      </div>
+      <div style="padding:0 16px 8px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:0 12px;height:42px;border:1.5px solid #E8EBED">
+          ${ico.search}
+          <input id="inp-coach-member-search" placeholder="이름 검색" value="${S.coachMemberSearch}"
+            style="flex:1;background:none;border:none;outline:none;font-size:14px;color:#1A1A2E" autocomplete="off"/>
+        </div>
+      </div>
+      ${addBox ? `<div style="padding:0 16px 8px">${addBox}</div>` : ""}
+      <div id="coach-member-grid" style="flex:1;overflow-y:auto;padding:0 16px 24px">
+        ${members.filter(m=>m.name.includes(S.coachMemberSearch)).map(m => {
+          const cnt = Object.keys(m.records).length;
+          const src = getMemberAvatar(m);
+          return `<div data-sel-member="${m.id}" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">
+            <div style="position:relative;flex-shrink:0">
+              ${src ? `<img src="${src}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>` : `<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
+            </div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:15px;font-weight:700;color:#1A1A2E">${m.name}</p>
+              <p style="font-size:12px;color:#8B95A1;margin-top:2px">${cnt}/${WODS.length} 완료</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+              <div style="width:60px">
+                <div class="progress-track"><div class="progress-fill" style="width:${Math.round(cnt/WODS.length*100)}%;background:#3182F6"></div></div>
+              </div>
+              ${ico.chevR}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`)
     : S.coachTab==="rank" ? `<div style="overflow-y:auto;flex:1">${lbPanel}</div>`
     : S.coachTab==="wod"  ? wodManager
     : `<div style="flex:1;padding:24px 20px;max-width:480px;width:100%;margin:0 auto">
@@ -878,50 +947,50 @@ function renderCoach() {
 function renderWodEditChips(wod) {
   if (!wod) return "";
   const groups = ["STRENGTH","CARDIO","WOD"];
-  const types  = [{key:"time",label:"⏱ 시간"},{key:"weight",label:"🏋️ 무게"},{key:"rounds",label:"🔄 라운드"},{key:"reps",label:"🔢 횟수"}];
+  const types  = [{key:"time",label:"시간"},{key:"weight",label:"무게"},{key:"rounds",label:"라운드"},{key:"reps",label:"횟수"}];
   const g = wod.group || "WOD";
   const t = wod.type  || "time";
   const gChips = groups.map(function(v){
     const a=g===v;
-    return '<button data-wod-group="'+v+'" style="flex:1;height:32px;border-radius:8px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:11px;font-weight:700;cursor:pointer">'+v+'</button>';
+    return '<button data-wod-group="'+v+'" style="flex:1;height:48px;border-radius:12px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">'+v+'</button>';
   }).join("");
   const tChips = types.map(function(v){
     const a=t===v.key;
-    return '<button data-wod-type="'+v.key+'" style="flex:1;height:32px;border-radius:8px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
+    return '<button data-wod-type="'+v.key+'" style="flex:1;height:48px;border-radius:12px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
   }).join("");
-  return '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:5px">그룹</div>'
-    +'<div style="display:flex;gap:5px;margin-bottom:8px">'+gChips+'</div>'
-    +'<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:5px">측정 방식</div>'
-    +'<div style="display:flex;gap:5px;margin-bottom:8px">'+tChips+'</div>';
+  return '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px">'+gChips+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px">'+tChips+'</div>';
 }
 
 /* ── WOD Add Form (separate fn to avoid nested template literal issues) ── */
 function renderWodAddForm() {
   const groups = ["STRENGTH","CARDIO","WOD"];
   const types  = [
-    {key:"time",   label:"⏱ 시간"},
-    {key:"weight", label:"🏋️ 무게"},
-    {key:"rounds", label:"🔄 라운드"},
-    {key:"reps",   label:"🔢 횟수"},
+    {key:"time",   label:"시간"},
+    {key:"weight", label:"무게"},
+    {key:"rounds", label:"라운드"},
+    {key:"reps",   label:"횟수"},
   ];
   const g = S.wodFormVal.group || "WOD";
   const t = S.wodFormVal.type  || "time";
 
   const groupChips = groups.map(function(v) {
     const active = g === v;
-    return '<button data-wod-form-group="' + v + '" style="flex:1;height:32px;border-radius:8px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:11px;font-weight:700;cursor:pointer">' + v + '</button>';
+    return '<button data-wod-form-group="' + v + '" style="flex:1;height:48px;border-radius:12px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer">' + v + '</button>';
   }).join("");
 
   const typeChips = types.map(function(v) {
     const active = t === v.key;
-    return '<button data-wod-form-type="' + v.key + '" style="flex:1;height:32px;border-radius:8px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">' + v.label + '</button>';
+    return '<button data-wod-form-type="' + v.key + '" style="flex:1;height:48px;border-radius:12px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">' + v.label + '</button>';
   }).join("");
 
   return '<div class="wod-add-form">'
-    + '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
-    + '<div style="display:flex;gap:5px;margin-bottom:10px">' + groupChips + '</div>'
-    + '<div style="font-size:11px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
-    + '<div style="display:flex;gap:5px;margin-bottom:10px">' + typeChips + '</div>'
+    + '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:12px">' + groupChips + '</div>'
+    + '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:12px">' + typeChips + '</div>'
     + '<input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: BSQ 5RM)" value="' + (S.wodFormVal.name||"") + '"/>'
     + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 선택사항" value="' + (S.wodFormVal.detail||"") + '"/>'
     + '<input class="wod-input" id="wod-inp-youtube" placeholder="유튜브 링크 (선택)" value="' + (S.wodFormVal.youtube||"") + '"/>'
@@ -932,9 +1001,9 @@ function renderWodAddForm() {
 }
 
 /* ── WOD list with group headers ── */
-function renderWodListWithGroups(wods, member, showDel) {
+function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
   const GROUP_ORDER = ["STRENGTH","CARDIO","WOD"];
-  const GROUP_LABELS = {STRENGTH:"💪 STRENGTH", CARDIO:"🏃 CARDIO", WOD:"🔥 WOD"};
+  const GROUP_LABELS = {STRENGTH:"STRENGTH", CARDIO:"CARDIO", WOD:"WOD"};
   let html = "";
   let lastGroup = null;
   wods.forEach(wod => {
@@ -945,13 +1014,13 @@ function renderWodListWithGroups(wods, member, showDel) {
     }
     const rec = member.records[wod.id];
     const isEd = S.editing?.memberId === member.id && S.editing?.wodId === wod.id;
-    html += wodRowHtml(wod, rec, isEd, member.id, showDel);
+    html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube);
   });
   return html;
 }
 
 /* ── WOD ROW ── */
-function wodRowHtml(wod,rec,isEd,memberId,showDel) {
+function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
   let body="";
   if (isEd) {
     const wtype = wod.type || "time";
@@ -983,16 +1052,109 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel) {
       <input class="edit-sub" id="inp-escale" placeholder="스케일 (선택 · RX, Scaled 등)" value="${S.editVal.scale}" style="margin-top:4px"/>
       <div class="edit-btns" style="margin-top:2px">
         <button class="btn-cancel" id="btn-edit-cancel">취소</button>
-        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}">저장</button>
+        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}" data-isnew="${S.isAddingNew?'1':'0'}">저장</button>
       </div></div>`;
   } else if (rec) {
-    body=`<div class="rec-row">
-      <span class="rec-val">${rec.value}</span>
+    const recWtype = wod.type || "time";
+    const hist = rec.history||[];
+    let trendHtml = "";
+    if (hist.length > 0) {
+      const prev = hist[hist.length-1];
+      const prevNum = parseRecordVal(prev.value, recWtype);
+      const curNum  = parseRecordVal(rec.value,  recWtype);
+      if (prevNum && curNum && prevNum !== Infinity && curNum !== Infinity) {
+        const diff = recWtype==="time" ? prevNum - curNum : curNum - prevNum;
+        const pct  = Math.abs(Math.round(diff/Math.abs(prevNum)*100));
+        if (diff > 0)      trendHtml = `<span style="font-size:11px;font-weight:700;color:#00C471;background:#E6FAF0;padding:2px 7px;border-radius:99px">▲ ${pct}%</span>`;
+        else if (diff < 0) trendHtml = `<span style="font-size:11px;font-weight:700;color:#F04452;background:#FEF2F2;padding:2px 7px;border-radius:99px">▼ ${pct}%</span>`;
+        else               trendHtml = `<span style="font-size:11px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:2px 7px;border-radius:99px">→ 동일</span>`;
+      }
+    }
+    // 히스토리 추이 (회원별 리스트/그래프 토글)
+    let histHtml = "";
+    if (true) {
+      const key = memberId + "_" + wod.id;
+      const memberMode = S.histView[memberId] || "list";
+      const allRecs = [...hist, {value:rec.value, scale:rec.scale||"", date:rec.date}].slice(-5);
+
+      // 리스트 뷰
+      const listRows = allRecs.map((h, i, arr) => {
+        const prev = arr[i-1];
+        let arrow = "";
+        if (prev) {
+          const pn = parseRecordVal(prev.value, recWtype);
+          const cn = parseRecordVal(h.value, recWtype);
+          if (pn && cn && pn !== Infinity && cn !== Infinity) {
+            const d = recWtype==="time" ? pn - cn : cn - pn;
+            if (d > 0)      arrow = `<span style="color:#00C471;font-weight:700">▲</span>`;
+            else if (d < 0) arrow = `<span style="color:#F04452;font-weight:700">▼</span>`;
+            else            arrow = `<span style="color:#B0B8C1">→</span>`;
+          }
+        }
+        const isLast = i === arr.length - 1;
+        return `<tr style="background:${isLast?"#EBF3FE":"transparent"}">
+          <td style="padding:5px 8px;font-size:12px;color:#8B95A1;white-space:nowrap">${h.date}</td>
+          <td style="padding:5px 8px;font-size:13px;font-weight:${isLast?"800":"600"};color:${isLast?"#3182F6":"#1A1A2E"}">${h.value}</td>
+          <td style="padding:5px 8px;font-size:12px;text-align:center">${arrow}</td>
+          <td style="padding:5px 8px;font-size:11px;color:#8B95A1">${h.scale||""}</td>
+        </tr>`;
+      }).join("");
+      const listHtml = `<div style="border-radius:10px;overflow:hidden;border:1px solid #E8EBED">
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#F8F9FA">
+            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">날짜</th>
+            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">기록</th>
+            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:center">추이</th>
+            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">스케일</th>
+          </tr></thead>
+          <tbody>${listRows}</tbody>
+        </table>
+      </div>`;
+
+      // 그래프 뷰
+      const vals = allRecs.map(h => parseRecordVal(h.value, recWtype)).filter(v => v !== Infinity && v !== -Infinity && v);
+      const minV = Math.min(...vals), maxV = Math.max(...vals);
+      const range = maxV - minV || 1;
+      const W = 280, H = 80, pad = 10;
+      const points = allRecs.map((h, i) => {
+        const v = parseRecordVal(h.value, recWtype);
+        const normalized = recWtype === "time" ? (maxV - v) / range : (v - minV) / range;
+        const x = pad + i * ((W - pad*2) / (allRecs.length - 1 || 1));
+        const y = H - pad - normalized * (H - pad*2);
+        return {x, y, h, isLast: i === allRecs.length-1};
+      });
+      const polyline = points.map(p=>`${p.x},${p.y}`).join(" ");
+      const dots = points.map(p => {
+        const color = p.isLast ? "#3182F6" : "#B0B8C1";
+        const r = p.isLast ? 5 : 3;
+        return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${color}"/>
+          <text x="${p.x}" y="${p.y - 8}" text-anchor="middle" font-size="9" fill="${p.isLast?"#3182F6":"#8B95A1"}" font-weight="${p.isLast?"700":"400"}">${p.h.value}</text>
+          <text x="${p.x}" y="${H}" text-anchor="middle" font-size="8" fill="#B0B8C1">${p.h.date}</text>`;
+      }).join("");
+      const graphHtml = allRecs.length >= 2
+        ? `<div style="border-radius:10px;border:1px solid #E8EBED;padding:12px 8px 4px;background:#FAFAFA">
+            <svg width="100%" viewBox="0 0 ${W} ${H+4}" style="overflow:visible">
+              <polyline points="${polyline}" fill="none" stroke="#3182F6" stroke-width="2" stroke-linejoin="round"/>
+              ${dots}
+            </svg>
+          </div>`
+        : `<div style="border-radius:10px;border:1px solid #E8EBED;padding:14px;background:#FAFAFA;font-size:12px;color:#B0B8C1;text-align:center">기록 2개 이상부터 그래프를 볼 수 있어요</div>`;
+
+      histHtml = `<div style="margin-top:10px">
+        ${memberMode === "list" ? listHtml : graphHtml}
+      </div>`;}
+
+    body=`<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px">
+      <span class="rec-val" style="margin-top:0">${rec.value}</span>
+      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1;flex-shrink:0">${ico.edit} 수정</button>
+    </div>
+    <div class="rec-meta">
+      ${trendHtml}
       ${rec.scale?`<span class="rec-scale">${rec.scale}</span>`:""}
       <span class="rec-date">${rec.date}</span>
-      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;padding:6px 10px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1">${ico.edit} 수정</button>
-      ${showDel?`<button class="icon-btn" data-drec="${memberId}" data-dwid="${wod.id}">${ico.trash}</button>`:""}
-    </div>`;
+    </div>
+    ${histHtml}
+    <button class="add-rec-btn" data-oadd="${memberId}" data-owid="${wod.id}" style="margin-top:8px">+ 기록 추가</button>`;
   } else {
     body=`<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>`;
   }
@@ -1001,14 +1163,46 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel) {
     <div class="wod-content">
       <div class="wod-name">${wod.name}</div>
       ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""}
-      ${wod.youtube
-        ? renderYoutubeCard(wod.youtube)
-        : `<p style="font-size:12px;color:#B0B8C1;margin-top:8px;line-height:1.6">아직 설명 영상이 업로드되지 않았습니다. 코치에게 문의해주시면 친절하게 설명해드리겠습니다! 😊</p>`}
       ${body}
+      ${hideYoutube ? "" : wod.youtube
+        ? `<a href="https://youtu.be/${getYoutubeId(wod.youtube)||wod.youtube}" target="_blank" rel="noopener" class="add-rec-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+            🎬 동작 영상
+          </a>`
+        : `<button class="add-rec-btn" style="cursor:default;color:#B0B8C1;border-color:#F2F4F6">동작 영상 준비 중 · 코치에게 문의</button>`}
     </div></div>`;
 }
 
 /* ══ BIND ══ */
+function updateCoachMemberGrid() {
+  const container = document.getElementById("coach-member-grid");
+  if (!container) return;
+  const filtered = members.filter(m=>m.name.includes(S.coachMemberSearch));
+  container.innerHTML = filtered.map(function(m) {
+    const cnt = Object.keys(m.records).length;
+    const src = getMemberAvatar(m);
+    const pct = Math.round(cnt/WODS.length*100);
+    const avHtml = src
+      ? '<img src="'+src+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>'
+      : '<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
+    return '<div data-sel-member="'+m.id+'" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">'
+      +'<div style="position:relative;flex-shrink:0">'+avHtml+'</div>'
+      +'<div style="flex:1;min-width:0">'
+      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
+      +'<p style="font-size:12px;color:#8B95A1;margin-top:2px">'+cnt+'/'+WODS.length+' 완료</p>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
+      +'<div style="width:60px"><div class="progress-track"><div class="progress-fill" style="width:'+pct+'%;background:#3182F6"></div></div></div>'
+      +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
+      +'</div></div>';
+  }).join("");
+  // Re-bind click events
+  container.querySelectorAll("[data-sel-member]").forEach(function(el) {
+    el.addEventListener("click", function() {
+      S.panelId=el.dataset.selMember; S.coachSheetView="sheet"; S.editing=null; render();
+    });
+  });
+}
+
 function updateMemberGrid() {
   const container = document.getElementById("member-grid-container");
   if (!container) return;
@@ -1095,11 +1289,22 @@ function bind() {
   }));
 
   /* coach nav */
-  on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;render();});
+  on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();});
+  const coachSearchEl=document.getElementById("inp-coach-member-search");
+  if(coachSearchEl){
+    let cmp=false;
+    coachSearchEl.addEventListener("compositionstart",()=>{cmp=true;});
+    coachSearchEl.addEventListener("compositionend",e=>{cmp=false;S.coachMemberSearch=e.target.value;updateCoachMemberGrid();});
+    coachSearchEl.addEventListener("input",e=>{if(cmp)return;S.coachMemberSearch=e.target.value;updateCoachMemberGrid();});
+  }
+  on("btn-coach-section-back","click",()=>{S.coachSection="menu";S.coachSheetView="list";S.panelId=null;S.editing=null;render();});
+  qa("[data-go-section]",el=>el.addEventListener("click",()=>{S.coachTab=el.dataset.goSection;S.coachSection="section";render();}));
   qa("[data-ctab]",el=>el.addEventListener("click",()=>{S.coachTab=el.dataset.ctab;render();}));
 
   /* select member */
   qa("[data-sel]",el=>el.addEventListener("click",()=>{S.panelId=el.dataset.sel;S.editing=null;render();}));
+  qa("[data-sel-member]",el=>el.addEventListener("click",()=>{S.panelId=el.dataset.selMember;S.coachSheetView="sheet";S.editing=null;render();}));
+  on("btn-sheet-back","click",()=>{S.coachSheetView="list";S.panelId=null;S.editing=null;render();});
 
   /* add member */
   on("btn-add-member","click",()=>{S.addingMember=true;render();setTimeout(()=>g("inp-newname")?.focus(),50);});
@@ -1142,6 +1347,14 @@ function bind() {
     }
     render();
     setTimeout(()=>{(g("inp-min")||g("inp-weight")||g("inp-rounds")||g("inp-reps"))?.focus();},50); }));
+  /* record add-new: open empty form */
+  qa("[data-oadd]",el=>el.addEventListener("click",()=>{
+    const mid=el.dataset.oadd,wid=parseInt(el.dataset.owid);
+    S.editing={memberId:mid,wodId:wid};
+    S.editVal={scale:"",value:""};
+    S.timeVal={min:"",sec:""};
+    render();
+    setTimeout(()=>{(g("inp-min")||g("inp-weight")||g("inp-rounds")||g("inp-reps"))?.focus();},50); }));
   on("btn-edit-cancel","click",()=>{S.editing=null;render();});
   on("inp-min","input",e=>{S.timeVal.min=e.target.value;});
   on("inp-sec","input",e=>{S.timeVal.sec=e.target.value;});
@@ -1155,6 +1368,14 @@ function bind() {
   on("inp-reps",   "input",e=>{S.editVal.value=e.target.value;});
   qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid),el.dataset.wtype)));
   qa("[data-drec]",el=>el.addEventListener("click",()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
+
+  /* history view toggle (member-level) */
+  qa("[data-memberhistview]",el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    const mode=el.dataset.memberhistview;
+    const mid=S.activeMemberId||S.panelId;
+    if(mid){ S.histView={...S.histView,[mid]:mode}; render(); }
+  }));
 
   /* WOD manager */
   on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time"};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
@@ -1198,7 +1419,7 @@ function bind() {
 /* ══ ACTIONS ══ */
 function doLogin() {
   const el=document.getElementById("inp-pin"); const v=el?el.value:S.pin;
-  if(v===PIN){S.view="coach";S.pin="";S.pinErr=false;S.pinModal=false;render();}
+  if(v===PIN){S.view="coach";S.coachSection="menu";S.pin="";S.pinErr=false;S.pinModal=false;render();}
   else{S.pinErr=true;render();setTimeout(()=>document.getElementById("inp-pin")?.focus(),50);}
 }
 
@@ -1227,8 +1448,17 @@ function doSaveRecord(mid,wid,wtype) {
     value=`${r}회`;
   }
 
+  // render() 전에 existing 캡처
+  const existing = members.find(m=>m.id===mid)?.records[wid];
+  const newRecord = {value, scale, date:today()};
+  // 기존 기록이 있으면 반드시 history에 추가
+  let history = existing?.history ? [...existing.history] : [];
+  if (existing?.value) {
+    history = [...history, {value:existing.value, scale:existing.scale||"", date:existing.date}];
+  }
+  fbSet(`members/${mid}/records/${wid}`, {...newRecord, history});
+
   S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};render();
-  fbSet(`members/${mid}/records/${wid}`,{value,scale,date:today()});
   showToast(`${wod?.name??"WOD"} 기록 저장 완료!`);
 }
 
@@ -1308,8 +1538,11 @@ function doEditWod() {
 function doDeleteWod(id) {
   if(WODS.length<=1){showToast("WOD는 최소 1개 필요해요");return;}
   fbRemove(`wods/${id}`);
-  // 해당 WOD 기록도 정리
-  members.forEach(m=>{if(m.records[id])fbRemove(`members/${m.id}/records/${id}`)});
+  // 해당 WOD 기록도 정리 (id를 문자열로도 비교)
+  members.forEach(m=>{
+    const strId = String(id);
+    if(m.records[id] || m.records[strId]) fbRemove(`members/${m.id}/records/${id}`);
+  });
   showToast("WOD가 삭제됐어요");
 }
 
