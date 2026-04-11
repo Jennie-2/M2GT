@@ -93,6 +93,8 @@ let S = {
   registerAvatar:null, // 선택한 캐릭터 인덱스
   // history view mode per wod: { [memberId_wodId]: "list"|"graph" }
   histView:{},
+  // rank page gender filter
+  rankGender:"all",
 };
 
 /* ── 초기 세션 복원 ── */
@@ -620,12 +622,32 @@ function renderRank() {
     const mBoard = renderGenderBoard(wod, "male");
     const fBoard = renderGenderBoard(wod, "female");
     if (!mBoard && !fBoard) return '<div class="rank-row-card"><span class="rank-row-wod-name">'+wod.name+'</span><p style="font-size:13px;color:#B0B8C1;padding:8px 0">기록 없음</p></div>';
-    return '<div class="rank-row-card">'
-      +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-      +(mBoard||'<div></div>')+(fBoard||'<div></div>')
-      +'</div>'
-      +'</div>';
+    
+    // 선택된 탭에 따라 필터링
+    const rankGender = S.rankGender || "all";
+    if (rankGender === "male") {
+      // 남자만 표시
+      if (!mBoard) return '';
+      return '<div class="rank-row-card">'
+        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
+        +mBoard
+        +'</div>';
+    } else if (rankGender === "female") {
+      // 여자만 표시
+      if (!fBoard) return '';
+      return '<div class="rank-row-card">'
+        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
+        +fBoard
+        +'</div>';
+    } else {
+      // 전체 표시
+      return '<div class="rank-row-card">'
+        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+        +(mBoard||'<div></div>')+(fBoard||'<div></div>')
+        +'</div>'
+        +'</div>';
+    }
   }).join('');
 
   // Total ranking per gender
@@ -669,12 +691,21 @@ function renderRank() {
 
   // Note: allPoints is accumulated during wodCards rendering above
   // So total rank must come after
+  const rankGender = S.rankGender || "all";
+  let totalSectionContent = '';
+  if (rankGender === "male") {
+    totalSectionContent = renderTotalRank("male") || '<p style="font-size:13px;color:#B0B8C1">기록 없음</p>';
+  } else if (rankGender === "female") {
+    totalSectionContent = renderTotalRank("female") || '<p style="font-size:13px;color:#B0B8C1">기록 없음</p>';
+  } else {
+    totalSectionContent = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+      +(renderTotalRank("male")||'<div></div>')+(renderTotalRank("female")||'<div></div>')
+      +'</div>';
+  }
   const totalSection = '<div class="rank-row-card">'
     +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px">🏆 종합 순위</p>'
     +'<p style="font-size:12px;color:#8B95A1;margin-bottom:10px">낮을수록 높은 등수 · 미측정 100점</p>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +(renderTotalRank("male")||'<div></div>')+(renderTotalRank("female")||'<div></div>')
-    +'</div>'
+    +totalSectionContent
     +'</div>';
 
   return `<div class="rank-page">
@@ -682,6 +713,11 @@ function renderRank() {
       <button class="nav-back icon-btn" id="btn-rank-back">${ico.chevL}</button>
       <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">순위</span>
       <div style="width:32px"></div>
+    </div>
+    <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;display:flex;gap:2px">
+      <button class="tab-btn${S.rankGender==="all"||!S.rankGender?" active":""}" data-rank-gender="all" style="flex:1">전체</button>
+      <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male" style="flex:1">남자</button>
+      <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female" style="flex:1">여자</button>
     </div>
     <div class="rank-page-body">
       ${totalSection}
@@ -1614,6 +1650,7 @@ function bind() {
 
   /* rank */
   on("btn-rank-back","click",()=>{S.view="login";render();});
+  qa("[data-rank-gender]",el=>el.addEventListener("click",()=>{S.rankGender=el.dataset.rankGender;render();}));
 
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
