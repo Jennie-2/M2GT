@@ -94,7 +94,7 @@ let S = {
   // history view mode per wod: { [memberId_wodId]: "list"|"graph" }
   histView:{},
   // rank page gender filter
-  rankGender:"all",
+  rankGender:"male",
 };
 
 /* ── 초기 세션 복원 ── */
@@ -714,10 +714,13 @@ function renderRank() {
       <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">순위</span>
       <div style="width:32px"></div>
     </div>
-    <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;display:flex;gap:2px">
-      <button class="tab-btn${S.rankGender==="all"||!S.rankGender?" active":""}" data-rank-gender="all" style="flex:1">전체</button>
-      <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male" style="flex:1">남자</button>
-      <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female" style="flex:1">여자</button>
+    <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;display:flex;align-items:center;justify-content:space-between;min-height:48px">
+      <div style="flex:1"></div>
+      <div class="tab-group">
+        <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male">남자</button>
+        <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female">여자</button>
+      </div>
+      <div style="flex:1"></div>
     </div>
     <div class="rank-page-body">
       ${totalSection}
@@ -776,21 +779,15 @@ function renderMember() {
       <div style="flex:1"></div>
       <span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px">${pct}%</span>
       <div style="width:8px"></div>
-      <div class="tab-group">
-        <button class="tab-btn${S.memberTab==="my"?" active":""}" data-mtab="my">내 기록</button>
-        <button class="tab-btn${S.memberTab==="rank"?" active":""}" data-mtab="rank">1등</button>
-      </div>
     </div>
     ${avatarModalHtml}
-    ${S.memberTab==="my" ? `
-      <div style="background:#fff;border-bottom:1px solid #E8EBED">
-        <div style="display:flex">
-          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
-          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
-        </div>
+    <div style="background:#fff;border-bottom:1px solid #E8EBED">
+      <div style="display:flex">
+        <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
+        <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
       </div>
-      ${wodRows}<div style="height:40px"></div>` 
-    : `<div style="padding:16px 18px 40px">${rankRows}</div>`}
+    </div>
+    ${wodRows}<div style="height:40px"></div>
   </div>`;
 }
 
@@ -1654,7 +1651,6 @@ function bind() {
 
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
-  qa("[data-mtab]",el=>el.addEventListener("click",()=>{S.memberTab=el.dataset.mtab;render();}));
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
     const wid=parseInt(el.dataset.bdRecord);
     const wod=WODS.find(w=>w.id===wid);
