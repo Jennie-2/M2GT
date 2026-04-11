@@ -358,7 +358,7 @@ function renderLogin() {
       const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
       if (todayWod===undefined) {
         return '<div style="margin-bottom:24px">'
-          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;border-radius:24px;color:#fff">'
+          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;color:#fff">'
           +'<p style="font-size:18px;font-weight:700;margin:0 0 10px">벤치마크 Day를 불러오는 중입니다…</p>'
           +'<p style="font-size:14px;line-height:1.5;margin:0;opacity:.9">잠시만 기다려주세요.</p>'
           +'</div>'
@@ -366,7 +366,7 @@ function renderLogin() {
       }
       if (!bdWod) {
         return '<div style="margin-bottom:24px">'
-          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;border-radius:24px;color:#fff">'
+          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;color:#fff">'
           +'<p style="font-size:18px;font-weight:900;margin:0 0 10px">오늘의 벤치마크가 없습니다</p>'
           +'<p style="font-size:14px;line-height:1.6;margin:0;opacity:.92">코치가 오늘의 벤치마크를 등록하면 이곳에서 바로 확인하고 기록할 수 있어요.</p>'
           +'</div>'
@@ -375,7 +375,7 @@ function renderLogin() {
       let hasSaved=false;
       try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
       const bdActionText=hasSaved?"탭해서 기록하기 →":"프로필 설정 후 기록하기 →";
-      return '<div style="margin-bottom:24px">'
+      return '<div style="margin-bottom:0">'
         +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;cursor:pointer" id="btn-login-bmday">'
         +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
         +'<span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">🎯 벤치마크 Day</span>'
@@ -383,11 +383,11 @@ function renderLogin() {
         +'<p style="font-size:24px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">'+(bdWod.name)+'</p>'
         +(bdWod.detail?'<p style="font-size:15px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">'+(bdWod.detail)+'</p>':'')
         +(td.note?'<p style="font-size:13px;color:rgba(255,255,255,.85);margin-top:12px;background:rgba(0,0,0,.14);border-radius:10px;padding:10px 12px;line-height:1.5">'+(td.note)+'</p>':'')
-        +'<div style="margin-top:18px">'
-        +'<button id="btn-open-bd-record" style="width:100%;height:52px;background:#fff;border:none;border-radius:16px;font-size:16px;font-weight:800;color:#1A1A2E;cursor:pointer">기록 입력하기</button>'
         +'</div>'
         +'</div>'
-        +'</div>';
+        +(hasSaved
+          ? '<div style="padding:0 20px 24px"><button id="btn-open-bd-record" style="width:100%;height:52px;background:#1A1A2E;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:12px">기록 입력하기</button></div>'
+          : '<div style="height:24px"></div>');
     })()}
 
     <!-- ④ 액션 카드 -->
@@ -784,14 +784,7 @@ function renderMember() {
   </div>` : "";
 
   const src = getMemberAvatar(m);
-  const memberTab = S.memberTab || "home";
-  
-  const homeContent = renderMemberHome(m);
-  const myContent = `<div style="overflow-y:auto;flex:1;background:#F2F4F6">${wodRows}<div style="height:40px"></div></div>`;
-
-  const content = memberTab === "home" ? homeContent : myContent;
-
-  return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
+  return `<div style="min-height:100vh;background:#F2F4F6">
     <div class="nav">
       <button class="nav-back icon-btn" id="btn-member-back">${ico.chevL}</button>
       <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;min-height:32px;gap:6px;border-radius:10px">
@@ -803,13 +796,13 @@ function renderMember() {
       <div style="width:8px"></div>
     </div>
     ${avatarModalHtml}
-    <div style="background:#fff;border-bottom:1px solid #E8EBED;display:flex;flex-wrap:wrap">
-      <button data-memberTab="home" style="flex:1;height:48px;border:none;border-bottom:3px solid ${memberTab==='home'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${memberTab==='home'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:60px">홈</button>
-      <button data-memberTab="my" style="flex:1;height:48px;border:none;border-bottom:3px solid ${memberTab==='my'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${memberTab==='my'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:60px">내 기록</button>
-      ${memberTab==='my' ? `<button data-memberhistview="list" style="flex:1;height:48px;border:none;border-bottom:3px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:14px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:50px">리스트</button>
-        <button data-memberhistview="graph" style="flex:1;height:48px;border:none;border-bottom:3px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:14px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:50px">그래프</button>` : ""}
+    <div style="background:#fff;border-bottom:1px solid #E8EBED">
+      <div style="display:flex">
+        <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
+        <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
+      </div>
     </div>
-    ${content}
+    ${wodRows}<div style="height:40px"></div>
   </div>`;
 }
 
@@ -1657,7 +1650,7 @@ function bind() {
     const mid=el.dataset.profileSelect;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     S.profileModal=false;
-    S.activeMemberId=mid;S.view="member";S.memberTab="home";
+    S.activeMemberId=mid;S.view="member";S.memberTab="my";
     render();
   }));
   const profNameEl=document.getElementById("inp-profile-name");
@@ -1688,7 +1681,7 @@ function bind() {
     const mid=el.dataset.login;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     if(S.view==="coach") return;
-    S.activeMemberId=mid;S.memberTab="home";S.view="member";S.viewingMemberId=null;
+    S.activeMemberId=mid;S.memberTab="my";S.view="member";S.viewingMemberId=null;
     render();
   }));
 
@@ -1703,7 +1696,6 @@ function bind() {
 
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
-  qa("[data-memberTab]",el=>el.addEventListener("click",()=>{S.memberTab=el.dataset.memberTab;render();}));
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
     const wid=parseInt(el.dataset.bdRecord);
     const wod=WODS.find(w=>w.id===wid);
