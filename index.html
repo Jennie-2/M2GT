@@ -30,7 +30,7 @@ document.currentScript.after(lnk);
 html,body{height:100%}
 body{font-family:'SUIT Variable','SUIT','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
   background:#F2F4F6;color:#1A1A2E;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-button{font-family:inherit;cursor:pointer;min-height:32px;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;cursor:pointer;min-height:32px;-webkit-tap-highlight-color:transparent;line-height:1}
 input,textarea{font-family:inherit}
 
 /* NAV */
@@ -195,7 +195,7 @@ input,textarea{font-family:inherit}
 /* RANK PAGE */
 .rank-page{position:fixed;inset:0;background:#F2F4F6;z-index:50;display:flex;flex-direction:column}
 .rank-page-nav{display:flex;align-items:center;background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;height:56px;flex-shrink:0}
-.rank-page-body{flex:1;overflow-y:auto;padding:16px 18px 40px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.rank-page-body{flex:1;overflow-y:auto;padding:16px 18px 40px;display:flex;flex-direction:column;gap:10px}
 
 /* 세로 레이아웃 카드 */
 .rank-row-card{background:#fff;border-radius:16px;padding:14px 14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -314,12 +314,12 @@ const DEFAULT_WODS = [
   {id:3, group:"STRENGTH", type:"weight", name:"BENCH PRESS 5RM",detail:""},
   {id:4, group:"STRENGTH", type:"weight", name:"DL 5RM",         detail:"Deadlift"},
   {id:5, group:"STRENGTH", type:"weight", name:"OHP 5RM",        detail:"Overhead Press"},
-  {id:6, group:"CARDIO",   type:"time",   name:"1K RUN",         detail:""},
-  {id:7, group:"CARDIO",   type:"time",   name:"3K RUN",         detail:""},
-  {id:8, group:"CARDIO",   type:"time",   name:"5K RUN",         detail:""},
-  {id:9, group:"CARDIO",   type:"time",   name:"1K ROW",         detail:""},
-  {id:10,group:"CARDIO",   type:"time",   name:"3K ROW",         detail:""},
-  {id:11,group:"CARDIO",   type:"time",   name:"5K ROW",         detail:""},
+  {id:6, group:"HYROX",   type:"time",   name:"1K RUN",         detail:""},
+  {id:7, group:"HYROX",   type:"time",   name:"3K RUN",         detail:""},
+  {id:8, group:"HYROX",   type:"time",   name:"5K RUN",         detail:""},
+  {id:9, group:"HYROX",   type:"time",   name:"1K ROW",         detail:""},
+  {id:10,group:"HYROX",   type:"time",   name:"3K ROW",         detail:""},
+  {id:11,group:"HYROX",   type:"time",   name:"5K ROW",         detail:""},
   {id:12,group:"WOD",      type:"rounds", name:"AMRAP 20'",     detail:"5 Pull Up · 10 Push Up · 15 Air Squat"},
   {id:13,group:"WOD",      type:"time",   name:"50-40-30-20-10", detail:"Double Under + Sit Up"},
   {id:14,group:"WOD",      type:"time",   name:"1-10 TTB",       detail:"Toes To Bar + BP Bar Touch"},
@@ -342,15 +342,17 @@ let WODS = [...DEFAULT_WODS];
 let coachMessage = "";
 let S = {
   view:"login", activeMemberId:null, memberTab:"my",
-  coachTab:"sheet", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"", bdWodId:undefined, bdNote:undefined,
+  profileModal:false, profileNewName:"", profileNameErr:"", profileGender:"",
+  allMembersModal:false,
+  viewingMemberId:null,
+  bdRecordModal:false,
+  coachTab:"members", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"", bdWodId:undefined, bdNote:undefined,
   search:"", pin:"", pinErr:false,
   editing:null, editVal:{value:"",scale:""},
   addingMember:false, newName:"",
   editingMember:null, confirmDelete:null,
   pinModal:false,
-  profileModal:false,
-  bdModal:false,
-  _coachShown:false,
+  newMemberName:"",
   timeVal:{min:"",sec:""},
   // WOD manager
   showWodForm:false,
@@ -368,18 +370,33 @@ let S = {
   histView:{},
 };
 
+/* ── 초기 세션 복원 ── */
+try {
+  if (localStorage.getItem("mt_coach_logged")==="1") {
+    S.view="coach"; S.coachSection="menu";
+  }
+} catch(e) {}
+
 /* ── Firebase sync ── */
 onValue(ref(db,"coachMessage"), snap => { coachMessage = snap.val()||""; render(); });
 
-let todayWod = null; // {wodId, note} or null
+let todayWod = null;
+let passes   = {};
+let classes  = {};
 const todayKey = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
 onValue(ref(db,"benchmarkDay"), snap => { todayWod = snap.val()||null; render(); });
+onValue(ref(db,"passes"),  snap => { passes  = snap.val()||{}; render(); });
+onValue(ref(db,"classes"), snap => { classes = snap.val()||{}; render(); });
 onValue(ref(db,"wods"), snap => {
   const raw = snap.val();
   if (raw) {
+    const GOM = {STRENGTH:0, HYROX:1, WOD:2};
     WODS = Object.entries(raw)
       .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time", youtube:v.youtube||""}))
-      .sort((a,b) => a.id - b.id);
+      .sort((a,b) => {
+        const ga=GOM[a.group]??9, gb=GOM[b.group]??9;
+        return ga!==gb ? ga-gb : a.id-b.id;
+      });
   } else {
     DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD", type:w.type||"time", youtube:""}));
   }
@@ -388,26 +405,18 @@ onValue(ref(db,"wods"), snap => {
 onValue(ref(db,"members"), snap => {
   const raw = snap.val()||{};
   members = Object.entries(raw)
-    .map(([id,m]) => ({id, name:m.name, records:m.records||{}, avatar:m.avatar??null}))
+    .map(([id,m]) => ({id, name:m.name, records:m.records||{}, avatar:m.avatar??null, gender:m.gender||"", dormant:!!m.dormant}))
     .sort((a,b) => a.name.localeCompare(b.name,"ko"));
-  // 진입 시 처리
+  // Auto-login: restore last member from localStorage
   if (S.view==="login" && !S.activeMemberId) {
     try {
-      if (loadCoachAuth()) {
-        // 코치 인증된 디바이스만 자동으로 코치 화면으로
-        S.view = "coach"; S.coachSection = "menu";
-      } else {
-        const saved = loadLastMember();
-        // 저장된 회원이 없는 첫 진입 → 이름 등록 모달
-        if (!saved && !S._registerShown) {
-          S._registerShown = true;
-          S.registerModal = true; S.registerStep = 1;
-          S.registerName = ""; S.registerErr = ""; S.registerAvatar = null;
-        }
-        // 저장된 회원이 있어도 login 화면 유지 (자동 진입 없음)
-        // 내 프로필 버튼으로 진입하거나 이름 클릭으로 진입
+      const saved = localStorage.getItem("mt_last_member");
+      if (!saved || !members.find(m=>m.id===saved)) {
+        S.profileModal = true;
       }
-    } catch(e) {}
+    } catch(e) {
+      S.profileModal = true;
+    }
   }
   render();
 });
@@ -446,32 +455,77 @@ function parseRecordVal(value, type) {
   return parseFloat(value) || 0;
 }
 
-const lb = (wid) => {
+const SCALE_ORDER = {"RXD":0, "":0, "A":1, "B":2};
+
+const lb = (wid, gender) => {
   const wod = WODS.find(w => w.id === wid);
   const type = wod?.type || "time";
-  return members
-    .filter(m => m.records[wid]?.value)
-    .map(m => ({name:m.name, ...m.records[wid]}))
-    .sort((a, b) => {
-      const va = parseRecordVal(a.value, type);
-      const vb = parseRecordVal(b.value, type);
-      if (type === "time") return va - vb;  // 시간: 낮을수록 1등
-      return vb - va;                        // 무게/라운드/횟수: 높을수록 1등
-    });
+  let pool = members.filter(m => !m.dormant);
+  if (gender) pool = pool.filter(m => m.gender === gender);
+  // All members in pool, those without record get score 100
+  return pool.map(m => {
+    const rec = m.records[wid];
+    return {
+      id: m.id,
+      name: m.name,
+      avatar: m.avatar,
+      gender: m.gender,
+      value: rec?.value || null,
+      scale: rec?.scale || "",
+      date: rec?.date || "",
+      history: rec?.history || [],
+    };
+  }).sort((a, b) => {
+    // No record = last
+    if (!a.value && !b.value) return 0;
+    if (!a.value) return 1;
+    if (!b.value) return -1;
+    // Scale order first: RXD > A > B
+    const sa = SCALE_ORDER[a.scale] ?? 0;
+    const sb = SCALE_ORDER[b.scale] ?? 0;
+    if (sa !== sb) return sa - sb;
+    // Same scale: sort by value
+    const va = parseRecordVal(a.value, type);
+    const vb = parseRecordVal(b.value, type);
+    if (type === "time") return va - vb;
+    return vb - va;
+  });
 };
 
-/* ── localStorage 헬퍼 ── */
-const LS_LAST  = "mt_last_member";
-const LS_COACH = "mt_coach_auth";
-function saveLastMember(id){ try{localStorage.setItem(LS_LAST,id);}catch{} }
-function loadLastMember(){ try{return localStorage.getItem(LS_LAST);}catch{return null;} }
-function clearLastMember(){ try{localStorage.removeItem(LS_LAST);}catch{} }
-function saveCoachAuth(){ try{localStorage.setItem(LS_COACH,"1");}catch{} }
-function loadCoachAuth(){ try{return localStorage.getItem(LS_COACH)==="1";}catch{return false;} }
-function clearCoachAuth(){ try{localStorage.removeItem(LS_COACH);}catch{} }
+// Calculate points for a ranked board
+const calcPoints = (board) => {
+  // board is already sorted
+  const points = [];
+  let i = 0;
+  while (i < board.length) {
+    if (!board[i].value) {
+      // No record = 100 points
+      points.push(100);
+      i++;
+      continue;
+    }
+    // Find all tied members at this position
+    let j = i + 1;
+    while (j < board.length && board[j].value &&
+      board[j].scale === board[i].scale &&
+      parseRecordVal(board[j].value, "x") === parseRecordVal(board[i].value, "x") &&
+      board[j].value === board[i].value) {
+      j++;
+    }
+    // Point = number of people ahead + 1
+    const pt = i + 1;
+    for (let k = i; k < j; k++) points.push(pt);
+    i = j;
+  }
+  return points;
+};
+
 
 /* ── localStorage 최근 방문자 ── */
-// localStorage helpers defined above
+const LS_LAST = "mt_last_member";
+function saveLastMember(id) { try { localStorage.setItem(LS_LAST, id); } catch {} }
+function loadLastMember() { try { return localStorage.getItem(LS_LAST); } catch { return null; } }
+function clearLastMember() { try { localStorage.removeItem(LS_LAST); } catch {} }
 
 /* ── YOUTUBE ── */
 function getYoutubeId(url) {
@@ -495,10 +549,11 @@ function renderYoutubeCard(url) {
 /* ══ RENDER ══ */
 function render() {
   const root = document.getElementById("app");
-  if      (S.view==="login")  root.innerHTML = renderLogin();
-  else if (S.view==="rank")   root.innerHTML = renderRank();
-  else if (S.view==="member") root.innerHTML = renderMember();
-  else if (S.view==="coach")  root.innerHTML = renderCoach();
+  if      (S.view==="member")  root.innerHTML = renderMember();
+  else if (S.view==="coach")   root.innerHTML = renderCoach();
+  else if (S.view==="rank")    root.innerHTML = renderRank();
+  else if (S.viewingMemberId)  root.innerHTML = renderMemberView();
+  else                         root.innerHTML = renderLogin();
   bind();
 }
 
@@ -506,14 +561,14 @@ function render() {
 function renderPickAvatarGrid(currentAvatar) {
   return AVATARS.map(function(src, i) {
     var border = currentAvatar === i ? "#3182F6" : "transparent";
-    return '<button data-pick-avatar="' + i + '" style="display:block;width:100%;padding-bottom:100%;position:relative;border:3px solid ' + border + ';border-radius:14px;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="' + src + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
+    return '<button data-pick-avatar="' + i + '" style="position:relative;width:100%;aspect-ratio:1;border:3px solid ' + border + ';border-radius:14px;padding:0;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="' + src + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
   }).join("");
 }
 
 function renderRegisterAvatarGrid() {
   return AVATARS.map(function(src, i) {
     var border = S.registerAvatar === i ? "#3182F6" : "transparent";
-    return '<button data-reg-avatar="' + i + '" style="display:block;width:100%;padding-bottom:100%;position:relative;border:3px solid ' + border + ';border-radius:14px;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="' + src + '" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
+    return '<button data-reg-avatar="' + i + '" style="position:relative;width:100%;aspect-ratio:1;border:3px solid ' + border + ';border-radius:14px;padding:0;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="' + src + '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
   }).join("");
 }
 
@@ -545,17 +600,19 @@ function renderLogin() {
         </div>
         ${(() => {
           try {
-            if (loadCoachAuth()) {
-              return '<button id="btn-coach-shortcut" style="display:flex;align-items:center;gap:6px;background:#1A1A2E;border:none;border-radius:99px;padding:7px 16px;cursor:pointer"><span style="font-size:14px">🔑</span><span style="font-size:13px;font-weight:800;color:#fff">코치</span></button>';
+            // 코치 로그인 상태면 코치 배지 표시
+            if (localStorage.getItem("mt_coach_logged")==="1") {
+              return '<button id="btn-open-coach-from-header" style="display:flex;align-items:center;gap:6px;background:#1A1A2E;border:none;border-radius:99px;padding:7px 14px;height:36px;cursor:pointer;font-size:13px;font-weight:700;color:#fff">🏋️ 코치</button>';
             }
-            const saved = loadLastMember();
+            const saved = localStorage.getItem("mt_last_member");
             const savedMember = saved && members.find(m=>m.id===saved);
-            if (!savedMember) return "";
+            if (!savedMember) return '<button id="btn-show-profile-modal" style="display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;padding:7px 14px;height:36px;cursor:pointer;font-size:13px;font-weight:600;color:#8B95A1">프로필 설정</button>';
             const src = getMemberAvatar(savedMember);
             const avHtml = src
-              ? '<img src="'+src+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #3182F6"/>'
-              : '<div style="width:34px;height:34px;border-radius:50%;background:#3182F6;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">'+savedMember.name[0]+'</div>';
-            return '<button id="btn-my-profile" data-profile-id="'+savedMember.id+'" style="display:flex;align-items:center;gap:7px;background:#EBF3FE;border:none;border-radius:99px;padding:4px 12px 4px 4px;cursor:pointer">'+avHtml+'<div style="display:flex;flex-direction:column;align-items:flex-start"><span style="font-size:11px;color:#8B95A1;font-weight:600;line-height:1.2">내 프로필</span><span style="font-size:13px;font-weight:800;color:#1A1A2E;line-height:1.2">'+savedMember.name+'</span></div></button>';
+              ? '<img src="'+src+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>'
+              : '<div style="width:28px;height:28px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center">'+savedMember.name[0]+'</div>';
+            return '<button id="btn-header-profile" data-login="'+savedMember.id+'" style="display:flex;align-items:center;gap:7px;background:#F2F4F6;border:none;border-radius:99px;padding:5px 12px 5px 5px;height:38px;cursor:pointer">'
+              +avHtml+'<span style="font-size:14px;font-weight:700;color:#1A1A2E">'+savedMember.name+'</span></button>';
           } catch(e) { return ""; }
         })()}
       </div>
@@ -569,11 +626,13 @@ function renderLogin() {
       const td = todayWod && todayWod[tKey];
       const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
       if (!bdWod) return "";
+      let hasSaved=false;
+      try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
+      const bdActionText=hasSaved?"탭해서 기록하기 →":"프로필 설정 후 기록하기 →";
       return '<div style="margin-bottom:24px">'
         +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:20px;cursor:pointer" id="btn-login-bmday">'
         +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
         +'<span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.6px">🎯 벤치마크 Day</span>'
-        +""
         +'</div>'
         +'<p style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.4px">'+(bdWod.name)+'</p>'
         +(bdWod.detail?'<p style="font-size:14px;color:rgba(255,255,255,.8);margin-top:4px">'+(bdWod.detail)+'</p>':'')
@@ -581,15 +640,12 @@ function renderLogin() {
         +'</div></div>';
     })()}
 
-    <!-- ③ 회원 선택 -->
+    <!-- ③ 전체 회원 보기 버튼 -->
     <div style="padding:0 20px 8px">
-      <div class="search-wrap">
-        ${ico.search}
-        <input id="inp-search" placeholder="이름으로 검색" value="${S.search}" autocomplete="off"/>
-        <button class="search-clear icon-btn" id="btn-clear" style="display:${S.search?"flex":"none"}">${ico.close}</button>
-      </div>
-      <p class="member-container-label">회원 선택</p>
-      <div id="member-grid-container">${rows}</div>
+      <button id="btn-all-members" style="width:100%;height:52px;background:#F2F4F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#1A1A2E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        전체 회원 보기
+      </button>
     </div>
 
     <!-- ④ 액션 카드 (순위 / MVP) -->
@@ -616,45 +672,39 @@ function renderLogin() {
           return { name: m.name, count };
         }).filter(x => x.count > 0).sort((a,b) => b.count - a.count);
         const mvp = scores[0];
-        if (!mvp) return `<div class="action-card" style="cursor:default">
-          <div class="action-card-icon">🌟</div>
-          <div class="action-card-title">이번 주 MVP</div>
-          <div class="action-card-sub">아직 기록이 없어요</div>
-        </div>`;
-        return `<div class="action-card" style="cursor:default;position:relative;overflow:hidden">
-          <div style="position:absolute;top:10px;right:12px;background:#EBF3FE;color:#3182F6;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px">MVP</div>
-          <div class="action-card-icon">👑</div>
-          <div class="action-card-title">${mvp.name}</div>
-          <div class="action-card-sub">이번 주 <strong style="color:#3182F6">${mvp.count}개</strong> 기록</div>
-        </div>`;
+        if (!mvp) return '<div class="action-card" style="cursor:default">'
+          +'<div class="action-card-icon">🌟</div>'
+          +'<div class="action-card-title">이번 주 MVP</div>'
+          +'<div class="action-card-sub">아직 기록이 없어요</div>'
+          +'</div>';
+        return '<div class="action-card" style="cursor:default;position:relative;overflow:hidden">'
+          +'<div style="position:absolute;top:10px;right:12px;background:#EBF3FE;color:#3182F6;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px">MVP</div>'
+          +'<div class="action-card-icon">👑</div>'
+          +'<div class="action-card-title">'+mvp.name+'</div>'
+          +'<div class="action-card-sub">이번 주 <strong style="color:#3182F6">'+mvp.count+'개</strong> 기록</div>'
+          +'</div>';
       })()}
     </div>
 
-    <!-- ⑤ 신규 등록 + 코치 로그인 -->
-    <div style="padding:0 20px 40px;display:flex;flex-direction:column;gap:10px">
-      ${(() => {
-        try {
-          const saved = loadLastMember();
-          const hasSavedMember = saved && members.find(m=>m.id===saved);
-          if (hasSavedMember) return "";  // 내 프로필 등록 사용자는 버튼 숨김
-          return '<button id="btn-register" style="width:100%;height:48px;background:#F2F4F6;border:none;border-radius:14px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 처음 오셨나요? 이름 등록하기</button>';
-        } catch(e) {
-          return '<button id="btn-register" style="width:100%;height:48px;background:#F2F4F6;border:none;border-radius:14px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg> 처음 오셨나요? 이름 등록하기</button>';
-        }
-      })()}
-      <button id="btn-open-pin" style="width:100%;height:48px;background:none;border:1.5px solid #E8EBED;border-radius:14px;font-size:14px;font-weight:600;color:#B0B8C1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+    <!-- ⑤ 코치 로그인 -->
+    <div style="padding:0 20px 40px">
+      <button id="btn-open-pin" style="width:100%;height:48px;background:none;border:1.5px solid #E8EBED;border-radius:14px;font-size:14px;font-weight:600;color:#B0B8C1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;line-height:1">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         코치 로그인
       </button>
     </div>
 
   </div></div>
+  ${S.profileModal ? renderProfileModal() : ""}
+  ${S.allMembersModal ? renderAllMembersModal() : ""}
+  ${S.bdRecordModal ? renderBdRecordModal() : ""}
   ${S.registerModal ? `
   <div class="modal-overlay" id="mo-register">
-    <div class="modal-box" onclick="event.stopPropagation()" style="padding:20px 18px 18px;width:calc(100% - 40px);max-width:340px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:22px 18px 18px;width:calc(100% - 40px);max-width:340px">
       ${S.registerStep===1 ? `
+        <!-- Step 1: 이름 입력 -->
         <div class="modal-title" style="margin-bottom:6px">처음 오셨나요? 👋</div>
-        <div style="font-size:14px;color:#8B95A1;margin-bottom:16px">이름을 입력해주세요</div>
+        <div style="font-size:13px;color:#8B95A1;margin-bottom:16px">이름을 입력해주세요</div>
         <input class="modal-input" id="inp-register-name" placeholder="이름 입력" value="${S.registerName}" autocomplete="off"/>
         ${S.registerErr ? `<div class="err-msg" style="text-align:left;margin-top:6px">${S.registerErr}</div>` : ""}
         <div style="display:flex;gap:8px;margin-top:14px">
@@ -662,13 +712,14 @@ function renderLogin() {
           <button class="modal-btn-save" id="btn-register-next" style="flex:2;height:48px">다음 →</button>
         </div>
       ` : `
+        <!-- Step 2: 캐릭터 선택 -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <button id="btn-register-back" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;min-height:44px;line-height:1">←</button>
+          <button id="btn-register-back" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1">←</button>
           <div class="modal-title" style="margin:0">캐릭터 선택</div>
           <div style="font-size:12px;color:#8B95A1;margin-left:auto">선택 안 해도 됩니다</div>
         </div>
-        <div style="overflow-y:auto;max-height:300px">
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:2px">
+        <div style="overflow-y:auto;max-height:340px">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
             ${renderRegisterAvatarGrid()}
           </div>
         </div>
@@ -678,26 +729,6 @@ function renderLogin() {
       `}
     </div>
   </div>` : ""}
-  ${S.profileModal ? (() => {
-    const pm = members.find(m=>m.id===S.profileModal);
-    if(!pm) return '';
-    const avGrid = AVATARS.map(function(src,i){
-      const sel=pm.avatar===i;
-      return '<button data-pav="'+i+'" style="display:block;width:100%;padding-bottom:100%;position:relative;border:3px solid '+(sel?'#3182F6':'transparent')+';border-radius:14px;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="'+src+'" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover"/></button>';
-    }).join('');
-    return '<div class="modal-overlay" id="mo-profile">'
-      +'<div class="modal-box" onclick="event.stopPropagation()" style="padding:22px 18px 18px;width:calc(100% - 40px);max-width:340px">'
-      +'<div style="font-size:18px;font-weight:800;margin-bottom:4px">내 프로필 수정</div>'
-      +'<div style="font-size:13px;color:#8B95A1;margin-bottom:16px">이름과 캐릭터를 변경할 수 있어요</div>'
-      +'<div style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:6px">이름</div>'
-      +'<input id="inp-profile-name" class="modal-input" value="'+pm.name+'" autocomplete="off" style="margin-bottom:14px"/>'
-      +'<div style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">캐릭터</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;max-height:220px;overflow-y:auto;padding:2px">'+avGrid+'</div>'
-      +'<div style="display:flex;gap:8px">'
-      +'<button class="modal-btn-cancel" id="btn-profile-cancel" style="flex:1;height:48px">취소</button>'
-      +'<button class="modal-btn-save" id="btn-profile-save" style="flex:2;height:48px">저장</button>'
-      +'</div></div></div>';
-  })() : ""}
   ${S.pinModal ? `<div class="pin-modal-overlay" id="pin-overlay">
     <div class="pin-modal-box" onclick="event.stopPropagation()">
       <div class="pin-modal-title">코치 로그인</div>
@@ -707,113 +738,244 @@ function renderLogin() {
       ${S.pinErr ? `<div class="err-msg">PIN이 올바르지 않아요</div>` : ""}
       <button class="pin-confirm-btn" id="btn-pin">확인</button>
     </div></div>` : ""}
-  ${(() => {
-    // 벤치마크 Day 상세 모달 (메인 화면에서 배너 클릭 시)
-    if (!S.bdModal) return "";
-    const tKey2 = todayKey();
-    const td2 = todayWod && todayWod[tKey2];
-    const bdWod2 = td2 ? WODS.find(w=>w.id===parseInt(td2.wodId)) : null;
-    if (!bdWod2) return "";
-    const ytId2 = (bdWod2.youtube||'').match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
-    const vid2 = ytId2 ? ytId2[1] : null;
-    const wt2 = bdWod2.type || 'time';
-
-    // 내 프로필(저장된 회원) 확인
-    const myId = loadLastMember();
-    const myMember = myId ? members.find(m=>m.id===myId) : null;
-    const myRec2 = myMember ? myMember.records[bdWod2.id] : null;
-
-    // 입력 폼 구성
-    let inp2 = '';
-    if (myMember) {
-      if (S.editing && S.editing.wodId === bdWod2.id) {
-        // 입력 중
-        if (wt2 === 'time') {
-          inp2 = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-            +'<div style="flex:1;background:#F2F4F6;border-radius:12px;height:52px;display:flex;align-items:center;padding:0 12px;gap:4px"><input id="bdi-min" type="text" inputmode="numeric" placeholder="0" value="'+S.timeVal.min+'" style="flex:1;background:none;border:none;outline:none;font-size:22px;font-weight:700;text-align:center;color:#1A1A2E"/><span style="font-size:14px;color:#8B95A1">분</span></div>'
-            +'<span style="font-size:18px;color:#B0B8C1">:</span>'
-            +'<div style="flex:1;background:#F2F4F6;border-radius:12px;height:52px;display:flex;align-items:center;padding:0 12px;gap:4px"><input id="bdi-sec" type="text" inputmode="numeric" placeholder="00" value="'+S.timeVal.sec+'" style="flex:1;background:none;border:none;outline:none;font-size:22px;font-weight:700;text-align:center;color:#1A1A2E"/><span style="font-size:14px;color:#8B95A1">초</span></div>'
-            +'</div>';
-        } else {
-          const u2 = wt2==='weight'?'kg':wt2==='rounds'?'라운드 + 렙':wt2==='reps'?'회':'';
-          const pv2 = myRec2?(wt2==='weight'?parseFloat(myRec2.value)||'':wt2==='rounds'?(myRec2.value||'').replace(/R$/,''):wt2==='reps'?(myRec2.value||'').replace(/회$/,''):myRec2.value||''):'';
-          inp2 = '<div style="background:#F2F4F6;border-radius:12px;height:52px;display:flex;align-items:center;padding:0 16px;gap:8px;margin-bottom:12px"><input id="bdi-val" type="text" inputmode="'+(wt2==='weight'?'decimal':'numeric')+'" placeholder="0" value="'+pv2+'" style="flex:1;background:none;border:none;outline:none;font-size:22px;font-weight:700;text-align:center;color:#1A1A2E"/><span style="font-size:15px;color:#8B95A1">'+u2+'</span></div>';
-        }
-        inp2 += '<input id="bdi-scale" placeholder="스케일 (RX, Scaled 등)" value="'+(S.editVal.scale||'')+'" style="display:block;width:100%;height:46px;background:#F2F4F6;border:none;border-radius:12px;padding:0 14px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;margin-bottom:12px"/>'
-          +'<div style="display:flex;gap:8px">'
-          +'<button id="bdi-cancel" style="flex:1;height:50px;background:#F2F4F6;border:none;border-radius:12px;font-size:15px;font-weight:600;color:#8B95A1;cursor:pointer">취소</button>'
-          +'<button id="bdi-save" data-mid="'+myMember.id+'" data-wid="'+bdWod2.id+'" data-wt="'+wt2+'" style="flex:2;height:50px;background:#3182F6;border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer">저장</button>'
-          +'</div>';
-      } else {
-        // 기록 입력 버튼
-        const src2 = getMemberAvatar(myMember);
-        const avHtml2 = src2
-          ? '<img src="'+src2+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #3182F6"/>'
-          : '<div style="width:32px;height:32px;border-radius:50%;background:#3182F6;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">'+myMember.name[0]+'</div>';
-        inp2 = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;background:#F8F9FA;border-radius:12px;padding:10px 14px">'
-          +avHtml2
-          +'<span style="font-size:14px;font-weight:700;color:#1A1A2E">'+myMember.name+'</span>'
-          +(myRec2?'<span style="margin-left:auto;font-size:14px;font-weight:800;color:#3182F6">'+myRec2.value+'</span>':'')
-          +'</div>'
-          +'<button id="bdi-open" data-mid="'+myMember.id+'" data-wid="'+bdWod2.id+'" data-wt="'+wt2+'" style="width:100%;height:50px;background:'+(myRec2?'#F2F4F6':'#3182F6')+';border:none;border-radius:12px;font-size:16px;font-weight:700;color:'+(myRec2?'#8B95A1':'#fff')+';cursor:pointer">'+(myRec2?'✏️ 기록 수정':'+ 기록 입력')+'</button>';
-      }
-    } else {
-      // 내 프로필 없는 경우
-      inp2 = '<p style="font-size:14px;color:#8B95A1;text-align:center;padding:14px 0;line-height:1.6">아래 회원 목록에서 이름을 선택하면<br>기록을 입력할 수 있어요 👇</p>';
-    }
-
-    return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:flex-end;justify-content:center" id="bdi-overlay">'
-      +'<div onclick="event.stopPropagation()" style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px calc(32px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-      +'<span style="font-size:12px;font-weight:800;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px">🎯 벤치마크 Day</span>'
-      +'<button id="bdi-close" style="background:none;border:none;font-size:26px;color:#B0B8C1;cursor:pointer;line-height:1;padding:0">×</button>'
-      +'</div>'
-      +'<p style="font-size:22px;font-weight:800;color:#1A1A2E;letter-spacing:-.5px;margin-bottom:4px">'+bdWod2.name+'</p>'
-      +(bdWod2.detail?'<p style="font-size:14px;color:#8B95A1;margin-bottom:14px">'+bdWod2.detail+'</p>':'<div style="margin-bottom:14px"></div>')
-      +(td2.note?'<p style="font-size:13px;color:#8B95A1;background:#F8F9FA;border-radius:10px;padding:10px 14px;margin-bottom:14px">💬 '+td2.note+'</p>':'')
-      +(vid2?'<a href="https://youtu.be/'+vid2+'" target="_blank" rel="noopener" style="display:block;border-radius:14px;overflow:hidden;margin-bottom:16px;position:relative;text-decoration:none">'
-        +'<img src="https://img.youtube.com/vi/'+vid2+'/mqdefault.jpg" style="width:100%;display:block"/>'
-        +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg></div></div>'
-        +'</a>':'')
-      +(myMember?'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:10px">기록 입력</p>':'')
-      +inp2
-      +'</div></div>';
-  })()}
   </div>`;
+}
+
+
+/* ── ALL MEMBERS MODAL ── */
+function renderAllMembersModal() {
+  const rows = members.map(function(m) {
+    const src = getMemberAvatar(m);
+    const done = Object.keys(m.records).length;
+    const pct  = Math.round(done / WODS.length * 100);
+    const avHtml = src
+      ? '<img src="'+src+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>'
+      : '<div style="width:44px;height:44px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
+    return '<button data-view-member="'+m.id+'" style="display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid #F2F4F6;padding:14px 0;cursor:pointer;-webkit-tap-highlight-color:transparent">'
+      +'<div style="flex-shrink:0">'+avHtml+'</div>'
+      +'<div style="flex:1;min-width:0;text-align:left">'
+      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
+      +'<p style="font-size:12px;color:#8B95A1;margin-top:2px">'+done+'/'+WODS.length+' 완료 · '+pct+'%</p>'
+      +'</div>'
+      +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
+      +'</button>';
+  }).join('');
+
+  return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center" id="all-members-overlay">'
+    +'<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;flex-shrink:0">'
+    +'<p style="font-size:18px;font-weight:800;color:#1A1A2E">전체 회원</p>'
+    +'<button id="btn-all-members-close" style="background:none;border:none;cursor:pointer;padding:6px;color:#8B95A1">'+ico.close+'</button>'
+    +'</div>'
+    +'<div style="overflow-y:auto;padding:0 20px 20px">'+rows+'</div>'
+    +'</div></div>';
+}
+
+/* ── MEMBER VIEW (read-only) ── */
+function renderMemberView() {
+  const m = members.find(function(x){return x.id===S.viewingMemberId;});
+  if (!m) { S.viewingMemberId=null; S.view="login"; render(); return ""; }
+  const done = Object.keys(m.records).length;
+  const pct  = Math.round(done/WODS.length*100);
+  let lastGroup = null;
+
+  const wodRows = WODS.map(function(wod) {
+    const g = wod.group||"WOD";
+    const GL = {STRENGTH:"💪 STRENGTH", HYROX:"🏃 HYROX", WOD:"🔥 WOD"};
+    let gh = "";
+    if (g !== lastGroup) {
+      gh = '<div style="padding:16px 16px 8px;font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">'+(GL[g]||g)+'</div>';
+      lastGroup = g;
+    }
+    const rec = m.records[wod.id];
+    const recHtml = rec
+      ? '<span style="font-size:18px;font-weight:800;color:#1A1A2E;display:block;margin-top:8px">'+rec.value+'</span>'
+        +(rec.scale?'<span style="font-size:12px;color:#8B95A1;margin-top:4px;display:block">'+rec.scale+'</span>':'')
+        +'<span style="font-size:12px;color:#B0B8C1;margin-top:2px;display:block">'+rec.date+'</span>'
+      : '<span style="font-size:13px;color:#B0B8C1;margin-top:8px;display:block">기록 없음</span>';
+
+    return gh+'<div class="wod-row'+(rec?" done":"")+'">'
+      +'<div class="wod-badge'+(rec?" done":"")+'">'+wod.id+'</div>'
+      +'<div class="wod-content">'
+      +'<p class="wod-name">'+wod.name+'</p>'
+      +(wod.detail?'<p class="wod-detail">'+wod.detail+'</p>':'')
+      +recHtml+'</div></div>';
+  }).join('');
+
+  return '<div class="screen">'
+    +'<div class="nav">'
+    +'<button class="nav-back icon-btn" id="btn-member-view-back">'+ico.chevL+'</button>'
+    +'<div style="display:flex;align-items:center;gap:8px;flex:1">'
+    +(getMemberAvatar(m)?'<img src="'+getMemberAvatar(m)+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>':'')
+    +'<span style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</span>'
+    +'</div>'
+    +'<span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px">'+pct+'%</span>'
+    +'</div>'
+    +'<div style="padding:10px 16px;background:#fff;border-bottom:1px solid #E8EBED;display:flex;align-items:center;gap:10px;flex-shrink:0">'
+    +'<div class="progress-track" style="flex:1"><div class="progress-fill" style="width:'+pct+'%;background:#3182F6"></div></div>'
+    +'<span style="font-size:12px;color:#8B95A1;font-weight:600">'+done+'/'+WODS.length+'</span>'
+    +'</div>'
+    +'<div class="scroll">'+wodRows+'<div style="height:24px"></div></div>'
+    +'</div>';
+}
+
+
+/* ── BENCHMARK DAY RECORD MODAL ── */
+function renderBdRecordModal() {
+  const tKey = todayKey();
+  const td = todayWod && todayWod[tKey];
+  const wid = td ? parseInt(td.wodId) : null;
+  const wod = wid ? WODS.find(w=>w.id===wid) : null;
+  if (!wod) return "";
+
+  const mid = S.activeMemberId;
+  const m = members.find(x=>x.id===mid);
+  if (!m) return "";
+  const rec = m.records[wid]||{};
+  const wtype = wod.type||"time";
+
+  let inputHtml = "";
+  if (wtype==="time") {
+    inputHtml = '<div class="time-input-row">'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-min" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+S.timeVal.min+'"/><span class="time-field-label">분</span></div>'
+      +'<span class="time-sep">:</span>'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-sec" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="00" value="'+S.timeVal.sec+'"/><span class="time-field-label">초</span></div>'
+      +'</div>';
+  } else if (wtype==="weight") {
+    const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
+    inputHtml = '<div class="time-input-row"><div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-bd-weight" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="'+prev+'"/><span class="time-field-label">kg</span></div></div>';
+  } else if (wtype==="rounds") {
+    const rMatchBd = S.editVal.value ? S.editVal.value.match(/^(\d+)R\+(\d+)$/) : null;
+    const rValBd = rMatchBd ? rMatchBd[1] : (S.editVal.value ? S.editVal.value.replace(/R.*/,"") : "");
+    const repValBd = rMatchBd ? rMatchBd[2] : "";
+    inputHtml = '<div class="time-input-row">'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+rValBd+'"/><span class="time-field-label">라운드</span></div>'
+      +'<span class="time-sep">+</span>'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+repValBd+'"/><span class="time-field-label">렙</span></div>'
+      +'</div>';
+  } else {
+    const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
+    inputHtml = '<div class="time-input-row"><div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-bd-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+prev+'"/><span class="time-field-label">횟수</span></div></div>';
+  }
+
+  return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center" id="bd-record-overlay">'
+    +'<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<div>'
+    +'<p style="font-size:12px;font-weight:700;color:#3182F6;letter-spacing:.4px;margin-bottom:4px">🎯 벤치마크 Day</p>'
+    +'<p style="font-size:20px;font-weight:800;color:#1A1A2E;letter-spacing:-.4px">'+wod.name+'</p>'
+    +(wod.detail?'<p style="font-size:13px;color:#8B95A1;margin-top:3px">'+wod.detail+'</p>':'')
+    +'</div>'
+    +'<button id="btn-bd-modal-close" style="background:none;border:none;cursor:pointer;padding:6px;color:#8B95A1">'+ico.close+'</button>'
+    +'</div>'
+    +(rec.value?'<p style="font-size:13px;color:#8B95A1;margin-bottom:14px;margin-top:4px">이전 기록: <strong style="color:#1A1A2E">'+rec.value+'</strong></p>':'<div style="height:14px"></div>')
+    +inputHtml
+    +'<div style="display:flex;gap:6px;margin-top:10px">'
+    +['RXD','A','B'].map(function(s){
+      var active=S.editVal.scale===s;
+      return '<button data-bd-scale-btn="'+s+'" style="flex:1;height:36px;border-radius:10px;border:2px solid '+(active?'#3182F6':'#E8EBED')+';background:'+(active?'#EBF3FE':'#F2F4F6')+';color:'+(active?'#3182F6':'#8B95A1')+';font-size:13px;font-weight:700;cursor:pointer">'+s+'</button>';
+    }).join('')
+    +'</div>'
+    +'<button id="btn-bd-save" data-save="'+mid+'" data-wid="'+wid+'" data-wtype="'+wtype+'" style="width:100%;height:52px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:12px">저장</button>'
+    +'</div></div>';
 }
 
 /* ── RANK ── */
 function renderRank() {
+  const GENDERS = [{key:"male",label:"남성 👨"},{key:"female",label:"여성 👩"}];
+  const medals = ["🥇","🥈","🥉"];
+
+  // Per-WOD points per gender per member: {memberId: points}
+  const allPoints = {}; // {memberId: totalPoints}
+  members.filter(m=>!m.dormant).forEach(m=>{ allPoints[m.id]=0; });
+
+  const renderGenderBoard = (wod, gender) => {
+    const board = lb(wod.id, gender);
+    if (board.length === 0) return "";
+    const points = calcPoints(board);
+    // Accumulate total points
+    board.forEach((r,i) => { if(allPoints[r.id]!==undefined) allPoints[r.id] += points[i]; });
+
+    const rows = board.map((r,i) => {
+      const src = r.avatar!=null ? AVATARS[r.avatar] : null;
+      const avHtml = src
+        ? '<img src="'+src+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0"/>'
+        : '<div style="width:28px;height:28px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+r.name[0]+'</div>';
+      const medal = i < 3 && r.value ? medals[i] : '';
+      const scaleChip = r.scale && r.scale!=="RXD" ? '<span style="font-size:10px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:2px 6px;border-radius:99px">'+r.scale+'</span>' : (r.scale==="RXD"?'<span style="font-size:10px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:2px 6px;border-radius:99px">RXD</span>':'');
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F8F9FA">'
+        +'<span style="font-size:14px;width:24px;text-align:center;flex-shrink:0">'+(medal||('<span style="font-size:12px;color:#B0B8C1">'+(i+1)+'</span>'))+'</span>'
+        +avHtml
+        +'<div style="flex:1;min-width:0">'
+        +'<p style="font-size:14px;font-weight:700;color:#1A1A2E">'+r.name+'</p>'
+        +(r.value?'<div style="display:flex;align-items:center;gap:6px;margin-top:2px"><span style="font-size:13px;font-weight:800;color:#3182F6">'+r.value+'</span>'+scaleChip+'</div>':'<p style="font-size:12px;color:#B0B8C1">미측정</p>')
+        +'</div>'
+        +'<span style="font-size:12px;font-weight:700;color:#8B95A1;flex-shrink:0">'+points[i]+'점</span>'
+        +'</div>';
+    }).join('');
+
+    return '<div style="margin-bottom:8px">'
+      +'<p style="font-size:11px;font-weight:800;color:#8B95A1;letter-spacing:.5px;padding:8px 0 4px">'+(gender==="male"?"남성":"여성")+'</p>'
+      +rows+'</div>';
+  };
+
+  const wodCards = WODS.map(wod => {
+    const mBoard = renderGenderBoard(wod, "male");
+    const fBoard = renderGenderBoard(wod, "female");
+    if (!mBoard && !fBoard) return '<div class="rank-row-card"><span class="rank-row-wod-name">'+wod.name+'</span><p style="font-size:13px;color:#B0B8C1;padding:8px 0">기록 없음</p></div>';
+    return '<div class="rank-row-card">'
+      +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px">'+wod.name+'</p>'
+      +(wod.detail?'<p style="font-size:12px;color:#8B95A1;margin-bottom:8px">'+wod.detail+'</p>':'<div style="margin-bottom:8px"></div>')
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      +(mBoard||'<div></div>')+(fBoard||'<div></div>')
+      +'</div>'
+      +'</div>';
+  }).join('');
+
+  // Total ranking per gender
+  const renderTotalRank = (gender) => {
+    const pool = members.filter(m=>!m.dormant && m.gender===gender);
+    if (pool.length===0) return "";
+    const sorted = pool.map(m=>({...m, total:allPoints[m.id]||0})).sort((a,b)=>a.total-b.total);
+    const rows = sorted.map((m,i)=>{
+      const src = m.avatar!=null ? AVATARS[m.avatar] : null;
+      const avHtml = src
+        ? '<img src="'+src+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0"/>'
+        : '<div style="width:28px;height:28px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+m.name[0]+'</div>';
+      const medal = i<3?medals[i]:'';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F8F9FA">'
+        +'<span style="font-size:14px;width:24px;text-align:center;flex-shrink:0">'+(medal||'<span style="font-size:12px;color:#B0B8C1">'+(i+1)+'</span>')+'</span>'
+        +avHtml
+        +'<p style="flex:1;font-size:14px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
+        +'<span style="font-size:13px;font-weight:800;color:#3182F6;flex-shrink:0">'+m.total+'점</span>'
+        +'</div>';
+    }).join('');
+    return '<div style="margin-bottom:8px">'
+      +'<p style="font-size:11px;font-weight:800;color:#8B95A1;letter-spacing:.5px;padding:8px 0 4px">'+(gender==="male"?"남성":"여성")+'</p>'
+      +rows+'</div>';
+  };
+
+  // Note: allPoints is accumulated during wodCards rendering above
+  // So total rank must come after
+  const totalSection = '<div class="rank-row-card">'
+    +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px">🏆 종합 순위</p>'
+    +'<p style="font-size:12px;color:#8B95A1;margin-bottom:10px">낮을수록 높은 등수 · 미측정 100점</p>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +(renderTotalRank("male")||'<div></div>')+(renderTotalRank("female")||'<div></div>')
+    +'</div>'
+    +'</div>';
+
   return `<div class="rank-page">
     <div class="rank-page-nav">
       <button class="nav-back icon-btn" id="btn-rank-back">${ico.chevL}</button>
-      <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">세션 1등</span>
+      <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">순위</span>
       <div style="width:32px"></div>
     </div>
     <div class="rank-page-body">
-      ${WODS.map(wod => {
-        const board = lb(wod.id);
-        const medals = ["🥇","🥈","🥉"];
-        const top3 = board.slice(0,3);
-        return `<div class="rank-row-card">
-          <div class="rank-row-wod-info">
-            <span class="rank-row-wod-name">${wod.name}</span>
-          </div>
-          ${top3.length === 0
-            ? `<div class="rank-row-empty-box">기록 없음</div>`
-            : top3.map((r,i) => `
-              <div class="rank-row-result" style="${i>0?"border-top:1px solid #F2F4F6":""}">
-                <span style="font-size:${i===0?"26px":"20px"};flex-shrink:0;width:32px;text-align:center">${medals[i]}</span>
-                <div class="rank-first-info">
-                  <span class="rank-first-name">${r.name}</span>
-                  <span class="rank-first-val" style="font-size:${i===0?"22px":"17px"}">${r.value}</span>
-                </div>
-                ${r.scale?`<span class="pill-blue">${r.scale}</span>`:""}
-              </div>`).join("")
-          }
-        </div>`;
-      }).join("")}
-    </div></div>`;
+      ${totalSection}
+      ${wodCards}
+    </div>
+  </div>`;
 }
 
 /* ── MEMBER ── */
@@ -898,6 +1060,7 @@ function renderCoach() {
         <div class="sidebar-info"><span class="sidebar-name${act?" active":""}">${m.name}</span><span class="sidebar-sub">${cnt}/${WODS.length}</span></div>
       </div>
       <div class="sidebar-actions">
+        <button data-set-gender="${m.id}" style="background:${m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6"};border:none;border-radius:6px;padding:3px 7px;font-size:11px;font-weight:700;color:${m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1"};cursor:pointer;min-height:28px">${m.gender==="male"?"남":m.gender==="female"?"여":"성별"}</button>
         <button class="sidebar-icon-btn" data-rename="${m.id}" data-rname="${m.name}">${ico.edit}</button>
         <button class="sidebar-icon-btn" data-delconfirm="${m.id}">${ico.trash}</button>
       </div></div>`;
@@ -965,8 +1128,8 @@ function renderCoach() {
 
   /* rename / delete member modals */
   const renameModal = S.editingMember ? `
-  <div class="modal-overlay" id="mo-rename">
-    <div class="modal-box" onclick="event.stopPropagation()">
+  <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="width:100%;max-width:320px">
       <div class="modal-title">이름 수정</div>
       <input class="modal-input" id="inp-rename" value="${S.editingMember.name}" placeholder="이름 입력"/>
       <div class="modal-btns"><button class="modal-btn-cancel" id="btn-rename-cancel">취소</button><button class="modal-btn-save" id="btn-rename-save">저장</button></div>
@@ -974,8 +1137,8 @@ function renderCoach() {
 
   const delModal = S.confirmDelete ? (() => {
     const t=members.find(m=>m.id===S.confirmDelete);
-    return `<div class="modal-overlay" id="mo-del">
-      <div class="modal-box" onclick="event.stopPropagation()">
+    return `<div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px">
+      <div class="modal-box" onclick="event.stopPropagation()" style="width:100%;max-width:320px">
         <div class="modal-title">회원 삭제</div>
         <div class="modal-desc"><strong>${t?.name}</strong> 회원을 삭제할까요?<br/><span style="color:#8B95A1;font-size:14px">모든 기록도 함께 삭제돼요.</span></div>
         <div class="modal-btns"><button class="modal-btn-cancel" id="btn-del-cancel">취소</button><button class="modal-btn-delete" id="btn-del-ok">삭제</button></div>
@@ -991,16 +1154,16 @@ function renderCoach() {
   // 메뉴 화면
   if (S.coachSection==="menu") {
     const menus = [
-      {key:"sheet",  icon:"👥", label:"회원 관리",    desc:"회원 등록·삭제·기록 조회"},
-      {key:"bmday",  icon:"🎯", label:"벤치마크 Day", desc:"오늘의 측정 WOD 등록"},
-      {key:"wod",    icon:"🔥", label:"WOD 관리",     desc:"WOD 추가·수정·삭제"},
-      {key:"msg",    icon:"💬", label:"한마디",       desc:"메인 화면 공지 메시지"},
+      {key:"members", icon:"👥", label:"회원 관리",    desc:"회원 정보 및 기록 관리"},
+      {key:"bmday",   icon:"🎯", label:"벤치마크 Day", desc:"오늘의 측정 WOD 등록"},
+      {key:"wod",     icon:"🔥", label:"WOD 관리",     desc:"WOD 추가·수정·삭제"},
+      {key:"msg",     icon:"💬", label:"한마디",       desc:"메인 화면 공지 메시지"},
     ];
     return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
       <div class="nav">
         <button class="nav-back icon-btn" id="btn-coach-back">${ico.chevL}</button>
         <div class="nav-title">코치 대시보드</div>
-        <button id="btn-coach-logout" style="background:none;border:1px solid #E8EBED;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:#8B95A1;cursor:pointer">로그아웃</button>
+        <div style="background:#1A1A2E;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;letter-spacing:.3px">COACH</div>
       </div>
       <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;flex:1">
         ${menus.map(m=>`
@@ -1013,64 +1176,24 @@ function renderCoach() {
             ${ico.chevR}
           </button>`).join("")}
       </div>
-    </div>`;
+    </div>
+`;
   }
 
   // 섹션 화면 — 상단에 ← + 섹션명
-  const sectionLabels = {sheet:"회원 관리", rank:"순위", bmday:"벤치마크 Day", wod:"WOD 관리", msg:"한마디"};
-  // Dynamic nav: if in member sheet view, show member name + back to list
-  const isInSheet = S.coachTab==="sheet" && S.coachSheetView==="sheet" && S.panelId;
-  const sheetMember = isInSheet ? members.find(m=>m.id===S.panelId) : null;
+  const sectionLabels = {members:"회원 관리", rank:"순위", bmday:"벤치마크 Day", wod:"WOD 관리", msg:"한마디"};
+  const isInMemberDetail = S.coachTab==="members" && S.panelId;
+  const detailMember = isInMemberDetail ? members.find(m=>m.id===S.panelId) : null;
+  const navBackId = isInMemberDetail ? "btn-member-detail-back" : "btn-coach-section-back";
+  const navTitle = isInMemberDetail ? (detailMember?.name||"") : (sectionLabels[S.coachTab]||"코치 대시보드");
 
   return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
     <div class="nav">
-      <button class="nav-back icon-btn" id="${isInSheet ? "btn-sheet-back" : "btn-coach-section-back"}">${ico.chevL}</button>
-      <div class="nav-title">${isInSheet ? (sheetMember?.name||"") : (sectionLabels[S.coachTab]||"코치 대시보드")}</div>
-      ${isInSheet ? `<span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px">${pct}%</span>` : `<div style="width:32px"></div>`}
+      <button class="nav-back icon-btn" id="${navBackId}">${ico.chevL}</button>
+      <div class="nav-title">${navTitle}</div>
+      ${isInMemberDetail ? `<span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px">${pct}%</span>` : `<div style="background:#1A1A2E;color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:99px;letter-spacing:.3px">COACH</div>`}
     </div>
-    ${S.coachTab==="sheet" ? (S.coachSheetView==="sheet" && S.panelId ? `
-    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div style="background:#fff;border-bottom:1px solid #E8EBED;flex-shrink:0">
-        <div style="display:flex">
-          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer">리스트</button>
-          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[S.panelId]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[S.panelId]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer">그래프</button>
-        </div>
-      </div>
-      <div class="sheet-panel" style="flex:1;overflow-y:auto">${sheet}</div>
-    </div>` : `
-    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 8px;flex-shrink:0">
-        <span style="font-size:14px;font-weight:700;color:#8B95A1">회원 ${members.length}명</span>
-        <button class="add-member-btn" id="btn-add-member">${ico.plus} 추가</button>
-      </div>
-      <div style="padding:0 18px 8px;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:0 12px;height:42px;border:1.5px solid #E8EBED">
-          ${ico.search}
-          <input id="inp-coach-member-search" placeholder="이름 검색" value="${S.coachMemberSearch}"
-            style="flex:1;background:none;border:none;outline:none;font-size:14px;color:#1A1A2E" autocomplete="off"/>
-        </div>
-      </div>
-      ${addBox ? `<div style="padding:0 18px 8px">${addBox}</div>` : ""}
-      <div id="coach-member-grid" style="flex:1;overflow-y:auto;padding:0 18px 24px">
-        ${members.filter(m=>m.name.includes(S.coachMemberSearch)).map(m => {
-          const cnt = Object.keys(m.records).length;
-          const src = getMemberAvatar(m);
-          return `<div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:12px 14px 12px 18px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-            <div data-sel-member="${m.id}" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer">
-              <div style="flex-shrink:0">
-                ${src ? `<img src="${src}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>` : `<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
-              </div>
-              <div style="flex:1;min-width:0">
-                <p style="font-size:16px;font-weight:700;color:#1A1A2E">${m.name}</p>
-                <p style="font-size:12px;color:#8B95A1;margin-top:2px">${cnt}/${WODS.length} 완료</p>
-              </div>
-              <div style="width:60px;flex-shrink:0"><div class="progress-track"><div class="progress-fill" style="width:${Math.round(cnt/WODS.length*100)}%;background:#3182F6"></div></div></div>
-            </div>
-            <button data-delconfirm="${m.id}" style="flex-shrink:0;width:36px;height:36px;background:#FEF2F2;border:none;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer">${ico.trash}</button>
-          </div>`;
-        }).join("")}
-      </div>
-    </div>`)
+    ${S.coachTab==="members" ? (S.panelId ? renderCoachMemberDetail() : renderCoachMembers())
     : S.coachTab==="rank" ? `<div style="overflow-y:auto;flex:1">${lbPanel}</div>`
     : S.coachTab==="bmday" ? renderBenchmarkDayMgr()
     : S.coachTab==="wod"  ? wodManager
@@ -1089,13 +1212,14 @@ function renderCoach() {
         </div>
       </div>`}
     ${renameModal}${delModal}${wodEditOverlay}
+
   </div>`;
 }
 
 /* ── WOD Edit Chips (group + type, for edit overlay) ── */
 function renderWodEditChips(wod) {
   if (!wod) return "";
-  const groups = ["STRENGTH","CARDIO","WOD"];
+  const groups = ["STRENGTH","HYROX","WOD"];
   const types  = [{key:"time",label:"시간"},{key:"weight",label:"무게"},{key:"rounds",label:"라운드"},{key:"reps",label:"횟수"}];
   const g = wod.group || "WOD";
   const t = wod.type  || "time";
@@ -1115,7 +1239,7 @@ function renderWodEditChips(wod) {
 
 /* ── WOD Add Form (separate fn to avoid nested template literal issues) ── */
 function renderWodAddForm() {
-  const groups = ["STRENGTH","CARDIO","WOD"];
+  const groups = ["STRENGTH","HYROX","WOD"];
   const types  = [
     {key:"time",   label:"시간"},
     {key:"weight", label:"무게"},
@@ -1151,13 +1275,10 @@ function renderWodAddForm() {
 
 /* ── WOD list with group headers ── */
 function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
-  const GROUP_ORDER = ["STRENGTH","CARDIO","WOD"];
-  const GROUP_LABELS = {STRENGTH:"STRENGTH", CARDIO:"CARDIO", WOD:"WOD"};
+  const GROUP_ORDER = ["STRENGTH","HYROX","WOD"];
+  const GROUP_LABELS = {STRENGTH:"STRENGTH", HYROX:"HYROX", WOD:"WOD"};
   let html = "";
   let lastGroup = null;
-  // Fix 4: 코치뷰(showDel=true)이면 항상 편집 가능, 회원뷰는 내 프로필만 가능
-  const _myId = (() => { try { return loadLastMember(); } catch(e) { return null; } })();
-  const isEditable = showDel || (_myId === member.id);
   wods.forEach(wod => {
     const g = wod.group || "WOD";
     if (g !== lastGroup) {
@@ -1166,16 +1287,131 @@ function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
     }
     const rec = member.records[wod.id];
     const isEd = S.editing?.memberId === member.id && S.editing?.wodId === wod.id;
-    html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube, isEditable);
+    html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube);
   });
   return html;
 }
 
 
-/* ── BENCHMARK DAY HOME ── */
+
+/* ── PROFILE MODAL ── */
+function renderProfileModal() {
+  const GRID_COLS = 4;
+
+  const memberRows = '<div class="member-grid" style="margin-bottom:16px">'
+    + members.map(function(m) {
+        const src = getMemberAvatar(m);
+        const avHtml = src
+          ? '<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>'
+          : m.name[0];
+        return '<button class="member-cell" data-profile-select="'+m.id+'">'
+          +'<div class="member-cell-av">'+avHtml+'</div>'
+          +'<span class="member-cell-name">'+m.name+'</span>'
+          +'</button>';
+      }).join("")
+    + '</div>';
+
+  const newNameSection = '<div style="margin-top:4px">'
+    +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">새 프로필 등록</p>'
+    +'<input id="inp-profile-name" class="input" style="height:48px;margin-bottom:8px" placeholder="이름 입력" value="'+(S.profileNewName||'')+'"/>'
+    +'<div style="display:flex;gap:8px;margin-bottom:8px">'
+    +'<button id="btn-gender-male" style="flex:1;height:44px;border-radius:12px;border:2px solid '+(S.profileGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.profileGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.profileGender==="male"?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">남성</button>'
+    +'<button id="btn-gender-female" style="flex:1;height:44px;border-radius:12px;border:2px solid '+(S.profileGender==="female"?"#F04452":"#E8EBED")+';background:'+(S.profileGender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(S.profileGender==="female"?"#F04452":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">여성</button>'
+    +'</div>'
+    +'<button id="btn-profile-add" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:14px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">등록</button>'
+    +(S.profileNameErr ? '<p style="font-size:12px;color:#F04452;margin-top:6px">'+S.profileNameErr+'</p>' : '')
+    +'</div>';
+
+  return '<div class="modal-overlay" id="profile-modal-overlay" style="align-items:flex-end">'
+    +'<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px calc(24px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
+    +'<p style="font-size:18px;font-weight:800;color:#1A1A2E">프로필 설정</p>'
+    +'</div>'
+    +'<p style="font-size:14px;color:#8B95A1;margin-bottom:18px">나를 선택하거나 새로 등록해주세요</p>'
+    +(members.length > 0
+      ? '<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">회원 목록</p>'+memberRows
+      : '')
+    +newNameSection
+    +'</div>'
+    +'</div>';
+}
+
+
+/* ── COACH MEMBERS ── */
+
+function renderMemberHome(m) {
+  const now = new Date();
+  const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+  const DOWS   = ["일","월","화","수","목","금","토"];
+  const dateStr = now.getFullYear()+"년 "+MONTHS[now.getMonth()]+" "+now.getDate()+"일 "+DOWS[now.getDay()]+"요일";
+
+  // Today's benchmark day
+  const tKey = todayKey();
+  const td = todayWod && todayWod[tKey];
+  const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
+  const myRec = bdWod ? m.records[bdWod.id] : null;
+  const pass = passes[m.id];
+
+  // Benchmark Day card
+  let bdCard = "";
+  if (!bdWod) {
+    bdCard = '<div class="card" style="text-align:center;padding:32px 18px">'
+      +'<div style="font-size:28px;margin-bottom:10px">🏋️</div>'
+      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E;margin-bottom:6px">오늘은 벤치마크 Day가 없어요</p>'
+      +'<p style="font-size:14px;color:#B0B8C1">코치가 등록하면 여기에 나타나요</p>'
+      +'</div>';
+  } else {
+    const hasRecord = !!myRec;
+    const trendHtml = (() => {
+      if (!hasRecord || !myRec.history || myRec.history.length === 0) return "";
+      const prev = myRec.history[myRec.history.length-1];
+      const prevNum = parseRecordVal(prev.value, bdWod.type);
+      const curNum  = parseRecordVal(myRec.value, bdWod.type);
+      if (!prevNum || !curNum || prevNum===Infinity || curNum===Infinity) return "";
+      const diff = bdWod.type==="time" ? prevNum-curNum : curNum-prevNum;
+      const pct = Math.abs(Math.round(diff/Math.abs(prevNum)*100));
+      if (diff > 0) return '<span style="font-size:12px;font-weight:700;color:#00C471;background:#E6FAF0;padding:3px 10px;border-radius:99px">▲ '+pct+'%</span>';
+      if (diff < 0) return '<span style="font-size:12px;font-weight:700;color:#F04452;background:#FEF2F2;padding:3px 10px;border-radius:99px">▼ '+pct+'%</span>';
+      return '<span style="font-size:12px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:3px 10px;border-radius:99px">→ 동일</span>';
+    })();
+
+    bdCard = '<div class="card">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+      +'<span style="font-size:12px;font-weight:800;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px;letter-spacing:.5px">🎯 벤치마크 Day</span>'
+      +(hasRecord ? '<span style="font-size:12px;font-weight:700;color:#00C471">✓ 기록 완료</span>' : '<span style="font-size:12px;color:#B0B8C1">기록 전</span>')
+      +'</div>'
+      +'<p style="font-size:18px;font-weight:800;color:#1A1A2E;letter-spacing:-.4px;margin-bottom:4px">'+bdWod.name+'</p>'
+      +(bdWod.detail ? '<p style="font-size:14px;color:#8B95A1;margin-bottom:14px">'+bdWod.detail+'</p>' : '<div style="margin-bottom:14px"></div>')
+      +(hasRecord
+        ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+          +'<span style="font-size:24px;font-weight:800;color:#1A1A2E">'+myRec.value+'</span>'
+          +trendHtml
+          +'</div>'
+        : '')
+      +(td.note ? '<p style="font-size:13px;color:#8B95A1;background:#F8F9FA;border-radius:10px;padding:10px 14px;margin-bottom:14px">💬 '+td.note+'</p>' : '')
+      +'<button data-bd-record="'+bdWod.id+'" style="width:100%;height:48px;background:'+(hasRecord?"#F2F4F6":"#3182F6")+';border:none;border-radius:12px;font-size:16px;font-weight:700;color:'+(hasRecord?"#8B95A1":"#fff")+';cursor:pointer">'
+      +(hasRecord ? '✏️ 기록 수정' : '+ 기록 입력')
+      +'</button>'
+      +'</div>';
+  }
+
+  // Coach message
+  const msgHtml = coachMessage
+    ? '<div class="coach-msg-card" style="margin-bottom:14px"><div class="coach-msg-label">💬 코치의 한마디</div><div class="coach-msg-text">'+coachMessage+'</div></div>'
+    : '';
+
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:18px;display:flex;flex-direction:column;gap:12px">'
+    +'<div>'
+    +'<p style="font-size:24px;font-weight:800;color:#1A1A2E;letter-spacing:-.5px;margin-bottom:4px">안녕하세요, '+m.name+'님 👋</p>'
+    +'<p style="font-size:14px;color:#8B95A1">'+dateStr+'</p>'
+    +'</div>'
+    +msgHtml
+    +bdCard
+    +'</div>';
+}
 
 /* ── WOD ROW ── */
-function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
+function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
   let body="";
   if (isEd) {
     const wtype = wod.type || "time";
@@ -1192,9 +1428,13 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
         + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-weight" type="text" inputmode="decimal" pattern="[0-9.]*" placeholder="0" value="' + prev + '" inputmode="decimal"/><span class="time-field-label">kg</span></div>'
         + '</div>';
     } else if (wtype === "rounds") {
-      const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
+      const rMatch = S.editVal.value ? S.editVal.value.match(/^(\d+)R\+(\d+)$/) : null;
+      const rVal = rMatch ? rMatch[1] : (S.editVal.value ? S.editVal.value.replace(/R.*/, "") : "");
+      const repVal = rMatch ? rMatch[2] : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">라운드 + 렙</span></div>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + rVal + '"/><span class="time-field-label">라운드</span></div>'
+        + '<span class="time-sep">+</span>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + repVal + '"/><span class="time-field-label">렙</span></div>'
         + '</div>';
     } else {
       const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
@@ -1204,10 +1444,12 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
     }
     body = `<div class="edit-area">
       ${inputHtml}
-      <input class="edit-sub" id="inp-escale" placeholder="스케일 (선택 · RX, Scaled 등)" value="${S.editVal.scale}" style="margin-top:4px"/>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        ${["RXD","A","B"].map(s=>`<button data-scale-btn="${s}" style="flex:1;height:36px;border-radius:10px;border:2px solid ${S.editVal.scale===s?"#3182F6":"#E8EBED"};background:${S.editVal.scale===s?"#EBF3FE":"#F2F4F6"};color:${S.editVal.scale===s?"#3182F6":"#8B95A1"};font-size:13px;font-weight:700;cursor:pointer">${s}</button>`).join("")}
+      </div>
       <div class="edit-btns" style="margin-top:2px">
         <button class="btn-cancel" id="btn-edit-cancel">취소</button>
-        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}" >저장</button>
+        <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}" data-isnew="${S.isAddingNew?'1':'0'}">저장</button>
       </div></div>`;
   } else if (rec) {
     const recWtype = wod.type || "time";
@@ -1301,7 +1543,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
 
     body=`<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px">
       <span class="rec-val" style="margin-top:0">${rec.value}</span>
-      ${isEditable ? `<button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1;flex-shrink:0">${ico.edit} 수정</button>` : ""}
+      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1;flex-shrink:0">${ico.edit} 수정</button>
     </div>
     <div class="rec-meta">
       ${trendHtml}
@@ -1309,9 +1551,9 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
       <span class="rec-date">${rec.date}</span>
     </div>
     ${histHtml}
-    ${isEditable ? `<button class="add-rec-btn" data-oadd="${memberId}" data-owid="${wod.id}" style="margin-top:8px">+ 기록 추가</button>` : ""}`;
+    <button class="add-rec-btn" data-oadd="${memberId}" data-owid="${wod.id}" style="margin-top:8px">+ 기록 추가</button>`;
   } else {
-    body=isEditable ? `<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>` : "";
+    body=`<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>`;
   }
   return `<div class="wod-row${rec?" done":""}">
     <div class="wod-badge${rec?" done":""}">${wod.id}</div>
@@ -1327,6 +1569,91 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,isEditable=true) {
     </div></div>`;
 }
 
+
+
+/* ── COACH MEMBERS LIST ── */
+function renderCoachMembers() {
+  const addBox = S.addingMember
+    ? '<div style="background:#F2F4F6;border-radius:14px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px">'
+      +'<input id="inp-new-member-name" class="input" placeholder="이름 입력" value="'+(S.newMemberName||'')+'"/>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button id="btn-add-member-cancel" class="btn-secondary" style="flex:1;height:44px;font-size:14px">취소</button>'
+      +'<button id="btn-add-member-save" style="flex:2;height:44px;background:#3182F6;border:none;border-radius:12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer">추가</button>'
+      +'</div></div>'
+    : '';
+  const rows = members.map(function(m) {
+    const src = getMemberAvatar(m);
+    const av = src
+      ? '<img src="'+src+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"/>'
+      : '<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+m.name[0]+'</div>';
+    const cnt = Object.keys(m.records).length;
+    const gB = '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+'">'+(m.gender==="male"?"남성":m.gender==="female"?"여성":"미설정")+'</span>';
+    const dB = m.dormant ? '<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#FFF0E0;color:#E06000">휴면</span>' : '';
+    return '<div data-open-member="'+m.id+'" style="background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer">'
+      +av+'<div style="flex:1;min-width:0"><p style="font-size:15px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
+      +'<div style="display:flex;gap:4px;margin-top:4px">'+gB+dB+'</div></div>'
+      +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
+      +'</div>';
+  }).join('');
+  const hdr = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<span style="font-size:14px;font-weight:700;color:#8B95A1">회원 '+members.length+'명</span>'
+    +(S.addingMember?'':'<button id="btn-add-member" style="background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;cursor:pointer">+ 추가</button>')
+    +'</div>';
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:14px 16px 40px">'+hdr+addBox+rows+'</div>';
+}
+
+/* ── COACH MEMBER DETAIL ── */
+function renderCoachMemberDetail() {
+  const m = members.find(x=>x.id===S.panelId);
+  if (!m) return "";
+  const src = getMemberAvatar(m);
+  const av = src
+    ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"/>'
+    : '<div style="width:56px;height:56px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
+  const gL = m.gender==="male"?"남성":m.gender==="female"?"여성":"미설정";
+  const dL = m.dormant?"휴면":"활성";
+  const hv = S.histView[m.id]||'list';
+  const sheet = renderWodListWithGroups(WODS, m, true, true);
+
+  // 삭제 아이콘 SVG
+  const trashIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F04452" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+
+  const btnStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
+  const selectStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
+
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:16px 18px 40px">'
+    // 프로필 카드
+    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    // 아바타 + 이름 + 삭제 아이콘
+    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'+av
+    +'<div style="flex:1"><p style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</p>'
+    +'<div style="display:flex;gap:6px;margin-top:6px">'
+    +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+'">'+gL+'</span>'
+    +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.dormant?"#FFF0E0":"#E6FAF0")+';color:'+(m.dormant?"#E06000":"#00C471")+'">'+dL+'</span>'
+    +'</div></div>'
+    // 삭제 아이콘 버튼 (우측)
+    +'<button data-delconfirm="'+m.id+'" style="background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0">'+trashIcon+'</button>'
+    +'</div>'
+    // 이름수정 / 성별 / 상태 — 동일한 width 3열
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
+    +'<button data-rename="'+m.id+'" data-rname="'+m.name+'" style="'+btnStyle+'">이름 수정</button>'
+    +'<select data-select-gender="'+m.id+'" style="'+selectStyle+'">'
+    +'<option value="male"'+(m.gender==="male"?" selected":"")+'>남성</option>'
+    +'<option value="female"'+(m.gender==="female"?" selected":"")+'>여성</option>'
+    +'</select>'
+    +'<select data-select-dormant="'+m.id+'" style="'+selectStyle+'">'
+    +'<option value="0"'+(m.dormant?"":" selected")+'>활성</option>'
+    +'<option value="1"'+(m.dormant?" selected":"")+'>휴면</option>'
+    +'</select>'
+    +'</div>'
+    +'</div>'
+    // 기록 탭
+    +'<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="display:flex;border-bottom:1px solid #E8EBED">'
+    +'<button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="list"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="list"?"#3182F6":"#8B95A1")+';cursor:pointer">리스트</button>'
+    +'<button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="graph"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="graph"?"#3182F6":"#8B95A1")+';cursor:pointer">그래프</button>'
+    +'</div><div class="sheet-panel">'+sheet+'</div></div></div>';
+}
 
 /* ── BENCHMARK DAY MANAGER (Coach) ── */
 function renderBenchmarkDayMgr() {
@@ -1358,7 +1685,7 @@ function renderBenchmarkDayMgr() {
     +wodOptions
     +'</select>'
     +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">코치 메모 (선택)</p>'
-    +'<input id="inp-bmday-note" placeholder="오늘의 목표나 주의사항을 입력하세요" value="'+(S.bdNote!==undefined?S.bdNote:(td?.note||''))+'" style="display:block;width:100%;height:48px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit;outline:none;color:#1A1A2E;box-sizing:border-box;margin-bottom:12px"/>'
+    +'<input id="inp-bmday-note" class="input" placeholder="오늘의 목표나 주의사항을 입력하세요" value="'+(S.bdNote!==undefined?S.bdNote:(td?.note||''))+'" style="margin-bottom:12px"/>'
     +'<button id="btn-bmday-save" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">오늘 벤치마크 Day 등록</button>'
     +(td ? '<button id="btn-bmday-clear" style="width:100%;height:44px;background:none;border:none;color:#F04452;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px">오늘 등록 취소</button>' : '')
     +'</div>'
@@ -1394,11 +1721,6 @@ function updateCoachMemberGrid() {
       S.panelId=el.dataset.selMember; S.coachSheetView="sheet"; S.editing=null; render();
     });
   });
-  container.querySelectorAll("[data-delconfirm]").forEach(function(el) {
-    el.addEventListener("click", function(e) {
-      e.stopPropagation(); S.confirmDelete=el.dataset.delconfirm; render();
-    });
-  });
 }
 
 function updateMemberGrid() {
@@ -1409,12 +1731,8 @@ function updateMemberGrid() {
     ? `<div class="empty-search">"${S.search}" 검색 결과가 없어요</div>`
     : `<div class="member-grid">${fil.map(m => {
         const hasDone = Object.keys(m.records).length>0;
-        const src = getMemberAvatar(m);
         return `<button class="member-cell" data-login="${m.id}">
-          <div class="member-cell-av">
-            ${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : m.name[0]}
-            ${hasDone?`<div class="member-cell-dot"></div>`:""}
-          </div>
+          <div class="member-cell-av">${m.name[0]}${hasDone?`<div class="member-cell-dot"></div>`:""} </div>
           <span class="member-cell-name">${m.name}</span></button>`;
       }).join("")}</div>`;
   container.querySelectorAll("[data-login]").forEach(el => {
@@ -1446,11 +1764,113 @@ function bind() {
   }
   on("btn-clear","click",()=>{S.search="";const el=g("inp-search");if(el)el.value="";updateMemberGrid();});
   on("btn-rank","click",()=>{S.view="rank";render();});
-  on("btn-login-bmday","click",()=>{
-    S.bdModal=true; S.editing=null; S.editVal={value:"",scale:""}; S.timeVal={min:"",sec:""}; render();
+  // BD Record modal
+  on("btn-bd-modal-close","click",()=>{S.bdRecordModal=false;render();});
+  on("bd-record-overlay","click",function(e){if(e.target.id==="bd-record-overlay"){S.bdRecordModal=false;render();}});
+  on("inp-bd-min","input",e=>{S.timeVal.min=e.target.value;});
+  on("inp-bd-sec","input",e=>{S.timeVal.sec=e.target.value;});
+  on("inp-bd-weight","input",e=>{S.editVal.value=e.target.value;});
+  on("inp-bd-rounds","input",e=>{S.editVal.value=e.target.value;});
+  on("inp-bd-reps","input",e=>{S.editVal.value=e.target.value;});
+  on("inp-bd-scale-gone","input",e=>{S.editVal.scale=e.target.value;});
+  on("inp-reps-extra","input",e=>{});
+  on("btn-bd-save","click",function(){
+    const btn=document.getElementById("btn-bd-save");
+    if(!btn)return;
+    const mid=btn.dataset.save, wid=parseInt(btn.dataset.wid), wtype=btn.dataset.wtype;
+    const scale=S.editVal.scale||"";
+    let value="";
+    if(wtype==="time"){
+      const min=parseInt(document.getElementById("inp-bd-min")?.value||S.timeVal.min)||0;
+      const sec=parseInt(document.getElementById("inp-bd-sec")?.value||S.timeVal.sec)||0;
+      if(min===0&&sec===0)return;
+      value=min+"'"+String(sec).padStart(2,"0")+'"';
+    } else if(wtype==="weight"){
+      const w=document.getElementById("inp-bd-weight")?.value||S.editVal.value;
+      if(!w||parseFloat(w)===0)return;
+      value=parseFloat(w)+"kg";
+    } else if(wtype==="rounds"){
+      const r=document.getElementById("inp-bd-rounds")?.value||"";
+      const extra=document.getElementById("inp-bd-reps-extra")?.value||"";
+      if(!r)return;
+      value = extra ? r+"R+"+extra : r+"R";
+    } else {
+      const r=document.getElementById("inp-bd-reps")?.value||S.editVal.value;
+      if(!r)return; value=r+"회";
+    }
+    const m=members.find(x=>x.id===mid);
+    const existing=m&&m.records[wid];
+    const history=existing&&existing.history?[...existing.history,{value:existing.value,scale:existing.scale,date:existing.date}]:existing?[{value:existing.value,scale:existing.scale,date:existing.date}]:[];
+    const today_=()=>{const d=new Date();return (d.getMonth()+1)+"/"+d.getDate();};
+    fbSet("members/"+mid+"/records/"+wid,{value,scale,date:today_(),history});
+    S.bdRecordModal=false;
+    S.editVal={value:"",scale:""};S.timeVal={min:"",sec:""};
+    render();
+    showToast("기록 저장! 🎉");
   });
-  // btn-show-register 제거됨
-  on("btn-register","click",()=>{S.registerModal=true;S.registerStep=1;S.registerName="";S.registerErr="";S.registerAvatar=null;render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
+  // 전체 회원 보기
+  on("btn-all-members","click",()=>{S.allMembersModal=true;render();});
+  on("btn-all-members-close","click",()=>{S.allMembersModal=false;render();});
+  on("all-members-overlay","click",function(e){if(e.target.id==="all-members-overlay"){S.allMembersModal=false;render();}});
+  qa("[data-view-member]",function(el){el.addEventListener("click",function(){
+    S.viewingMemberId=el.dataset.viewMember;
+    S.allMembersModal=false;
+    render();
+  });});
+  // Member view back
+  on("btn-member-view-back","click",()=>{S.viewingMemberId=null;render();});
+  on("btn-login-bmday","click",()=>{
+    try {
+      const saved = localStorage.getItem("mt_last_member");
+      const savedMember = saved && members.find(m=>m.id===saved);
+      if (savedMember) {
+        const tKey = todayKey();
+        const td = todayWod && todayWod[tKey];
+        const wid = td ? parseInt(td.wodId) : null;
+        const wod = wid ? WODS.find(w=>w.id===wid) : null;
+        // Set active member and open bottom sheet
+        S.activeMemberId = saved;
+        S.bdRecordModal = true;
+        // Init edit values
+        const r = savedMember.records[wid]||{};
+        const wtype = wod ? wod.type||"time" : "time";
+        S.editVal = {scale:r.scale||"", value:r.value||""};
+        if (wtype==="time") {
+          const match = r.value ? r.value.match(/(\d+)'(\d+)/) : null;
+          S.timeVal = match ? {min:match[1],sec:match[2]} : {min:"",sec:""};
+        } else {
+          S.timeVal = {min:"",sec:""};
+          S.editVal.value = r.value ? parseFloat(r.value)||"" : "";
+        }
+        render();
+        return;
+      }
+    } catch(e) {}
+    S.profileModal = true;
+    S.profileNewName = "";
+    S.profileNameErr = "";
+    render();
+  });
+  on("btn-show-register","click",()=>{S.registerModal=true;S.registerStep=1;S.registerName="";S.registerErr="";S.registerAvatar=null;render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
+  on("btn-show-profile-modal","click",()=>{S.profileModal=true;S.profileNewName="";S.profileNameErr="";S.profileGender="";render();});
+  on("btn-gender-male","click",()=>{S.profileGender="male";render();});
+  on("btn-gender-female","click",()=>{S.profileGender="female";render();});
+  on("btn-gender-male","click",()=>{S.profileGender="male";render();});
+  on("btn-gender-female","click",()=>{S.profileGender="female";render();});
+  on("profile-modal-overlay","click",e=>{if(e.target.id==="profile-modal-overlay"){S.profileModal=false;S.profileGender="";render();}});
+  qa("[data-profile-select]",el=>el.addEventListener("click",()=>{
+    const mid=el.dataset.profileSelect;
+    try{localStorage.setItem("mt_last_member",mid);}catch(e){}
+    S.profileModal=false;
+    S.activeMemberId=mid;S.view="member";S.memberTab="my";
+    render();
+  }));
+  const profNameEl=document.getElementById("inp-profile-name");
+  if(profNameEl){
+    profNameEl.addEventListener("input",e=>{S.profileNewName=e.target.value;S.profileNameErr="";});
+    profNameEl.addEventListener("keydown",e=>{if(e.key==="Enter")doAddProfileMember();});
+  }
+  on("btn-profile-add","click",doAddProfileMember);
   on("btn-register-cancel","click",()=>{S.registerModal=false;render();});
   document.getElementById("mo-register")?.addEventListener("click",()=>{S.registerModal=false;render();});
   on("inp-register-name","input",e=>{S.registerName=e.target.value;S.registerErr="";});
@@ -1462,13 +1882,20 @@ function bind() {
     S.registerAvatar=parseInt(el.dataset.regAvatar);render();
   }));
   on("btn-open-pin","click",()=>{S.pinModal=true;S.pin="";S.pinErr=false;render();setTimeout(()=>g("inp-pin")?.focus(),60);});
+  on("btn-open-coach-from-header","click",()=>{S.view="coach";S.coachSection="menu";render();});
   on("pin-overlay","click",()=>{S.pinModal=false;S.pin="";S.pinErr=false;render();});
   on("inp-pin","input",e=>{S.pin=e.target.value;S.pinErr=false;});
   on("inp-pin","keydown",e=>{if(e.key==="Enter")doLogin();});
   on("btn-pin","click",doLogin);
 
   /* member login */
-  qa("[data-login]",el=>el.addEventListener("click",()=>{S.activeMemberId=el.dataset.login;S.memberTab="my";S.view="member";render();}));
+  qa("[data-login]",el=>el.addEventListener("click",()=>{
+    const mid=el.dataset.login;
+    try{localStorage.setItem("mt_last_member",mid);}catch(e){}
+    if(S.view==="coach") return;
+    S.activeMemberId=mid;S.memberTab="my";S.view="member";S.viewingMemberId=null;
+    render();
+  }));
 
   /* rank */
   on("btn-rank-back","click",()=>{S.view="login";render();});
@@ -1512,8 +1939,20 @@ function bind() {
   }));
 
   /* coach nav */
-  on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();});
-  on("btn-coach-logout","click",()=>{clearCoachAuth();S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();showToast("로그아웃됐어요");});
+  on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";try{localStorage.removeItem("mt_coach_logged");}catch{}render();});
+  on("btn-member-detail-back","click",()=>{S.panelId=null;render();});
+  on("btn-add-member","click",()=>{S.addingMember=true;S.newMemberName="";render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),50);});
+  on("btn-add-member-cancel","click",()=>{S.addingMember=false;render();});
+  on("btn-add-member-save","click",()=>{
+    const name=(document.getElementById("inp-new-member-name")?.value||"").trim();
+    if(!name)return;
+    if(members.find(m=>m.name===name)){showToast("이미 있는 이름이에요");return;}
+    fbPush("members",{name,records:{},avatar:null,gender:"",dormant:false});
+    S.addingMember=false; S.newMemberName=""; render();
+  });
+  on("inp-new-member-name","keydown",e=>{if(e.key==="Enter")document.getElementById("btn-add-member-save")?.click();});
+  on("inp-new-member-name","input",e=>{S.newMemberName=e.target.value;});
+  document.querySelectorAll("[data-open-member]").forEach(el=>el.addEventListener("click",()=>{S.panelId=el.dataset.openMember;render();}));
   // Benchmark Day binds
   const selBmday=document.getElementById("sel-bmday-wod");
   if(selBmday) selBmday.addEventListener("change",e=>{S.bdWodId=parseInt(e.target.value)||null;render();});
@@ -1566,6 +2005,24 @@ function bind() {
 
   /* add member */
   on("btn-add-member","click",()=>{S.addingMember=true;render();setTimeout(()=>g("inp-newname")?.focus(),50);});
+  // Coach members tab
+  on("btn-add-member-cancel","click",()=>{S.addingMember=false;render();});
+  on("btn-add-member-save","click",()=>{
+    const name=(document.getElementById("inp-new-member-name")?.value||"").trim();
+    if(!name)return;
+    if(members.find(m=>m.name===name)){showToast("이미 있는 이름이에요");return;}
+    fbPush("members",{name,records:{},avatar:null,gender:"",dormant:false});
+    S.addingMember=false;
+    showToast(name+" 추가됐어요!");
+  });
+  on("inp-new-member-name","input",e=>{S.newMemberName=e.target.value;});
+  on("inp-new-member-name","keydown",e=>{if(e.key==="Enter")document.getElementById("btn-add-member-save")?.click();});
+  qa("[data-toggle-dormant]",el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    const mid=el.dataset.toggleDormant;
+    const m=members.find(x=>x.id===mid);
+    if(m)fbUpdate("members/"+mid,{dormant:!m.dormant});
+  }));
   on("inp-newname","input",e=>{S.newName=e.target.value;});
   on("inp-newname","keydown",e=>{if(e.key==="Enter")doAddMember();});
   on("btn-add-cancel","click",()=>{S.addingMember=false;S.newName="";render();});
@@ -1631,7 +2088,7 @@ function bind() {
   qa("[data-memberhistview]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
     const mode=el.dataset.memberhistview;
-    const mid=S.view==="member"?S.activeMemberId:S.panelId;
+    const mid=S.activeMemberId||S.panelId;
     if(mid){ S.histView={...S.histView,[mid]:mode}; render(); }
   }));
 
@@ -1670,92 +2127,33 @@ function bind() {
   on("btn-msg-save","click",()=>{const val=g("inp-coach-msg")?.value.trim()??"";fbSet("coachMessage",val);showToast("한마디가 저장됐어요!");});
   on("btn-msg-clear","click",()=>{const el=g("inp-coach-msg");if(el){el.value="";if(counterEl)counterEl.textContent="0/100";}fbSet("coachMessage","");showToast("한마디를 지웠어요");});
 
-  /* 코치 숏컷 */
-  const csc=document.getElementById("btn-coach-shortcut");
-  if(csc) csc.addEventListener("click",()=>{S.view="coach";S.coachSection="menu";render();});
-
-  /* 내 프로필 버튼 → 해당 회원 화면으로 바로 이동 (로그인 효과) */
-  const mpb=document.getElementById("btn-my-profile");
-  if(mpb) mpb.addEventListener("click",()=>{
-    const mid=mpb.dataset.profileId;
-    S.activeMemberId=mid; S.view="member"; S.memberTab="my";
-    render();
-  });
-
-  /* 프로필 모달 */
-  on("btn-profile-cancel","click",()=>{S.profileModal=false;render();});
-  document.getElementById("mo-profile")?.addEventListener("click",()=>{S.profileModal=false;render();});
-  document.querySelectorAll("[data-pav]").forEach(el=>el.addEventListener("click",e=>{
+  /* Scale btn - wod row */
+  qa("[data-scale-btn]",el=>el.addEventListener("click",e=>{e.stopPropagation();S.editVal.scale=el.dataset.scaleBtn;render();}));
+  /* Scale btn - BD modal */
+  qa("[data-bd-scale-btn]",el=>el.addEventListener("click",e=>{e.stopPropagation();S.editVal.scale=el.dataset.bdScaleBtn;render();}));
+  /* Gender btn - coach sidebar */
+  qa("[data-set-gender]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
-    const mid=S.profileModal; if(!mid)return;
-    const idx=parseInt(el.dataset.pav);
-    fbUpdate("members/"+mid,{avatar:idx});
-    const mm=members.find(x=>x.id===mid); if(mm)mm.avatar=idx;
-    render(); showToast("캐릭터가 변경됐어요! 🐾");
+    const mid=el.dataset.setGender;
+    const m=members.find(x=>x.id===mid);
+    if(!m)return;
+    const next=m.gender==="male"?"female":m.gender==="female"?"":"male";
+    fbUpdate("members/"+mid,{gender:next});
   }));
-  on("btn-profile-save","click",()=>{
-    const mid=S.profileModal; if(!mid)return;
-    const nm=(document.getElementById("inp-profile-name")?.value||"").trim();
-    if(!nm)return;
-    fbUpdate("members/"+mid,{name:nm});
-    S.profileModal=false; render(); showToast("프로필이 저장됐어요!");
-  });
-
-  /* 벤치마크 Day 메인 카드 클릭 */
-  /* 벤치마크 Day 상세 모달 */
-  document.getElementById("bdi-overlay")?.addEventListener("click",()=>{S.bdModal=false;S.editing=null;render();});
-  document.getElementById("bdi-close")?.addEventListener("click",()=>{S.bdModal=false;S.editing=null;render();});
-
-  // 벤치마크 Day 카드 클릭 이벤트 통합 (메인화면 / 회원홈 공통)
-  function openBdModal(mid) {
-    const tKey2=todayKey(); const td2=todayWod&&todayWod[tKey2];
-    const bdW=td2?WODS.find(w=>w.id===parseInt(td2.wodId)):null;
-    if(!bdW||!mid)return;
-    const r2=members.find(x=>x.id===mid)?.records[bdW.id]||{};
-    const wt2=bdW.type||'time';
-    S.bdModal=true;
-    S.editing={memberId:mid,wodId:bdW.id};
-    S.editVal={scale:r2.scale||'',value:r2.value||''};
-    if(wt2==='time'){const mt=(r2.value||'').match(/(\d+)'(\d+)/);S.timeVal=mt?{min:mt[1],sec:mt[2]}:{min:'',sec:''};}
-    else{S.timeVal={min:'',sec:''};}
-    render();
-    setTimeout(()=>{(document.getElementById('bdi-min')||document.getElementById('bdi-val'))?.focus();},80);
-  }
-
-  // bd-home-card 제거 (회원 홈 탭 삭제)
-  // bdi-open: 내 프로필 회원만 기록 입력 가능
-  document.getElementById("bdi-open")?.addEventListener("click",()=>{
-    const myId = loadLastMember();
-    if(!myId) return;
-    openBdModal(myId);
-  });
-  document.getElementById("bdi-cancel")?.addEventListener("click",()=>{S.editing=null;render();});
-  document.getElementById("bdi-save")?.addEventListener("click",()=>{
-    const btn=document.getElementById("bdi-save");
-    if(!btn)return;
-    const mid3=btn.dataset.mid,wid3=parseInt(btn.dataset.wid),wt3=btn.dataset.wt;
-    // 입력값 S에 반영
-    if(wt3==='time'){S.timeVal.min=document.getElementById('bdi-min')?.value||S.timeVal.min;S.timeVal.sec=document.getElementById('bdi-sec')?.value||S.timeVal.sec;}
-    else{S.editVal.value=document.getElementById('bdi-val')?.value||S.editVal.value;}
-    S.editVal.scale=document.getElementById('bdi-scale')?.value||S.editVal.scale;
-    doSaveRecord(mid3,wid3,wt3);
-  });
-  ['bdi-min','bdi-sec','bdi-val','bdi-scale'].forEach(id=>{
-    document.getElementById(id)?.addEventListener('input',e=>{
-      if(id==='bdi-min')S.timeVal.min=e.target.value;
-      else if(id==='bdi-sec')S.timeVal.sec=e.target.value;
-      else if(id==='bdi-val')S.editVal.value=e.target.value;
-      else S.editVal.scale=e.target.value;
-    });
-    document.getElementById(id)?.addEventListener('keydown',e=>{
-      if(e.key==='Enter'){const btn=document.getElementById('bdi-save');if(btn)btn.click();}
-    });
-  });
-
-  /* 회원관리 삭제 버튼 재바인딩 */
-  document.getElementById("coach-member-grid")?.querySelectorAll("[data-delconfirm]").forEach(el=>{
-    el.addEventListener("click",e=>{e.stopPropagation();S.confirmDelete=el.dataset.delconfirm;render();});
-  });
+  // 드롭다운 성별 선택
+  qa("[data-select-gender]",el=>el.addEventListener("change",e=>{
+    e.stopPropagation();
+    const label=el.value==="male"?"남성":el.value==="female"?"여성":"미설정";
+    fbUpdate("members/"+el.dataset.selectGender,{gender:el.value});
+    showToast("성별이 "+label+"으로 변경됐어요");
+  }));
+  // 드롭다운 상태 선택
+  qa("[data-select-dormant]",el=>el.addEventListener("change",e=>{
+    e.stopPropagation();
+    const label=el.value==="1"?"휴면":"활성";
+    fbUpdate("members/"+el.dataset.selectDormant,{dormant:el.value==="1"});
+    showToast("상태가 "+label+"으로 변경됐어요");
+  }));
 
   /* PWA install */
   on("install-btn","click",doInstall);
@@ -1764,7 +2162,7 @@ function bind() {
 /* ══ ACTIONS ══ */
 function doLogin() {
   const el=document.getElementById("inp-pin"); const v=el?el.value:S.pin;
-  if(v===PIN){saveCoachAuth();S.view="coach";S.coachSection="menu";S.pin="";S.pinErr=false;S.pinModal=false;render();}
+  if(v===PIN){S.view="coach";S.coachSection="menu";S.pin="";S.pinErr=false;S.pinModal=false;try{localStorage.setItem("mt_coach_logged","1");}catch{}render();}
   else{S.pinErr=true;render();setTimeout(()=>document.getElementById("inp-pin")?.focus(),50);}
 }
 
@@ -1784,9 +2182,10 @@ function doSaveRecord(mid,wid,wtype) {
     if(!w||parseFloat(w)===0)return;
     value=`${parseFloat(w)}kg`;
   } else if (t === "rounds") {
-    const r=document.getElementById("inp-rounds")?.value||S.editVal.value;
+    const r=document.getElementById("inp-rounds")?.value||"";
+    const extra=document.getElementById("inp-reps-extra")?.value||"";
     if(!r)return;
-    value=`${r}R`;
+    value = extra ? r+"R+"+extra : r+"R";
   } else {
     const r=document.getElementById("inp-reps")?.value||S.editVal.value;
     if(!r)return;
@@ -1803,8 +2202,26 @@ function doSaveRecord(mid,wid,wtype) {
   }
   fbSet(`members/${mid}/records/${wid}`, {...newRecord, history});
 
-  S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};S.bdModal=false;render();
+  S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};render();
   showToast(`${wod?.name??"WOD"} 기록 저장 완료!`);
+}
+
+function doAddProfileMember() {
+  const name = (document.getElementById("inp-profile-name")?.value || S.profileNewName || "").trim();
+  if (!name) { S.profileNameErr = "이름을 입력해주세요"; render(); return; }
+  if (members.find(m=>m.name===name)) { S.profileNameErr = "이미 있는 이름이에요"; render(); return; }
+  const gender = S.profileGender || "";
+  fbPush("members", {name, records:{}, avatar:null, gender, dormant:false}).then(ref => {
+    try{localStorage.setItem("mt_last_member", ref.key);}catch(e){}
+    S.profileModal = false;
+    S.profileNewName = "";
+    S.profileNameErr = "";
+    S.activeMemberId = ref.key;
+    S.view = "member";
+    S.memberTab = "my";
+    render();
+    showToast(name+"님 환영해요! 🎉");
+  });
 }
 
 function doAddMember() {
@@ -1812,20 +2229,18 @@ function doAddMember() {
   if(!name)return;
   fbPush("members",{name,records:{}});
   S.addingMember=false;S.newName="";
-  render();showToast(name+"님이 등록됐어요!");
 }
 
 function doRegisterNext() {
   const nameEl = document.getElementById("inp-register-name");
   const name = (nameEl?.value || S.registerName).trim();
   if (!name) { S.registerErr="이름을 입력해주세요"; render(); return; }
-  // 중복 체크 — 이미 등록된 이름이면 에러 안내
+  // 중복 체크 — 이미 등록된 회원이면 바로 입장
   const dup = members.find(m => m.name === name);
   if (dup) {
-    S.registerErr="이미 등록된 이름이에요. 다른 이름을 사용해주세요.";
-    render();
-    setTimeout(()=>document.getElementById("inp-register-name")?.focus(), 50);
-    return;
+    S.registerModal=false; S.registerName=""; S.registerErr="";
+    S.activeMemberId=dup.id; S.memberTab="my"; S.view="member";
+    saveLastMember(dup.id); render(); return;
   }
   S.registerName = name;
   S.registerStep = 2;
@@ -1849,11 +2264,17 @@ function doRegisterMember() {
 function doRename() {
   const name=(document.getElementById("inp-rename")?.value||S.editingMember?.name||"").trim();
   if(!name||!S.editingMember)return;
-  fbUpdate(`members/${S.editingMember.id}`,{name});S.editingMember=null;render();showToast("이름이 변경됐어요!");
+  fbUpdate(`members/${S.editingMember.id}`,{name});
+  S.editingMember=null;
+  showToast("이름이 변경됐어요");
 }
 
 function doDeleteMember(id) {
-  fbRemove(`members/${id}`);if(S.panelId===id)S.panelId=null;S.confirmDelete=null;render();showToast("회원이 삭제됐어요");
+  const m = members.find(x=>x.id===id);
+  fbRemove(`members/${id}`);
+  if(S.panelId===id) S.panelId=null;
+  S.confirmDelete=null;
+  showToast((m?.name||"회원")+" 삭제됐어요");
 }
 
 /* WOD actions */
@@ -1867,8 +2288,8 @@ function doAddWod() {
   const group = S.wodFormVal.group || "WOD";
   const type  = S.wodFormVal.type  || "time";
   fbSet(`wods/${newId}`,{name,detail,group,type,youtube});
-  S.showWodForm=false;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time",youtube:""};
-  render();showToast(`WOD ${newId} 추가됐어요!`);
+  S.showWodForm=false;S.wodFormVal={name:"",detail:""};
+  showToast(`WOD ${newId} 추가됐어요!`);
 }
 
 function doEditWod() {
@@ -1879,7 +2300,7 @@ function doEditWod() {
   const type = S.editingWod?.type || "time";
   const youtube = (document.getElementById("wod-edit-youtube")?.value || S.editingWod?.youtube || "").trim();
   fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type,youtube});
-  S.editingWod=null;render();showToast("WOD가 수정됐어요!");
+  S.editingWod=null;showToast("WOD가 수정됐어요!");
 }
 
 function doDeleteWod(id) {
@@ -1890,7 +2311,7 @@ function doDeleteWod(id) {
     const strId = String(id);
     if(m.records[id] || m.records[strId]) fbRemove(`members/${m.id}/records/${id}`);
   });
-  render();showToast("WOD가 삭제됐어요");
+  showToast("WOD가 삭제됐어요");
 }
 
 /* PWA install */
