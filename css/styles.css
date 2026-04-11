@@ -13,8 +13,11 @@ input,textarea{font-family:inherit}
 .nav-title{flex:1;font-size:18px;font-weight:800;letter-spacing:-.4px}
 .nav-badge{background:#EBF3FE;color:#3182F6;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700}
 .tab-group{display:flex;gap:2px;background:#F2F4F6;border-radius:10px;padding:3px}
-.tab-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#8B95A1;background:none;white-space:nowrap;min-height:32px}
+.tab-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#8B95A1;background:none;white-space:nowrap;min-height:32px;transition:all .15s}
 .tab-btn.active{background:#fff;color:#1A1A2E;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+/* Rank page fill tabs */
+.rank-page .tab-btn{border-radius:0;padding:12px 16px;font-size:14px;min-height:48px;color:#8B95A1;background:#F2F4F6;border-bottom:3px solid transparent}
+.rank-page .tab-btn.active{background:#fff;color:#3182F6;box-shadow:none;border-bottom:3px solid #3182F6}
 
 /* LOGIN PAGE */
 .login-page{display:flex;flex-direction:column;min-height:100vh;background:#fff}

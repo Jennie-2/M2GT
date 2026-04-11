@@ -95,6 +95,8 @@ let S = {
   histView:{},
   // rank page gender filter
   rankGender:"male",
+  // rank page expanded wod
+  expandedWod:null,
 };
 
 /* ── 초기 세션 복원 ── */
@@ -618,36 +620,36 @@ function renderRank() {
       +rows+'</div>';
   };
 
-  const wodCards = WODS.map(wod => {
+  const wodCards = WODS.map((wod, idx) => {
     const mBoard = renderGenderBoard(wod, "male");
     const fBoard = renderGenderBoard(wod, "female");
-    if (!mBoard && !fBoard) return '<div class="rank-row-card"><span class="rank-row-wod-name">'+wod.name+'</span><p style="font-size:13px;color:#B0B8C1;padding:8px 0">기록 없음</p></div>';
+    if (!mBoard && !fBoard) return '';
     
     // 선택된 탭에 따라 필터링
     const rankGender = S.rankGender || "all";
+    let content = '';
+    
     if (rankGender === "male") {
-      // 남자만 표시
       if (!mBoard) return '';
-      return '<div class="rank-row-card">'
-        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
-        +mBoard
-        +'</div>';
+      content = mBoard;
     } else if (rankGender === "female") {
-      // 여자만 표시
       if (!fBoard) return '';
-      return '<div class="rank-row-card">'
-        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
-        +fBoard
-        +'</div>';
+      content = fBoard;
     } else {
-      // 전체 표시
-      return '<div class="rank-row-card">'
-        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:10px">'+wod.name+'</p>'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      content = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
         +(mBoard||'<div></div>')+(fBoard||'<div></div>')
-        +'</div>'
         +'</div>';
     }
+    
+    // 드롭다운 형태
+    const isExpanded = S.expandedWod === wod.id;
+    return '<div class="rank-row-card" style="padding:0">'
+      +'<button class="wod-dropdown-btn" data-wod-id="'+wod.id+'" style="width:100%;text-align:left;padding:12px 16px;border:none;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E8EBED">'
+        +'<span style="font-size:16px;font-weight:800;color:#1A1A2E">'+wod.name+'</span>'
+        +'<span style="color:#8B95A1;transform:rotate('+(isExpanded?'180':'0')+'deg);transition:transform .2s">${ico.chevD}</span>'
+      +'</button>'
+      +(isExpanded ? '<div style="padding:12px 16px;border-bottom:1px solid #E8EBED">'+content+'</div>' : '')
+      +'</div>';
   }).join('');
 
   // Total ranking per gender
@@ -714,13 +716,9 @@ function renderRank() {
       <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">순위</span>
       <div style="width:32px"></div>
     </div>
-    <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;display:flex;align-items:center;justify-content:space-between;min-height:48px">
-      <div style="flex:1"></div>
-      <div class="tab-group">
-        <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male">남자</button>
-        <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female">여자</button>
-      </div>
-      <div style="flex:1"></div>
+    <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0;display:flex;gap:0">
+      <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male" style="flex:1;border-radius:0;margin:0">남자</button>
+      <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female" style="flex:1;border-radius:0;margin:0">여자</button>
     </div>
     <div class="rank-page-body">
       ${totalSection}
@@ -1101,7 +1099,8 @@ function renderMemberHome(m) {
     bdCard = '<div class="card" style="text-align:center;padding:32px 18px">'
       +'<div style="font-size:28px;margin-bottom:10px">🏋️</div>'
       +'<p style="font-size:16px;font-weight:700;color:#1A1A2E;margin-bottom:6px">오늘은 벤치마크 Day가 없어요</p>'
-      +'<p style="font-size:14px;color:#B0B8C1">코치가 등록하면 여기에 나타나요</p>'
+      +'<p style="font-size:14px;color:#B0B8C1;margin-bottom:18px">코치가 등록하면 여기에 나타나요</p>'
+      +'<button id="btn-add-my-record" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">+ 내 기록 추가</button>'
       +'</div>';
   } else {
     const hasRecord = !!myRec;
@@ -1598,6 +1597,10 @@ function bind() {
   };
   on("btn-login-bmday","click", openBdRecord);
   on("btn-open-bd-record","click", openBdRecord);
+  on("btn-add-my-record","click",()=>{
+    // WOD 선택 모달을 보여줌
+    S.bdWodId=undefined;S.bdNote=undefined;S.bdRecordModal=true;render();
+  });
   on("btn-show-register","click",()=>{S.registerModal=true;S.registerStep=1;S.registerName="";S.registerErr="";S.registerAvatar=null;render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
   on("btn-header-profile","click",()=>{S.profileModal=true;S.profileNewName="";S.profileNameErr="";S.profileGender="";render();});
   on("btn-show-profile-modal","click",()=>{S.profileModal=true;S.profileNewName="";S.profileNameErr="";S.profileGender="";render();});
@@ -1648,6 +1651,11 @@ function bind() {
   /* rank */
   on("btn-rank-back","click",()=>{S.view="login";render();});
   qa("[data-rank-gender]",el=>el.addEventListener("click",()=>{S.rankGender=el.dataset.rankGender;render();}));
+  qa("[data-wod-id]",el=>el.addEventListener("click",()=>{
+    const wodId=parseInt(el.dataset.wodId);
+    S.expandedWod = S.expandedWod === wodId ? null : wodId;
+    render();
+  }));
 
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
