@@ -97,6 +97,8 @@ let S = {
   rankGender:"male",
   // rank page expanded wod
   expandedWod:null,
+  // coach wod filter by group
+  selectedWodGroup:null,
 };
 
 /* ── 초기 세션 복원 ── */
@@ -109,7 +111,7 @@ try {
 /* ── Firebase sync ── */
 onValue(ref(db,"coachMessage"), snap => { coachMessage = snap.val()||""; render(); });
 
-let todayWod = null;
+let todayWod;
 let passes   = {};
 let classes  = {};
 const todayKey = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
@@ -346,15 +348,30 @@ function renderLogin() {
         })()}
       </div>
       <div class="login-greeting"><span>무브투게더</span> 회원님의<br>오늘의 기록은?</div>
-      ${coachMessage ? `<div class="coach-msg-card" style="margin-top:12px"><div class="coach-msg-label">코치 메모</div><div class="coach-msg-text">${coachMessage}</div></div>` : ""}
+      ${coachMessage?.trim() ? `<div class="coach-msg-card" style="margin-top:12px"><div class="coach-msg-label">코치 메모</div><div class="coach-msg-text">${coachMessage.trim()}</div></div>` : ""}
     </div>
 
     <!-- ② 벤치마크 Day 카드 -->
     ${(() => {
       const tKey = todayKey();
-      const td = todayWod && todayWod[tKey];
+      const td = todayWod===undefined ? undefined : (todayWod && todayWod[tKey]);
       const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
-      if (!bdWod) return "";
+      if (todayWod===undefined) {
+        return '<div style="margin-bottom:24px">'
+          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;border-radius:24px;color:#fff">'
+          +'<p style="font-size:18px;font-weight:700;margin:0 0 10px">벤치마크 Day를 불러오는 중입니다…</p>'
+          +'<p style="font-size:14px;line-height:1.5;margin:0;opacity:.9">잠시만 기다려주세요.</p>'
+          +'</div>'
+          +'</div>';
+      }
+      if (!bdWod) {
+        return '<div style="margin-bottom:24px">'
+          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;border-radius:24px;color:#fff">'
+          +'<p style="font-size:18px;font-weight:900;margin:0 0 10px">오늘의 벤치마크가 없습니다</p>'
+          +'<p style="font-size:14px;line-height:1.6;margin:0;opacity:.92">코치가 오늘의 벤치마크를 등록하면 이곳에서 바로 확인하고 기록할 수 있어요.</p>'
+          +'</div>'
+          +'</div>';
+      }
       let hasSaved=false;
       try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
       const bdActionText=hasSaved?"탭해서 기록하기 →":"프로필 설정 후 기록하기 →";
@@ -767,7 +784,14 @@ function renderMember() {
   </div>` : "";
 
   const src = getMemberAvatar(m);
-  return `<div style="min-height:100vh;background:#F2F4F6">
+  const memberTab = S.memberTab || "home";
+  
+  const homeContent = renderMemberHome(m);
+  const myContent = `<div style="overflow-y:auto;flex:1;background:#F2F4F6">${wodRows}<div style="height:40px"></div></div>`;
+
+  const content = memberTab === "home" ? homeContent : myContent;
+
+  return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
     <div class="nav">
       <button class="nav-back icon-btn" id="btn-member-back">${ico.chevL}</button>
       <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;min-height:32px;gap:6px;border-radius:10px">
@@ -779,13 +803,13 @@ function renderMember() {
       <div style="width:8px"></div>
     </div>
     ${avatarModalHtml}
-    <div style="background:#fff;border-bottom:1px solid #E8EBED">
-      <div style="display:flex">
-        <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
-        <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
-      </div>
+    <div style="background:#fff;border-bottom:1px solid #E8EBED;display:flex;flex-wrap:wrap">
+      <button data-memberTab="home" style="flex:1;height:48px;border:none;border-bottom:3px solid ${memberTab==='home'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${memberTab==='home'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:60px">홈</button>
+      <button data-memberTab="my" style="flex:1;height:48px;border:none;border-bottom:3px solid ${memberTab==='my'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${memberTab==='my'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:60px">내 기록</button>
+      ${memberTab==='my' ? `<button data-memberhistview="list" style="flex:1;height:48px;border:none;border-bottom:3px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:14px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:50px">리스트</button>
+        <button data-memberhistview="graph" style="flex:1;height:48px;border:none;border-bottom:3px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:14px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s;min-width:50px">그래프</button>` : ""}
     </div>
-    ${wodRows}<div style="height:40px"></div>
+    ${content}
   </div>`;
 }
 
@@ -829,16 +853,26 @@ function renderCoach() {
   </div>`;
 
   /* ── WOD MANAGER ── */
+  const allGroups = [...new Set(WODS.map(w => w.group))].sort();
+  const filteredWods = S.selectedWodGroup ? WODS.filter(w => w.group === S.selectedWodGroup) : WODS;
+  
   const wodManager = `<div style="flex:1;overflow-y:auto;padding:20px">
     <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <div class="card-label" style="margin-bottom:0">WOD 목록 (${WODS.length}개)</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-label" style="margin-bottom:0">WOD 목록 (${filteredWods.length}개)</div>
         <button id="btn-wod-add-toggle" style="display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px">
           ${ico.plus} WOD 추가
         </button>
       </div>
+      <!-- Category chips -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="wod-filter-chip${!S.selectedWodGroup?" active":""}" data-wod-group="" style="padding:6px 12px;border:1px solid #E8EBED;border-radius:99px;background:${!S.selectedWodGroup?"#3182F6":"#fff"};color:${!S.selectedWodGroup?"#fff":"#8B95A1"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s">전체</button>
+        ${allGroups.map(group => `
+        <button class="wod-filter-chip${S.selectedWodGroup===group?" active":""}" data-wod-group="${group}" style="padding:6px 12px;border:1px solid #E8EBED;border-radius:99px;background:${S.selectedWodGroup===group?"#3182F6":"#fff"};color:${S.selectedWodGroup===group?"#fff":"#8B95A1"};font-size:12px;font-weight:600;cursor:pointer;transition:all .15s">${group}</button>
+        `).join("")}
+      </div>
       ${S.showWodForm ? renderWodAddForm() : ""}
-      ${WODS.map((wod,idx) => `
+      ${filteredWods.map((wod,idx) => `
       <div class="wod-manager-row">
         <div class="wod-manager-num">${wod.id}</div>
         <div class="wod-manager-info">
@@ -847,7 +881,7 @@ function renderCoach() {
         </div>
         <div class="wod-manager-actions">
           <button class="sidebar-icon-btn" data-wod-edit="${wod.id}">${ico.edit}</button>
-          ${WODS.length>1?`<button class="sidebar-icon-btn" data-wod-del="${wod.id}">${ico.trash}</button>`:""}
+          ${filteredWods.length>1?`<button class="sidebar-icon-btn" data-wod-del="${wod.id}">${ico.trash}</button>`:""}
         </div>
       </div>`).join("")}
     </div>
@@ -1138,8 +1172,9 @@ function renderMemberHome(m) {
   }
 
   // Coach message
-  const msgHtml = coachMessage
-    ? '<div class="coach-msg-card" style="margin-bottom:14px"><div class="coach-msg-label">💬 코치의 한마디</div><div class="coach-msg-text">'+coachMessage+'</div></div>'
+  const coachMsg = (coachMessage||"").trim();
+  const msgHtml = coachMsg
+    ? '<div class="coach-msg-card" style="margin-bottom:14px"><div class="coach-msg-label">💬 코치의 한마디</div><div class="coach-msg-text">'+coachMsg+'</div></div>'
     : '';
 
   return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:18px;display:flex;flex-direction:column;gap:12px">'
@@ -1512,7 +1547,16 @@ function bind() {
   on("inp-bd-min","input",e=>{S.timeVal.min=e.target.value;});
   on("inp-bd-sec","input",e=>{S.timeVal.sec=e.target.value;});
   on("inp-bd-weight","input",e=>{S.editVal.value=e.target.value;});
-  on("inp-bd-rounds","input",e=>{S.editVal.value=e.target.value;});
+  on("inp-bd-rounds","input",e=>{
+    const rounds = e.target.value || "";
+    const extra = document.getElementById("inp-bd-reps-extra")?.value || "";
+    S.editVal.value = extra ? rounds + "R+" + extra : (rounds ? rounds + "R" : "");
+  });
+  on("inp-bd-reps-extra","input",e=>{
+    const extra = e.target.value || "";
+    const rounds = document.getElementById("inp-bd-rounds")?.value || "";
+    S.editVal.value = extra ? rounds + "R+" + extra : (rounds ? rounds + "R" : "");
+  });
   on("inp-bd-reps","input",e=>{S.editVal.value=e.target.value;});
   on("inp-bd-scale-gone","input",e=>{S.editVal.scale=e.target.value;});
   on("inp-reps-extra","input",e=>{});
@@ -1613,7 +1657,7 @@ function bind() {
     const mid=el.dataset.profileSelect;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     S.profileModal=false;
-    S.activeMemberId=mid;S.view="member";S.memberTab="my";
+    S.activeMemberId=mid;S.view="member";S.memberTab="home";
     render();
   }));
   const profNameEl=document.getElementById("inp-profile-name");
@@ -1644,7 +1688,7 @@ function bind() {
     const mid=el.dataset.login;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     if(S.view==="coach") return;
-    S.activeMemberId=mid;S.memberTab="my";S.view="member";S.viewingMemberId=null;
+    S.activeMemberId=mid;S.memberTab="home";S.view="member";S.viewingMemberId=null;
     render();
   }));
 
@@ -1659,6 +1703,7 @@ function bind() {
 
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
+  qa("[data-memberTab]",el=>el.addEventListener("click",()=>{S.memberTab=el.dataset.memberTab;render();}));
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
     const wid=parseInt(el.dataset.bdRecord);
     const wod=WODS.find(w=>w.id===wid);
@@ -1880,6 +1925,12 @@ function bind() {
     if(S.editingWod) { S.editingWod={...S.editingWod,type:el.dataset.wodType}; render(); }
   }));
   qa("[data-wod-del]",el=>el.addEventListener("click",()=>doDeleteWod(parseInt(el.dataset.wodDel))));
+  
+  /* WOD group filter */
+  qa("[data-wod-group]",el=>el.addEventListener("click",()=>{
+    S.selectedWodGroup = el.dataset.wodGroup || null;
+    render();
+  }));
 
   /* coach message */
   const msgEl=g("inp-coach-msg"); const counterEl=g("msg-counter");
@@ -1933,23 +1984,23 @@ function doSaveRecord(mid,wid,wtype) {
   let value = "";
 
   if (t === "time") {
-    const min=parseInt(document.getElementById("inp-min")?.value??S.timeVal.min)||0;
-    const sec=parseInt(document.getElementById("inp-sec")?.value??S.timeVal.sec)||0;
-    if(min===0&&sec===0)return;
-    value=`${min}'${String(sec).padStart(2,"0")}"`;
+    const min = parseInt(document.getElementById("inp-min")?.value ?? document.getElementById("inp-bd-min")?.value ?? S.timeVal.min) || 0;
+    const sec = parseInt(document.getElementById("inp-sec")?.value ?? document.getElementById("inp-bd-sec")?.value ?? S.timeVal.sec) || 0;
+    if (min === 0 && sec === 0) return;
+    value = `${min}'${String(sec).padStart(2,"0")}"`;
   } else if (t === "weight") {
-    const w=document.getElementById("inp-weight")?.value||S.editVal.value;
-    if(!w||parseFloat(w)===0)return;
-    value=`${parseFloat(w)}kg`;
+    const w = document.getElementById("inp-weight")?.value || document.getElementById("inp-bd-weight")?.value || S.editVal.value;
+    if (!w || parseFloat(w) === 0) return;
+    value = `${parseFloat(w)}kg`;
   } else if (t === "rounds") {
-    const r=document.getElementById("inp-rounds")?.value||"";
-    const extra=document.getElementById("inp-reps-extra")?.value||"";
-    if(!r)return;
+    const r = document.getElementById("inp-rounds")?.value || document.getElementById("inp-bd-rounds")?.value || "";
+    const extra = document.getElementById("inp-reps-extra")?.value || document.getElementById("inp-bd-reps-extra")?.value || "";
+    if (!r) return;
     value = extra ? r+"R+"+extra : r+"R";
   } else {
-    const r=document.getElementById("inp-reps")?.value||S.editVal.value;
-    if(!r)return;
-    value=`${r}회`;
+    const r = document.getElementById("inp-reps")?.value || document.getElementById("inp-bd-reps")?.value || S.editVal.value;
+    if (!r) return;
+    value = `${r}회`;
   }
 
   // render() 전에 existing 캡처
