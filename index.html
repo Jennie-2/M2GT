@@ -25,16 +25,17 @@ const lnk=document.createElement("link");lnk.rel="manifest";lnk.href=URL.createO
 document.currentScript.after(lnk);
 </script>
 <style>
+@import url('https://cdn.jsdelivr.net/gh/sunn-us/SUIT/fonts/variable/woff2/SUIT-Variable.css');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+body{font-family:'SUIT Variable','SUIT','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
   background:#F2F4F6;color:#1A1A2E;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-button{font-family:inherit;cursor:pointer;min-height:32px}
+button{font-family:inherit;cursor:pointer;min-height:32px;-webkit-tap-highlight-color:transparent}
 input,textarea{font-family:inherit}
 
 /* NAV */
 .nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;
-  background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px}
+  background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;height:56px}
 .nav-back{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
 .nav-title{flex:1;font-size:18px;font-weight:800;letter-spacing:-.4px}
 .nav-badge{background:#EBF3FE;color:#3182F6;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700}
@@ -43,31 +44,30 @@ input,textarea{font-family:inherit}
 .tab-btn.active{background:#fff;color:#1A1A2E;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 
 /* LOGIN PAGE */
-.login-page{display:flex;flex-direction:column;min-height:100vh;background:#F2F4F6}
+.login-page{display:flex;flex-direction:column;min-height:100vh;background:#fff}
 .login-scroll{flex:1;overflow-y:auto;max-width:480px;width:100%;margin:0 auto;display:flex;flex-direction:column}
-.login-header{padding:28px 20px 22px;background:#fff;border-bottom:1px solid #E8EBED}
+.login-header{padding:24px 18px 24px;background:#fff}
 .login-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.login-logo{font-size:15px;font-weight:800;color:#3182F6;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.login-logo{font-size:16px;font-weight:800;color:#3182F6;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .login-coach-btn{display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;
-  padding:8px 14px;font-size:13px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
+  padding:8px 14px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
 .login-coach-btn:active{background:#E8EBED}
-.login-greeting{font-size:23px;font-weight:800;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
+.login-greeting{font-size:24px;font-weight:800;line-height:1.3;letter-spacing:-.5px;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
 .login-greeting span{color:#3182F6}
 
 /* COACH MSG */
-.coach-msg-wrap{padding:16px 20px 0}
+.coach-msg-wrap{padding:0}
 .coach-msg-card{background:linear-gradient(120deg,#3182F6 0%,#60A5FA 100%);border-radius:18px;padding:16px 18px;box-shadow:0 4px 16px rgba(49,130,246,.2)}
-.coach-msg-label{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.4px;margin-bottom:7px}
+.coach-msg-label{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.4px;margin-bottom:7px}
 .coach-msg-text{font-size:14px;font-weight:600;color:#fff;line-height:1.6;word-break:keep-all}
 
 /* MEMBER CONTAINER */
-.member-container{margin:16px 20px 0;background:#fff;border-radius:20px;padding:14px 16px 8px;
-  box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05)}
+.member-container{background:#fff}
 .search-wrap{display:flex;align-items:center;gap:10px;background:#F2F4F6;border-radius:12px;padding:0 14px;height:46px}
-.search-wrap input{flex:1;background:none;border:none;outline:none;font-size:15px;color:#1A1A2E}
+.search-wrap input{flex:1;background:none;border:none;outline:none;font-size:16px;color:#1A1A2E}
 .search-clear{background:none;border:none;display:flex;align-items:center;min-width:32px;min-height:32px;justify-content:center}
 .member-container-divider{height:1px;background:#F2F4F6;margin:14px 0 0}
-.member-container-label{font-size:13px;font-weight:700;color:#8B95A1;letter-spacing:.2px;padding:12px 4px 4px}
+.member-container-label{font-size:14px;font-weight:700;letter-spacing:.2px;color:#8B95A1;letter-spacing:.2px;padding:12px 4px 4px}
 .empty-search{font-size:14px;color:#8B95A1;text-align:center;padding:20px 0}
 
 /* MEMBER GRID */
@@ -76,17 +76,16 @@ input,textarea{font-family:inherit}
   cursor:pointer;padding:10px 4px;border-radius:14px;transition:background .12s;-webkit-tap-highlight-color:transparent}
 .member-cell:active{background:#EBF3FE}
 .member-cell-av{width:50px;height:50px;border-radius:50%;background:#EBF3FE;color:#3182F6;
-  font-size:19px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;
   position:relative;flex-shrink:0;box-shadow:0 2px 8px rgba(49,130,246,.12)}
 .member-cell-dot{position:absolute;bottom:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#00C471;border:2px solid #fff}
 .member-cell-name{font-size:12px;font-weight:600;color:#1A1A2E;text-align:center;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ACTION CARDS */
-.login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px 0}
-.action-card{background:#fff;border:none;border-radius:20px;padding:18px 16px;cursor:pointer;text-align:left;
-  box-shadow:0 1px 3px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.05);transition:transform .12s;-webkit-tap-highlight-color:transparent}
+.login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.action-card{background:#fff;border:1.5px solid #E8EBED;border-radius:16px;padding:18px;cursor:pointer;text-align:left;transition:transform .12s;-webkit-tap-highlight-color:transparent}
 .action-card:active{transform:scale(.97)}
-.action-card-icon{font-size:26px;margin-bottom:10px}
+.action-card-icon{font-size:28px;margin-bottom:10px}
 .action-card-title{font-size:14px;font-weight:800;color:#1A1A2E;margin-bottom:4px}
 .action-card-sub{font-size:12px;color:#8B95A1;line-height:1.4}
 
@@ -100,34 +99,34 @@ input,textarea{font-family:inherit}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;user-select:none}
 
 /* CARD (coach) */
-.card{background:#fff;border-radius:20px;padding:20px 18px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 2px 12px rgba(0,0,0,.06)}
+.card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06)}
 .card-label{font-size:12px;font-weight:700;color:#8B95A1;letter-spacing:.3px;margin-bottom:14px}
 
 /* PIN MODAL */
 .pin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:200;animation:fadeIn .18s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.pin-modal-box{background:#fff;border-radius:24px 24px 0 0;padding:28px 24px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:480px;animation:slideUp .22s ease}
+.pin-modal-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 18px calc(28px + env(safe-area-inset-bottom));width:100%;max-width:480px;animation:slideUp .22s ease}
 @keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-.pin-modal-title{font-size:19px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
+.pin-modal-title{font-size:18px;font-weight:800;letter-spacing:-.4px;margin-bottom:6px}
 .pin-modal-sub{font-size:14px;color:#8B95A1;margin-bottom:20px}
 .pin-input{width:100%;height:54px;background:#F2F4F6;border:1.5px solid transparent;border-radius:14px;
-  padding:0 18px;font-size:22px;outline:none;letter-spacing:10px;color:#1A1A2E;text-align:center;transition:border-color .15s}
+  padding:0 18px;font-size:24px;outline:none;letter-spacing:10px;color:#1A1A2E;text-align:center;transition:border-color .15s}
 .pin-input:focus{border-color:#3182F6;background:#EBF3FE}
 .pin-input.err{border-color:#F04452;background:#FFF0F1}
-.err-msg{font-size:13px;color:#F04452;margin-top:8px;text-align:center}
+.err-msg{font-size:14px;color:#F04452;margin-top:8px;text-align:center}
 .pin-confirm-btn{width:100%;height:54px;margin-top:14px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;transition:background .15s}
 .pin-confirm-btn:active{background:#1B64DA}
 
 /* PROGRESS */
-.progress-strip{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border-bottom:1px solid #E8EBED}
+.progress-strip{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E8EBED}
 .progress-track{flex:1;height:5px;background:#E8EBED;border-radius:99px;overflow:hidden}
 .progress-fill{height:100%;background:#3182F6;border-radius:99px;transition:width .4s}
 .progress-pct{font-size:12px;font-weight:700;color:#8B95A1;flex-shrink:0}
 
 /* WOD ROWS */
-.wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:16px}
-.wod-row.done{border-left:3px solid #3182F6}
-.wod-badge{width:30px;height:30px;border-radius:8px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
+.wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:18px}
+.wod-row.done{border-left:4px solid #3182F6;background:#fff}
+.wod-badge{width:32px;height:32px;border-radius:10px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .wod-badge.done{background:#3182F6;color:#fff}
 .wod-content{flex:1}
@@ -139,23 +138,23 @@ input,textarea{font-family:inherit}
 .rec-scale{font-size:12px;color:#3182F6;background:#EBF3FE;padding:2px 9px;border-radius:99px;font-weight:600}
 .rec-date{font-size:12px;color:#B0B8C1}
 .icon-btn{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
-.add-rec-btn{margin-top:10px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:10px;padding:8px 16px;font-size:14px;font-weight:600;color:#8B95A1}
+.add-rec-btn{margin-top:10px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:600;color:#8B95A1;min-height:44px;display:inline-flex;align-items:center}
 
 /* TIME INPUT */
 .edit-area{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .time-input-row{display:flex;align-items:center;gap:6px;margin-top:10px}
 .time-field-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
 .time-field{width:100%;height:48px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;
-  padding:0;font-size:22px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
+  padding:0;font-size:24px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
 .time-field::-webkit-inner-spin-button,.time-field::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.time-field-label{font-size:11px;font-weight:700;color:#8B95A1;margin-top:4px;letter-spacing:.3px}
-.time-sep{font-size:22px;font-weight:800;color:#B0B8C1;padding-bottom:18px;flex-shrink:0}
-.edit-main{width:100%;height:44px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:10px;padding:0 13px;font-size:15px;font-weight:600;outline:none;color:#1A1A2E}
+.time-field-label{font-size:12px;font-weight:700;color:#8B95A1;margin-top:4px;letter-spacing:.3px}
+.time-sep{font-size:24px;font-weight:800;color:#B0B8C1;padding-bottom:18px;flex-shrink:0}
+.edit-main{width:100%;height:44px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:10px;padding:0 13px;font-size:16px;font-weight:600;outline:none;color:#1A1A2E}
 .edit-sub{width:100%;height:40px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:10px;padding:0 13px;font-size:14px;outline:none;color:#1A1A2E}
 .edit-btns{display:flex;gap:8px}
 .btn-cancel{flex:1;height:38px;background:#F2F4F6;border:none;border-radius:10px;font-size:14px;font-weight:600;color:#8B95A1}
 .btn-save{flex:2;height:38px;background:#3182F6;border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff}
-.btn-delete{flex:2;height:48px;background:#F04452;border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff}
+.btn-delete{flex:2;height:48px;background:#F04452;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff}
 
 /* COACH LAYOUT */
 .coach-layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
@@ -163,7 +162,7 @@ input,textarea{font-family:inherit}
 .sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 12px}
 .sidebar-count{font-size:12px;color:#8B95A1;font-weight:600}
 .add-member-btn{display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px}
-.sidebar-row{display:flex;align-items:center;gap:10px;border-radius:12px;padding:8px;cursor:default;margin-bottom:2px}
+.sidebar-row{display:flex;align-items:center;gap:10px;border-radius:12px;padding:12px;cursor:default;margin-bottom:4px;min-height:52px}
 .sidebar-row.active{background:#EBF3FE}
 .sidebar-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .sidebar-name{font-size:14px;font-weight:600;color:#8B95A1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -174,29 +173,29 @@ input,textarea{font-family:inherit}
 .add-box{background:#F2F4F6;border-radius:12px;padding:10px 8px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
 .add-input{width:100%;height:38px;background:#fff;border:1.5px solid #E8EBED;border-radius:9px;padding:0 10px;font-size:14px;outline:none;color:#1A1A2E}
 .add-input:focus{border-color:#3182F6}
-.sheet-panel{flex:1;overflow-y:auto;padding:20px;background:#F2F4F6}
+.sheet-panel{flex:1;overflow-y:auto;padding:0;background:#fff}
 .sheet-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
 .sheet-name{font-size:18px;font-weight:800;letter-spacing:-.5px}
-.sheet-sub{font-size:13px;color:#8B95A1;margin-top:3px}
+.sheet-sub{font-size:14px;color:#8B95A1;margin-top:3px}
 .empty-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px}
-.empty-panel-text{font-size:15px;color:#8B95A1}
+.empty-panel-text{font-size:16px;color:#8B95A1}
 
 /* LEADERBOARD */
 .lb-card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .lb-head{display:flex;align-items:baseline;gap:8px;padding-bottom:10px;margin-bottom:6px;border-bottom:1px solid #F2F4F6}
 .lb-num{font-size:12px;color:#8B95A1;font-weight:700}
 .lb-wod-name{font-size:14px;font-weight:700}
-.lb-empty{font-size:13px;color:#B0B8C1;padding:4px 0}
+.lb-empty{font-size:14px;color:#B0B8C1;padding:4px 0}
 .lb-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F8F9FA}
-.lb-medal{width:26px;font-size:15px;text-align:center;flex-shrink:0}
+.lb-medal{width:26px;font-size:16px;text-align:center;flex-shrink:0}
 .lb-member-name{flex:1;font-size:14px;font-weight:600}
-.lb-val{font-size:15px;font-weight:800;letter-spacing:-.3px;color:#3182F6}
-.lb-scale{font-size:11px;color:#8B95A1;background:#F2F4F6;padding:2px 7px;border-radius:99px}
+.lb-val{font-size:16px;font-weight:800;letter-spacing:-.3px;color:#3182F6}
+.lb-scale{font-size:12px;color:#8B95A1;background:#F2F4F6;padding:2px 7px;border-radius:99px}
 
 /* RANK PAGE */
 .rank-page{position:fixed;inset:0;background:#F2F4F6;z-index:50;display:flex;flex-direction:column}
-.rank-page-nav{display:flex;align-items:center;background:#fff;border-bottom:1px solid #E8EBED;padding:0 16px;height:56px;flex-shrink:0}
-.rank-page-body{flex:1;overflow-y:auto;padding:16px 20px 40px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.rank-page-nav{display:flex;align-items:center;background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;height:56px;flex-shrink:0}
+.rank-page-body{flex:1;overflow-y:auto;padding:16px 18px 40px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
 
 /* 세로 레이아웃 카드 */
 .rank-row-card{background:#fff;border-radius:16px;padding:14px 14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -206,43 +205,43 @@ input,textarea{font-family:inherit}
 .rank-row-wod-detail{font-size:12px;color:#B0B8C1;margin-top:1px}
 .rank-row-result{display:flex;align-items:center;gap:12px;padding-top:12px}
 .rank-first-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.rank-first-name{font-size:13px;font-weight:600;color:#8B95A1}
-.rank-first-val{font-size:22px;font-weight:800;letter-spacing:-.5px;color:#3182F6}
-.rank-row-empty-box{font-size:13px;color:#B0B8C1;padding-top:12px}
+.rank-first-name{font-size:14px;font-weight:600;color:#8B95A1}
+.rank-first-val{font-size:24px;font-weight:800;letter-spacing:-.5px;color:#3182F6}
+.rank-row-empty-box{font-size:14px;color:#B0B8C1;padding-top:12px}
 
 /* MEMBER RANK TAB */
 .my-rank-card{background:#fff;border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.my-rank-top{display:flex;align-items:baseline;gap:8px;padding:14px 16px 12px;border-bottom:1px solid #F2F4F6}
+.my-rank-top{display:flex;align-items:baseline;gap:8px;padding:16px 18px 12px;border-bottom:1px solid #F2F4F6}
 .my-rank-wod-num{font-size:12px;color:#8B95A1;font-weight:700;flex-shrink:0}
 .my-rank-wod-name{font-size:14px;font-weight:700}
-.my-rank-first{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#EBF3FE}
+.my-rank-first{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#EBF3FE}
 .my-rank-medal{font-size:24px;flex-shrink:0}
 .my-rank-info{flex:1}
 .my-rank-first-name{font-size:12px;font-weight:600;color:#8B95A1}
 .my-rank-first-val{font-size:18px;font-weight:800;letter-spacing:-.4px;color:#3182F6}
-.my-rank-my-row{display:flex;align-items:center;gap:8px;padding:11px 16px;border-top:1px solid #F2F4F6}
+.my-rank-my-row{display:flex;align-items:center;gap:8px;padding:12px 18px;border-top:1px solid #F2F4F6}
 .my-rank-label{font-size:12px;color:#8B95A1;font-weight:600;flex-shrink:0}
 .my-rank-val{flex:1;font-size:16px;font-weight:800;letter-spacing:-.3px}
 .my-rank-pos{font-size:12px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:3px 9px;border-radius:99px}
 .my-rank-top-badge{font-size:12px;font-weight:700;color:#fff;background:#3182F6;padding:3px 9px;border-radius:99px}
-.my-rank-no-rec{font-size:13px;color:#B0B8C1;padding:11px 16px;border-top:1px solid #F2F4F6}
-.my-rank-empty{font-size:13px;color:#B0B8C1;padding:12px 16px}
-.pill-blue{font-size:11px;color:#3182F6;background:#EBF3FE;padding:2px 8px;border-radius:99px;font-weight:600}
+.my-rank-no-rec{font-size:14px;color:#B0B8C1;padding:12px 18px;border-top:1px solid #F2F4F6}
+.my-rank-empty{font-size:14px;color:#B0B8C1;padding:12px 18px}
+.pill-blue{font-size:12px;color:#3182F6;background:#EBF3FE;padding:2px 8px;border-radius:99px;font-weight:600}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
-.modal-box{background:#fff;border-radius:20px;padding:24px 20px 20px;width:100%;max-width:320px;box-shadow:0 12px 48px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:16px}
-.modal-title{font-size:18px;font-weight:800;letter-spacing:-.4px}
-.modal-desc{font-size:15px;line-height:1.65;color:#1A1A2E}
+.modal-box{background:#fff;border-radius:16px;padding:24px 18px 20px;width:100%;max-width:320px;box-shadow:0 12px 48px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:16px}
+.modal-title{font-size:18px;font-weight:800;letter-spacing:-.4px;letter-spacing:-.4px}
+.modal-desc{font-size:16px;line-height:1.65;color:#1A1A2E}
 .modal-input{width:100%;height:48px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;padding:0 14px;font-size:16px;font-weight:600;outline:none;color:#1A1A2E}
 .modal-btns{display:flex;gap:8px}
-.modal-btn-cancel{flex:1;height:48px;background:#F2F4F6;border:none;border-radius:12px;font-size:15px;font-weight:600;color:#8B95A1}
-.modal-btn-save{flex:2;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff}
-.modal-btn-delete{flex:2;height:48px;background:#F04452;border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff}
+.modal-btn-cancel{flex:1;height:48px;background:#F2F4F6;border:none;border-radius:12px;font-size:16px;font-weight:600;color:#8B95A1}
+.modal-btn-save{flex:2;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff}
+.modal-btn-delete{flex:2;height:48px;background:#F04452;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff}
 
 /* TOAST */
 .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
-  background:#1A1A2E;color:#fff;padding:13px 22px;border-radius:14px;
+  background:#1A1A2E;color:#fff;padding:12px 18px;border-radius:14px;
   font-size:14px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;
   box-shadow:0 8px 32px rgba(0,0,0,.22);z-index:9999;pointer-events:none;
   animation:toastIn .22s ease,toastOut .3s ease 1.7s forwards}
@@ -268,7 +267,7 @@ input,textarea{font-family:inherit}
 .wod-input{width:100%;height:40px;background:#fff;border:1.5px solid #E8EBED;border-radius:9px;padding:0 12px;font-size:14px;outline:none;color:#1A1A2E}
 .wod-input:focus{border-color:#3182F6}
 .wod-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center;z-index:150;padding:0}
-.wod-edit-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px}
+.wod-edit-box{background:#fff;border-radius:24px 24px 0 0;padding:24px 18px calc(24px + env(safe-area-inset-bottom));width:100%;max-width:480px;display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
@@ -343,7 +342,7 @@ let WODS = [...DEFAULT_WODS];
 let coachMessage = "";
 let S = {
   view:"login", activeMemberId:null, memberTab:"my",
-  coachTab:"sheet", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"",
+  coachTab:"sheet", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"", bdWodId:undefined, bdNote:undefined,
   search:"", pin:"", pinErr:false,
   editing:null, editVal:{value:"",scale:""},
   addingMember:false, newName:"",
@@ -358,6 +357,8 @@ let S = {
   avatarModal:false,  // memberId being picked for
   // new member register
   registerModal:false,
+  profileModal:false,  // 내 프로필 수정 모달
+  _registerShown:false, // 첫 진입 모달 중복방지
   registerName:"",
   registerErr:"",
   registerStep:1,      // 1=이름입력 2=캐릭터선택
@@ -368,6 +369,10 @@ let S = {
 
 /* ── Firebase sync ── */
 onValue(ref(db,"coachMessage"), snap => { coachMessage = snap.val()||""; render(); });
+
+let todayWod = null; // {wodId, note} or null
+const todayKey = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+onValue(ref(db,"benchmarkDay"), snap => { todayWod = snap.val()||null; render(); });
 onValue(ref(db,"wods"), snap => {
   const raw = snap.val();
   if (raw) {
@@ -384,6 +389,25 @@ onValue(ref(db,"members"), snap => {
   members = Object.entries(raw)
     .map(([id,m]) => ({id, name:m.name, records:m.records||{}, avatar:m.avatar??null}))
     .sort((a,b) => a.name.localeCompare(b.name,"ko"));
+  // Auto-login: restore last member from localStorage
+  if (S.view==="login" && !S.activeMemberId) {
+    try {
+      const saved = localStorage.getItem("mt_last_member");
+      if (saved && members.find(m=>m.id===saved)) {
+        S.activeMemberId = saved;
+        S.view = "member";
+        S.memberTab = "my";
+      } else if (!saved && !S._registerShown) {
+        // 처음 진입한 디바이스 → 이름 등록 모달 자동 오픈
+        S._registerShown = true;
+        S.registerModal = true;
+        S.registerStep = 1;
+        S.registerName = "";
+        S.registerErr = "";
+        S.registerAvatar = null;
+      }
+    } catch(e) {}
+  }
   render();
 });
 
@@ -503,50 +527,75 @@ function renderLogin() {
       }).join("")}</div>`;
   return `
   <div class="login-page"><div class="login-scroll">
-    <div class="login-header">
-      <div class="login-header-top">
+
+    <!-- ① 헤더 영역 : 로고 + 저장회원 + 인사말 + 코치한마디 -->
+    <div style="padding:28px 20px 24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div class="login-logo">
           <img src="data:image/png;base64,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" width="28" height="28" style="border-radius:6px;flex-shrink:0"/>
           MoveTogther
         </div>
-        <button class="login-coach-btn" id="btn-open-pin">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          코치 로그인
-        </button>
+        ${(() => {
+          try {
+            const saved = localStorage.getItem("mt_last_member");
+            const savedMember = saved && members.find(m=>m.id===saved);
+            if (!savedMember) return "";
+            const src = getMemberAvatar(savedMember);
+            const avHtml = src
+              ? '<img src="'+src+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #3182F6"/>'
+              : '<div style="width:34px;height:34px;border-radius:50%;background:#3182F6;color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">'+savedMember.name[0]+'</div>';
+            return '<button id="btn-my-profile" data-profile-id="'+savedMember.id+'" style="display:flex;align-items:center;gap:7px;background:#EBF3FE;border:none;border-radius:99px;padding:4px 12px 4px 4px;cursor:pointer">'
+              +avHtml+'<div style="display:flex;flex-direction:column;align-items:flex-start"><span style="font-size:12px;color:#8B95A1;font-weight:600;line-height:1.2">내 프로필</span><span style="font-size:13px;font-weight:800;color:#1A1A2E;line-height:1.2">'+savedMember.name+'</span></div></button>';
+          } catch(e) { return ""; }
+        })()}
       </div>
       <div class="login-greeting"><span>무브투게더</span> 회원님의<br>오늘의 기록은?</div>
+      ${coachMessage ? `<p style="font-size:14px;color:#8B95A1;margin-top:8px;line-height:1.6">${coachMessage}</p>` : ""}
     </div>
-    ${coachMessage ? `<div class="coach-msg-wrap"><div class="coach-msg-card">
-      <div class="coach-msg-label"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 코치의 한마디</div>
-      <div class="coach-msg-text">${coachMessage}</div></div></div>` : ""}
-    <div class="member-container">
+
+    <!-- ② 벤치마크 Day 카드 -->
+    ${(() => {
+      const tKey = todayKey();
+      const td = todayWod && todayWod[tKey];
+      const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
+      if (!bdWod) return "";
+      return '<div style="margin-bottom:24px">'
+        +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:20px;cursor:pointer" id="btn-login-bmday">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+        +'<span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.6px">🎯 벤치마크 Day</span>'
+        +""
+        +'</div>'
+        +'<p style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-.4px">'+(bdWod.name)+'</p>'
+        +(bdWod.detail?'<p style="font-size:14px;color:rgba(255,255,255,.8);margin-top:4px">'+(bdWod.detail)+'</p>':'')
+        +(td.note?'<p style="font-size:13px;color:rgba(255,255,255,.75);margin-top:10px;background:rgba(0,0,0,.12);border-radius:8px;padding:8px 12px">'+(td.note)+'</p>':'')
+        +'</div></div>';
+    })()}
+
+    <!-- ③ 회원 선택 -->
+    <div style="padding:0 20px 8px">
       <div class="search-wrap">
         ${ico.search}
         <input id="inp-search" placeholder="이름으로 검색" value="${S.search}" autocomplete="off"/>
         <button class="search-clear icon-btn" id="btn-clear" style="display:${S.search?"flex":"none"}">${ico.close}</button>
       </div>
-      <div class="member-container-divider"></div>
-      <div class="member-container-label">회원 선택</div>
+      <p class="member-container-label">회원 선택</p>
       <div id="member-grid-container">${rows}</div>
     </div>
-    <div class="login-actions">
+
+    <!-- ④ 액션 카드 (순위 / MVP) -->
+    <div class="login-actions" style="padding:8px 20px 24px">
       ${hasAny ? `<button class="action-card" id="btn-rank">
         <div class="action-card-icon">🏆</div>
         <div class="action-card-title">순위 보기</div>
         <div class="action-card-sub">세션별 1등 기록</div></button>` : `<div></div>`}
       ${(() => {
-        // 이번 주 월요일 00:00 기준
         const now = new Date();
-        const day = now.getDay(); // 0=일,1=월...
+        const day = now.getDay();
         const mondayOffset = day === 0 ? -6 : 1 - day;
         const monday = new Date(now);
         monday.setHours(0,0,0,0);
         monday.setDate(now.getDate() + mondayOffset);
         const mondayTs = monday.getTime();
-
-        // 각 회원의 이번 주 기록 수 계산 (날짜 기반: m/d 형식)
-        // 단순 카운트: records 중 date가 이번 주인 것
-        // date는 "M/D" 형식이라 올해 기준으로 비교
         const scores = members.map(m => {
           const count = Object.values(m.records).filter(r => {
             if (!r.date) return false;
@@ -556,44 +605,36 @@ function renderLogin() {
           }).length;
           return { name: m.name, count };
         }).filter(x => x.count > 0).sort((a,b) => b.count - a.count);
-
         const mvp = scores[0];
         if (!mvp) return `<div class="action-card" style="cursor:default">
           <div class="action-card-icon">🌟</div>
           <div class="action-card-title">이번 주 MVP</div>
           <div class="action-card-sub">아직 기록이 없어요</div>
         </div>`;
-
         return `<div class="action-card" style="cursor:default;position:relative;overflow:hidden">
-          <div style="position:absolute;top:10px;right:12px;background:#EBF3FE;color:#3182F6;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.3px">MVP</div>
-          <div style="font-size:26px;margin-bottom:8px">👑</div>
-          <div style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px;letter-spacing:-.3px">${mvp.name}</div>
-          <div style="font-size:12px;color:#8B95A1">이번 주 <strong style="color:#3182F6;font-weight:700">${mvp.count}개</strong> 기록</div>
+          <div style="position:absolute;top:10px;right:12px;background:#EBF3FE;color:#3182F6;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px">MVP</div>
+          <div class="action-card-icon">👑</div>
+          <div class="action-card-title">${mvp.name}</div>
+          <div class="action-card-sub">이번 주 <strong style="color:#3182F6">${mvp.count}개</strong> 기록</div>
         </div>`;
       })()}
     </div>
-    <!-- 새 회원 등록 버튼 — 재방문자면 숨김 -->
-    ${(() => {
-      const lastId = loadLastMember();
-      const isReturning = lastId && members.some(m => m.id === lastId);
-      if (isReturning) return "";
-      return `<div style="padding:12px 20px 0">
-        <button id="btn-show-register" style="width:100%;height:48px;background:#fff;border:1.5px dashed #E8EBED;border-radius:16px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          처음 오셨나요? 이름 등록하기
-        </button>
-      </div>`;
-    })()}
 
-    <div style="height:32px"></div>
-  </div>
+    <!-- ⑤ 코치 로그인만 남김 (신규등록은 첫진입 시 자동 모달) -->
+    <div style="padding:0 20px 40px;display:flex;flex-direction:column;gap:10px">
+      <button id="btn-open-pin" style="width:100%;height:48px;background:none;border:1.5px solid #E8EBED;border-radius:14px;font-size:14px;font-weight:600;color:#B0B8C1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        코치 로그인
+      </button>
+    </div>
+
+  </div></div>
   ${S.registerModal ? `
   <div class="modal-overlay" id="mo-register">
-    <div class="modal-box" onclick="event.stopPropagation()" style="padding:22px 18px 18px;width:calc(100% - 40px);max-width:340px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:20px 18px 18px;width:calc(100% - 40px);max-width:340px">
       ${S.registerStep===1 ? `
-        <!-- Step 1: 이름 입력 -->
         <div class="modal-title" style="margin-bottom:6px">처음 오셨나요? 👋</div>
-        <div style="font-size:13px;color:#8B95A1;margin-bottom:16px">이름을 입력해주세요</div>
+        <div style="font-size:14px;color:#8B95A1;margin-bottom:16px">이름을 입력해주세요</div>
         <input class="modal-input" id="inp-register-name" placeholder="이름 입력" value="${S.registerName}" autocomplete="off"/>
         ${S.registerErr ? `<div class="err-msg" style="text-align:left;margin-top:6px">${S.registerErr}</div>` : ""}
         <div style="display:flex;gap:8px;margin-top:14px">
@@ -601,9 +642,8 @@ function renderLogin() {
           <button class="modal-btn-save" id="btn-register-next" style="flex:2;height:48px">다음 →</button>
         </div>
       ` : `
-        <!-- Step 2: 캐릭터 선택 -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-          <button id="btn-register-back" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;line-height:1">←</button>
+          <button id="btn-register-back" style="background:none;border:none;cursor:pointer;font-size:18px;padding:0;min-height:44px;line-height:1">←</button>
           <div class="modal-title" style="margin:0">캐릭터 선택</div>
           <div style="font-size:12px;color:#8B95A1;margin-left:auto">선택 안 해도 됩니다</div>
         </div>
@@ -618,6 +658,28 @@ function renderLogin() {
       `}
     </div>
   </div>` : ""}
+  ${S.profileModal ? (() => {
+    const pm = members.find(m=>m.id===S.profileModal);
+    if (!pm) return "";
+    return '<div class="modal-overlay" id="mo-profile-modal">'
+      +'<div class="modal-box" onclick="event.stopPropagation()" style="padding:24px 18px 20px;width:calc(100% - 40px);max-width:340px">'
+      +'<div style="font-size:18px;font-weight:800;margin-bottom:4px">내 프로필</div>'
+      +'<div style="font-size:13px;color:#8B95A1;margin-bottom:20px">이름과 캐릭터를 수정할 수 있어요</div>'
+      +'<div style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:6px">이름</div>'
+      +'<input id="inp-profile-name" class="modal-input" placeholder="이름 입력" value="'+pm.name+'" autocomplete="off" style="margin-bottom:14px"/>'
+      +'<div style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">캐릭터</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:18px;max-height:200px;overflow-y:auto">'
+      +AVATARS.map(function(src,i){
+        var sel = pm.avatar===i;
+        return '<button data-profile-avatar="'+i+'" style="position:relative;width:100%;aspect-ratio:1;border:3px solid '+(sel?"#3182F6":"transparent")+';border-radius:14px;padding:0;cursor:pointer;overflow:hidden;background:#F2F4F6;box-sizing:border-box"><img src="'+src+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block"/></button>';
+      }).join("")
+      +'</div>'
+      +'<div style="display:flex;gap:8px">'
+      +'<button class="modal-btn-cancel" id="btn-profile-cancel" style="flex:1;height:48px">취소</button>'
+      +'<button class="modal-btn-save" id="btn-profile-save" style="flex:2;height:48px">저장</button>'
+      +'</div>'
+      +'</div></div>';
+  })() : ""}
   ${S.pinModal ? `<div class="pin-modal-overlay" id="pin-overlay">
     <div class="pin-modal-box" onclick="event.stopPropagation()">
       <div class="pin-modal-title">코치 로그인</div>
@@ -635,7 +697,7 @@ function renderRank() {
   return `<div class="rank-page">
     <div class="rank-page-nav">
       <button class="nav-back icon-btn" id="btn-rank-back">${ico.chevL}</button>
-      <span class="nav-title" style="flex:1;font-size:17px;font-weight:700">세션 1등</span>
+      <span class="nav-title" style="flex:1;font-size:18px;font-weight:700">세션 1등</span>
       <div style="width:32px"></div>
     </div>
     <div class="rank-page-body">
@@ -645,9 +707,7 @@ function renderRank() {
         const top3 = board.slice(0,3);
         return `<div class="rank-row-card">
           <div class="rank-row-wod-info">
-            <span class="rank-row-wod-num">WOD ${wod.id}</span>
             <span class="rank-row-wod-name">${wod.name}</span>
-            ${wod.detail?`<span class="rank-row-wod-detail">${wod.detail}</span>`:""}
           </div>
           ${top3.length === 0
             ? `<div class="rank-row-empty-box">기록 없음</div>`
@@ -691,17 +751,17 @@ function renderMember() {
   // avatar modal
   const avatarModalHtml = S.avatarModal===m.id ? `
   <div class="modal-overlay" id="mo-avatar">
-    <div class="modal-box" onclick="event.stopPropagation()" style="padding:20px 16px 16px;width:calc(100% - 40px);max-width:320px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:18px;width:calc(100% - 40px);max-width:320px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="modal-title">캐릭터 선택</div>
-        ${m.avatar!=null?`<button id="btn-avatar-reset" style="background:none;border:none;font-size:13px;font-weight:600;color:#F04452;cursor:pointer;padding:4px 0">초기화</button>`:""}
+        ${m.avatar!=null?`<button id="btn-avatar-reset" style="background:none;border:none;font-size:14px;font-weight:600;color:#F04452;cursor:pointer;min-height:44px;padding:0 12px;padding:4px 0">초기화</button>`:""}
       </div>
       <div style="overflow-y:auto;max-height:380px;margin:0 -2px">
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px">
           ${renderPickAvatarGrid(m.avatar)}
         </div>
       </div>
-      <button class="btn-cancel" id="btn-avatar-cancel" style="width:auto;align-self:center;height:36px;padding:0 24px;margin-top:10px;border-radius:99px;display:block;margin-left:auto;margin-right:auto;font-size:13px">취소</button>
+      <button class="btn-cancel" id="btn-avatar-cancel" style="width:auto;align-self:center;height:36px;padding:0 24px;margin-top:10px;border-radius:99px;display:block;margin-left:auto;margin-right:auto;font-size:14px">취소</button>
     </div>
   </div>` : "";
 
@@ -710,11 +770,11 @@ function renderMember() {
     <div class="nav">
       <button class="nav-back icon-btn" id="btn-member-back">${ico.chevL}</button>
       <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;min-height:32px;gap:6px;border-radius:10px">
-        ${src ? `<img src="${src}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>` : `<div style="width:30px;height:30px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
-        <span style="font-size:15px;font-weight:700;color:#1A1A2E">${m.name}</span>
+        ${src ? `<img src="${src}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>` : `<div style="width:30px;height:30px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
+        <span style="font-size:16px;font-weight:700;color:#1A1A2E">${m.name}</span>
       </button>
       <div style="flex:1"></div>
-      <span style="font-size:13px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px">${pct}%</span>
+      <span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px">${pct}%</span>
       <div style="width:8px"></div>
       <div class="tab-group">
         <button class="tab-btn${S.memberTab==="my"?" active":""}" data-mtab="my">내 기록</button>
@@ -725,12 +785,12 @@ function renderMember() {
     ${S.memberTab==="my" ? `
       <div style="background:#fff;border-bottom:1px solid #E8EBED">
         <div style="display:flex">
-          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
-          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
+          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[m.id]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[m.id]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">리스트</button>
+          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[m.id]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[m.id]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer;transition:all .15s">그래프</button>
         </div>
       </div>
       ${wodRows}<div style="height:40px"></div>` 
-    : `<div style="padding:16px 20px 40px">${rankRows}</div>`}
+    : `<div style="padding:16px 18px 40px">${rankRows}</div>`}
   </div>`;
 }
 
@@ -755,9 +815,9 @@ function renderCoach() {
 
   const sheet = pm ? `
     ${renderWodListWithGroups(WODS, pm, true, true)}`
-  : `<div class="empty-panel"><div style="font-size:36px">←</div><div class="empty-panel-text">회원을 선택하세요</div></div>`;
+  : `<div class="empty-panel"><div style="font-size:28px">←</div><div class="empty-panel-text">회원을 선택하세요</div></div>`;
 
-  const lbPanel = `<div style="padding:16px 16px 40px">
+  const lbPanel = `<div style="padding:18px 40px">
     ${WODS.map(wod => {
       const rows=lb(wod.id);
       return `<div class="lb-card"><div class="lb-head"><span class="lb-num">WOD ${wod.id}</span><span class="lb-wod-name">${wod.name}</span></div>
@@ -827,7 +887,7 @@ function renderCoach() {
     return `<div class="modal-overlay" id="mo-del">
       <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-title">회원 삭제</div>
-        <div class="modal-desc"><strong>${t?.name}</strong> 회원을 삭제할까요?<br/><span style="color:#8B95A1;font-size:13px">모든 기록도 함께 삭제돼요.</span></div>
+        <div class="modal-desc"><strong>${t?.name}</strong> 회원을 삭제할까요?<br/><span style="color:#8B95A1;font-size:14px">모든 기록도 함께 삭제돼요.</span></div>
         <div class="modal-btns"><button class="modal-btn-cancel" id="btn-del-cancel">취소</button><button class="modal-btn-delete" id="btn-del-ok">삭제</button></div>
       </div></div>`;
   })() : "";
@@ -841,9 +901,10 @@ function renderCoach() {
   // 메뉴 화면
   if (S.coachSection==="menu") {
     const menus = [
-      {key:"sheet", icon:"👥", label:"기록 시트",  desc:"회원별 벤치마크 기록"},
-      {key:"wod",   icon:"🔥", label:"WOD 관리",   desc:"WOD 추가·수정·삭제"},
-      {key:"msg",   icon:"💬", label:"한마디",     desc:"메인 화면 공지 메시지"},
+      {key:"sheet",  icon:"👥", label:"기록 시트",    desc:"회원별 벤치마크 기록"},
+      {key:"bmday",  icon:"🎯", label:"벤치마크 Day", desc:"오늘의 측정 WOD 등록"},
+      {key:"wod",    icon:"🔥", label:"WOD 관리",     desc:"WOD 추가·수정·삭제"},
+      {key:"msg",    icon:"💬", label:"한마디",       desc:"메인 화면 공지 메시지"},
     ];
     return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
       <div class="nav">
@@ -851,9 +912,9 @@ function renderCoach() {
         <div class="nav-title">코치 대시보드</div>
         <div style="width:32px"></div>
       </div>
-      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px;flex:1">
+      <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;flex:1">
         ${menus.map(m=>`
-          <button data-go-section="${m.key}" style="display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:18px;padding:18px 20px;width:100%;text-align:left;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">
+          <button data-go-section="${m.key}" style="display:flex;align-items:center;gap:16px;background:#fff;border:none;border-radius:16px;padding:18px;width:100%;text-align:left;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent;min-height:76px">
             <span style="font-size:28px;flex-shrink:0">${m.icon}</span>
             <div style="flex:1">
               <p style="font-size:16px;font-weight:700;color:#1A1A2E">${m.label}</p>
@@ -866,51 +927,50 @@ function renderCoach() {
   }
 
   // 섹션 화면 — 상단에 ← + 섹션명
-  const sectionLabels = {sheet:"기록 시트", rank:"순위", wod:"WOD 관리", msg:"한마디"};
+  const sectionLabels = {sheet:"기록 시트", rank:"순위", bmday:"벤치마크 Day", wod:"WOD 관리", msg:"한마디"};
+  // Dynamic nav: if in member sheet view, show member name + back to list
+  const isInSheet = S.coachTab==="sheet" && S.coachSheetView==="sheet" && S.panelId;
+  const sheetMember = isInSheet ? members.find(m=>m.id===S.panelId) : null;
+
   return `<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">
     <div class="nav">
-      <button class="nav-back icon-btn" id="btn-coach-section-back">${ico.chevL}</button>
-      <div class="nav-title">${sectionLabels[S.coachTab]||"코치 대시보드"}</div>
-      <div style="width:32px"></div>
+      <button class="nav-back icon-btn" id="${isInSheet ? "btn-sheet-back" : "btn-coach-section-back"}">${ico.chevL}</button>
+      <div class="nav-title">${isInSheet ? (sheetMember?.name||"") : (sectionLabels[S.coachTab]||"코치 대시보드")}</div>
+      ${isInSheet ? `<span style="font-size:14px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px">${pct}%</span>` : `<div style="width:32px"></div>`}
     </div>
     ${S.coachTab==="sheet" ? (S.coachSheetView==="sheet" && S.panelId ? `
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border-bottom:1px solid #E8EBED;flex-shrink:0">
-        <button id="btn-sheet-back" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;color:#1A1A2E;min-width:32px;min-height:32px">${ico.chevL}</button>
-        <p style="font-size:17px;font-weight:800;flex:1">${members.find(m=>m.id===S.panelId)?.name||""}</p>
-        <span style="font-size:13px;font-weight:700;color:#3182F6;background:#EBF3FE;padding:4px 10px;border-radius:99px;flex-shrink:0">${pct}%</span>
-      </div>
       <div style="background:#fff;border-bottom:1px solid #E8EBED;flex-shrink:0">
         <div style="display:flex">
-          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer">리스트</button>
-          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[S.panelId]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:15px;font-weight:700;color:${S.histView[S.panelId]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer">그래프</button>
+          <button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid ${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${(S.histView[S.panelId]||'list')==='list'?'#3182F6':'#8B95A1'};cursor:pointer">리스트</button>
+          <button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid ${S.histView[S.panelId]==='graph'?'#3182F6':'transparent'};background:transparent;font-size:16px;font-weight:700;color:${S.histView[S.panelId]==='graph'?'#3182F6':'#8B95A1'};cursor:pointer">그래프</button>
         </div>
       </div>
       <div class="sheet-panel" style="flex:1;overflow-y:auto">${sheet}</div>
     </div>` : `
     <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;flex-shrink:0">
-        <span style="font-size:13px;font-weight:700;color:#8B95A1">회원 ${members.length}명</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 8px;flex-shrink:0">
+        <span style="font-size:14px;font-weight:700;color:#8B95A1">회원 ${members.length}명</span>
         <button class="add-member-btn" id="btn-add-member">${ico.plus} 추가</button>
       </div>
-      <div style="padding:0 16px 8px;flex-shrink:0">
+      <div style="padding:0 18px 8px;flex-shrink:0">
         <div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:0 12px;height:42px;border:1.5px solid #E8EBED">
           ${ico.search}
           <input id="inp-coach-member-search" placeholder="이름 검색" value="${S.coachMemberSearch}"
             style="flex:1;background:none;border:none;outline:none;font-size:14px;color:#1A1A2E" autocomplete="off"/>
         </div>
       </div>
-      ${addBox ? `<div style="padding:0 16px 8px">${addBox}</div>` : ""}
-      <div id="coach-member-grid" style="flex:1;overflow-y:auto;padding:0 16px 24px">
+      ${addBox ? `<div style="padding:0 18px 8px">${addBox}</div>` : ""}
+      <div id="coach-member-grid" style="flex:1;overflow-y:auto;padding:0 18px 24px">
         ${members.filter(m=>m.name.includes(S.coachMemberSearch)).map(m => {
           const cnt = Object.keys(m.records).length;
           const src = getMemberAvatar(m);
-          return `<div data-sel-member="${m.id}" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">
+          return `<div data-sel-member="${m.id}" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">
             <div style="position:relative;flex-shrink:0">
-              ${src ? `<img src="${src}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>` : `<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
+              ${src ? `<img src="${src}" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>` : `<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
             </div>
             <div style="flex:1;min-width:0">
-              <p style="font-size:15px;font-weight:700;color:#1A1A2E">${m.name}</p>
+              <p style="font-size:16px;font-weight:700;color:#1A1A2E">${m.name}</p>
               <p style="font-size:12px;color:#8B95A1;margin-top:2px">${cnt}/${WODS.length} 완료</p>
             </div>
             <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
@@ -924,13 +984,14 @@ function renderCoach() {
       </div>
     </div>`)
     : S.coachTab==="rank" ? `<div style="overflow-y:auto;flex:1">${lbPanel}</div>`
+    : S.coachTab==="bmday" ? renderBenchmarkDayMgr()
     : S.coachTab==="wod"  ? wodManager
-    : `<div style="flex:1;padding:24px 20px;max-width:480px;width:100%;margin:0 auto">
+    : `<div style="flex:1;padding:24px 18px;max-width:480px;width:100%;margin:0 auto">
         <div class="card">
           <div class="card-label">코치의 한마디</div>
-          <div style="font-size:13px;color:#8B95A1;margin-bottom:12px">메인 화면 상단에 표시됩니다</div>
+          <div style="font-size:14px;color:#8B95A1;margin-bottom:12px">메인 화면 상단에 표시됩니다</div>
           <textarea id="inp-coach-msg" maxlength="100"
-            style="width:100%;height:120px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.6;resize:none;outline:none;font-family:inherit;color:#1A1A2E;box-sizing:border-box"
+            style="width:100%;height:120px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;padding:12px 14px;font-size:16px;line-height:1.6;resize:none;outline:none;font-family:inherit;color:#1A1A2E;box-sizing:border-box"
             placeholder="회원들에게 전할 메시지 (최대 100자)">${coachMessage}</textarea>
           <div style="display:flex;justify-content:flex-end;margin-top:6px"><span id="msg-counter" style="font-size:12px;color:#B0B8C1">${coachMessage.length}/100</span></div>
           <div style="display:flex;gap:8px;margin-top:12px">
@@ -958,9 +1019,9 @@ function renderWodEditChips(wod) {
     const a=t===v.key;
     return '<button data-wod-type="'+v.key+'" style="flex:1;height:48px;border-radius:12px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
   }).join("");
-  return '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
+  return '<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
     +'<div style="display:flex;gap:6px;margin-bottom:12px">'+gChips+'</div>'
-    +'<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
+    +'<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
     +'<div style="display:flex;gap:6px;margin-bottom:12px">'+tChips+'</div>';
 }
 
@@ -987,9 +1048,9 @@ function renderWodAddForm() {
   }).join("");
 
   return '<div class="wod-add-form">'
-    + '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
+    + '<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
     + '<div style="display:flex;gap:6px;margin-bottom:12px">' + groupChips + '</div>'
-    + '<div style="font-size:13px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
+    + '<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
     + '<div style="display:flex;gap:6px;margin-bottom:12px">' + typeChips + '</div>'
     + '<input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: BSQ 5RM)" value="' + (S.wodFormVal.name||"") + '"/>'
     + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 선택사항" value="' + (S.wodFormVal.detail||"") + '"/>'
@@ -1009,7 +1070,7 @@ function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
   wods.forEach(wod => {
     const g = wod.group || "WOD";
     if (g !== lastGroup) {
-      html += '<div style="padding:14px 16px 6px;font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">' + (GROUP_LABELS[g] || g) + '</div>';
+      html += '<div style="padding:18px 8px;font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">' + (GROUP_LABELS[g] || g) + '</div>';
       lastGroup = g;
     }
     const rec = member.records[wod.id];
@@ -1017,6 +1078,79 @@ function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
     html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube);
   });
   return html;
+}
+
+
+/* ── BENCHMARK DAY HOME ── */
+function renderMemberHome(m) {
+  const now = new Date();
+  const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+  const DOWS   = ["일","월","화","수","목","금","토"];
+  const dateStr = now.getFullYear()+"년 "+MONTHS[now.getMonth()]+" "+now.getDate()+"일 "+DOWS[now.getDay()]+"요일";
+
+  // Today's benchmark day
+  const tKey = todayKey();
+  const td = todayWod && todayWod[tKey];
+  const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
+  const myRec = bdWod ? m.records[bdWod.id] : null;
+  const pass = passes[m.id];
+
+  // Benchmark Day card
+  let bdCard = "";
+  if (!bdWod) {
+    bdCard = '<div class="card" style="text-align:center;padding:32px 18px">'
+      +'<div style="font-size:28px;margin-bottom:10px">🏋️</div>'
+      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E;margin-bottom:6px">오늘은 벤치마크 Day가 없어요</p>'
+      +'<p style="font-size:14px;color:#B0B8C1">코치가 등록하면 여기에 나타나요</p>'
+      +'</div>';
+  } else {
+    const hasRecord = !!myRec;
+    const trendHtml = (() => {
+      if (!hasRecord || !myRec.history || myRec.history.length === 0) return "";
+      const prev = myRec.history[myRec.history.length-1];
+      const prevNum = parseRecordVal(prev.value, bdWod.type);
+      const curNum  = parseRecordVal(myRec.value, bdWod.type);
+      if (!prevNum || !curNum || prevNum===Infinity || curNum===Infinity) return "";
+      const diff = bdWod.type==="time" ? prevNum-curNum : curNum-prevNum;
+      const pct = Math.abs(Math.round(diff/Math.abs(prevNum)*100));
+      if (diff > 0) return '<span style="font-size:12px;font-weight:700;color:#00C471;background:#E6FAF0;padding:3px 10px;border-radius:99px">▲ '+pct+'%</span>';
+      if (diff < 0) return '<span style="font-size:12px;font-weight:700;color:#F04452;background:#FEF2F2;padding:3px 10px;border-radius:99px">▼ '+pct+'%</span>';
+      return '<span style="font-size:12px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:3px 10px;border-radius:99px">→ 동일</span>';
+    })();
+
+    bdCard = '<div class="card">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+      +'<span style="font-size:12px;font-weight:800;color:#3182F6;background:#EBF3FE;padding:4px 12px;border-radius:99px;letter-spacing:.5px">🎯 벤치마크 Day</span>'
+      +(hasRecord ? '<span style="font-size:12px;font-weight:700;color:#00C471">✓ 기록 완료</span>' : '<span style="font-size:12px;color:#B0B8C1">기록 전</span>')
+      +'</div>'
+      +'<p style="font-size:18px;font-weight:800;color:#1A1A2E;letter-spacing:-.4px;margin-bottom:4px">'+bdWod.name+'</p>'
+      +(bdWod.detail ? '<p style="font-size:14px;color:#8B95A1;margin-bottom:14px">'+bdWod.detail+'</p>' : '<div style="margin-bottom:14px"></div>')
+      +(hasRecord
+        ? '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+          +'<span style="font-size:24px;font-weight:800;color:#1A1A2E">'+myRec.value+'</span>'
+          +trendHtml
+          +'</div>'
+        : '')
+      +(td.note ? '<p style="font-size:13px;color:#8B95A1;background:#F8F9FA;border-radius:10px;padding:10px 14px;margin-bottom:14px">💬 '+td.note+'</p>' : '')
+      +'<button data-bd-record="'+bdWod.id+'" style="width:100%;height:48px;background:'+(hasRecord?"#F2F4F6":"#3182F6")+';border:none;border-radius:12px;font-size:16px;font-weight:700;color:'+(hasRecord?"#8B95A1":"#fff")+';cursor:pointer">'
+      +(hasRecord ? '✏️ 기록 수정' : '+ 기록 입력')
+      +'</button>'
+      +'</div>';
+  }
+
+  // Coach message
+  const msgHtml = coachMessage
+    ? '<div class="coach-msg-card" style="margin-bottom:14px"><div class="coach-msg-label">💬 코치의 한마디</div><div class="coach-msg-text">'+coachMessage+'</div></div>'
+    : '';
+
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:18px;display:flex;flex-direction:column;gap:12px">'
+    +'<div>'
+    +'<p style="font-size:24px;font-weight:800;color:#1A1A2E;letter-spacing:-.5px;margin-bottom:4px">안녕하세요, '+m.name+'님 👋</p>'
+    +'<p style="font-size:14px;color:#8B95A1">'+dateStr+'</p>'
+    +'</div>'
+    +msgHtml
+    +bdCard
+    +'</div>';
 }
 
 /* ── WOD ROW ── */
@@ -1065,9 +1199,9 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
       if (prevNum && curNum && prevNum !== Infinity && curNum !== Infinity) {
         const diff = recWtype==="time" ? prevNum - curNum : curNum - prevNum;
         const pct  = Math.abs(Math.round(diff/Math.abs(prevNum)*100));
-        if (diff > 0)      trendHtml = `<span style="font-size:11px;font-weight:700;color:#00C471;background:#E6FAF0;padding:2px 7px;border-radius:99px">▲ ${pct}%</span>`;
-        else if (diff < 0) trendHtml = `<span style="font-size:11px;font-weight:700;color:#F04452;background:#FEF2F2;padding:2px 7px;border-radius:99px">▼ ${pct}%</span>`;
-        else               trendHtml = `<span style="font-size:11px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:2px 7px;border-radius:99px">→ 동일</span>`;
+        if (diff > 0)      trendHtml = `<span style="font-size:12px;font-weight:700;color:#00C471;background:#E6FAF0;padding:2px 7px;border-radius:99px">▲ ${pct}%</span>`;
+        else if (diff < 0) trendHtml = `<span style="font-size:12px;font-weight:700;color:#F04452;background:#FEF2F2;padding:2px 7px;border-radius:99px">▼ ${pct}%</span>`;
+        else               trendHtml = `<span style="font-size:12px;font-weight:700;color:#8B95A1;background:#F2F4F6;padding:2px 7px;border-radius:99px">→ 동일</span>`;
       }
     }
     // 히스토리 추이 (회원별 리스트/그래프 토글)
@@ -1092,20 +1226,20 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
           }
         }
         const isLast = i === arr.length - 1;
-        return `<tr style="background:${isLast?"#EBF3FE":"transparent"}">
+        return `<tr style="background:transparent;border-bottom:${isLast?"none":"1px solid #F2F4F6"}">
           <td style="padding:5px 8px;font-size:12px;color:#8B95A1;white-space:nowrap">${h.date}</td>
-          <td style="padding:5px 8px;font-size:13px;font-weight:${isLast?"800":"600"};color:${isLast?"#3182F6":"#1A1A2E"}">${h.value}</td>
+          <td style="padding:5px 8px;font-size:14px;font-weight:${isLast?"800":"600"};color:${isLast?"#3182F6":"#1A1A2E"}">${h.value}</td>
           <td style="padding:5px 8px;font-size:12px;text-align:center">${arrow}</td>
-          <td style="padding:5px 8px;font-size:11px;color:#8B95A1">${h.scale||""}</td>
+          <td style="padding:5px 8px;font-size:12px;color:#8B95A1">${h.scale||""}</td>
         </tr>`;
       }).join("");
       const listHtml = `<div style="border-radius:10px;overflow:hidden;border:1px solid #E8EBED">
         <table style="width:100%;border-collapse:collapse">
-          <thead><tr style="background:#F8F9FA">
-            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">날짜</th>
-            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">기록</th>
-            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:center">추이</th>
-            <th style="padding:5px 8px;font-size:11px;font-weight:700;color:#8B95A1;text-align:left">스케일</th>
+          <thead><tr style="border-bottom:1px solid #E8EBED">
+            <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:left">날짜</th>
+            <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:left">기록</th>
+            <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:center">추이</th>
+            <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:left">스케일</th>
           </tr></thead>
           <tbody>${listRows}</tbody>
         </table>
@@ -1132,13 +1266,13 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
           <text x="${p.x}" y="${H}" text-anchor="middle" font-size="8" fill="#B0B8C1">${p.h.date}</text>`;
       }).join("");
       const graphHtml = allRecs.length >= 2
-        ? `<div style="border-radius:10px;border:1px solid #E8EBED;padding:12px 8px 4px;background:#FAFAFA">
+        ? `<div style="border-radius:10px;border:1px solid #E8EBED;padding:12px 8px 4px;background:#fff">
             <svg width="100%" viewBox="0 0 ${W} ${H+4}" style="overflow:visible">
               <polyline points="${polyline}" fill="none" stroke="#3182F6" stroke-width="2" stroke-linejoin="round"/>
               ${dots}
             </svg>
           </div>`
-        : `<div style="border-radius:10px;border:1px solid #E8EBED;padding:14px;background:#FAFAFA;font-size:12px;color:#B0B8C1;text-align:center">기록 2개 이상부터 그래프를 볼 수 있어요</div>`;
+        : `<div style="border-radius:10px;border:1px solid #E8EBED;padding:14px;background:#fff;font-size:12px;color:#B0B8C1;text-align:center">기록 2개 이상부터 그래프를 볼 수 있어요</div>`;
 
       histHtml = `<div style="margin-top:10px">
         ${memberMode === "list" ? listHtml : graphHtml}
@@ -1146,7 +1280,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
 
     body=`<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:8px">
       <span class="rec-val" style="margin-top:0">${rec.value}</span>
-      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;padding:6px 10px;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1;flex-shrink:0">${ico.edit} 수정</button>
+      <button class="icon-btn" data-oedit="${memberId}" data-owid="${wod.id}" style="background:#F2F4F6;border-radius:8px;height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#8B95A1;flex-shrink:0">${ico.edit} 수정</button>
     </div>
     <div class="rec-meta">
       ${trendHtml}
@@ -1172,6 +1306,44 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
     </div></div>`;
 }
 
+
+/* ── BENCHMARK DAY MANAGER (Coach) ── */
+function renderBenchmarkDayMgr() {
+  const tKey = todayKey();
+  const td = todayWod && todayWod[tKey];
+  const selWodId = S.bdWodId !== undefined ? S.bdWodId : (td ? parseInt(td.wodId) : null);
+  const selWod = selWodId ? WODS.find(w=>w.id===selWodId) : null;
+
+  const wodOptions = WODS.map(function(w) {
+    const active = w.id === selWodId;
+    return '<option value="'+w.id+'"'+(active?' selected':'')+'>'+w.name+(w.detail?' · '+w.detail:'')+'</option>';
+  }).join('');
+
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:18px">'
+    +'<div class="card" style="margin-bottom:12px">'
+    +'<p style="font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.5px;margin-bottom:14px">오늘 등록된 벤치마크 Day</p>'
+    +(td
+      ? '<div style="background:#EBF3FE;border-radius:12px;padding:14px 16px;margin-bottom:14px">'
+        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E">'+(WODS.find(w=>w.id===parseInt(td.wodId))?.name||"알 수 없음")+'</p>'
+        +(td.note?'<p style="font-size:14px;color:#8B95A1;margin-top:4px">'+td.note+'</p>':'')
+        +'<p style="font-size:12px;color:#3182F6;margin-top:6px">✓ 등록됨</p>'
+        +'</div>'
+      : '<div style="background:#F8F9FA;border-radius:12px;padding:14px 16px;margin-bottom:14px;text-align:center">'
+        +'<p style="font-size:14px;color:#B0B8C1">아직 등록되지 않았어요</p>'
+        +'</div>')
+    +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">WOD 선택</p>'
+    +'<select id="sel-bmday-wod" style="width:100%;height:48px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:12px;padding:0 14px;font-size:16px;color:#1A1A2E;font-family:inherit;outline:none;cursor:pointer;margin-bottom:10px">'
+    +'<option value="">WOD를 선택하세요</option>'
+    +wodOptions
+    +'</select>'
+    +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">코치 메모 (선택)</p>'
+    +'<input id="inp-bmday-note" placeholder="오늘의 목표나 주의사항을 입력하세요" value="'+(S.bdNote!==undefined?S.bdNote:(td?.note||''))+'" style="display:block;width:100%;height:48px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:12px;padding:0 14px;font-size:15px;font-family:inherit;outline:none;color:#1A1A2E;box-sizing:border-box;margin-bottom:12px"/>'
+    +'<button id="btn-bmday-save" style="display:block;width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;box-sizing:border-box">오늘 벤치마크 Day 등록</button>'
+    +(td ? '<button id="btn-bmday-clear" style="width:100%;height:44px;background:none;border:none;color:#F04452;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px">오늘 등록 취소</button>' : '')
+    +'</div>'
+    +'</div>';
+}
+
 /* ══ BIND ══ */
 function updateCoachMemberGrid() {
   const container = document.getElementById("coach-member-grid");
@@ -1183,8 +1355,8 @@ function updateCoachMemberGrid() {
     const pct = Math.round(cnt/WODS.length*100);
     const avHtml = src
       ? '<img src="'+src+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>'
-      : '<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
-    return '<div data-sel-member="'+m.id+'" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">'
+      : '<div style="width:44px;height:44px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
+    return '<div data-sel-member="'+m.id+'" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.05);-webkit-tap-highlight-color:transparent">'
       +'<div style="position:relative;flex-shrink:0">'+avHtml+'</div>'
       +'<div style="flex:1;min-width:0">'
       +'<p style="font-size:16px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
@@ -1244,7 +1416,12 @@ function bind() {
   }
   on("btn-clear","click",()=>{S.search="";const el=g("inp-search");if(el)el.value="";updateMemberGrid();});
   on("btn-rank","click",()=>{S.view="rank";render();});
-  on("btn-show-register","click",()=>{S.registerModal=true;S.registerStep=1;S.registerName="";S.registerErr="";S.registerAvatar=null;render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
+  on("btn-login-bmday","click",()=>{
+    // Scroll to member grid
+    const grid=document.getElementById("member-grid-container");
+    if(grid)grid.scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  // btn-show-register 제거됨 (첫진입 자동 모달)
   on("btn-register-cancel","click",()=>{S.registerModal=false;render();});
   document.getElementById("mo-register")?.addEventListener("click",()=>{S.registerModal=false;render();});
   on("inp-register-name","input",e=>{S.registerName=e.target.value;S.registerErr="";});
@@ -1255,6 +1432,39 @@ function bind() {
   document.querySelectorAll("[data-reg-avatar]").forEach(el=>el.addEventListener("click",()=>{
     S.registerAvatar=parseInt(el.dataset.regAvatar);render();
   }));
+  // 내 프로필 버튼 클릭
+  const profileBtn = document.getElementById("btn-my-profile");
+  if (profileBtn) {
+    profileBtn.addEventListener("click", () => {
+      S.profileModal = profileBtn.dataset.profileId;
+      render();
+    });
+  }
+  on("btn-profile-cancel","click",()=>{S.profileModal=false;render();});
+  g("mo-profile-modal")?.addEventListener("click",()=>{S.profileModal=false;render();});
+  // 프로필 아바타 선택
+  qa("[data-profile-avatar]",el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    const mid=S.profileModal;
+    if(!mid)return;
+    const idx=parseInt(el.dataset.profileAvatar);
+    fbUpdate("members/"+mid,{avatar:idx});
+    // 로컬 즉시 반영
+    const m=members.find(x=>x.id===mid);
+    if(m)m.avatar=idx;
+    render();
+  }));
+  on("btn-profile-save","click",()=>{
+    const mid=S.profileModal;
+    if(!mid)return;
+    const nameEl=g("inp-profile-name");
+    const name=(nameEl?nameEl.value:"").trim();
+    if(!name)return;
+    fbUpdate("members/"+mid,{name});
+    // localStorage 이름도 유지 (id 기준이므로 상관없음)
+    S.profileModal=false;
+    render();
+  });
   on("btn-open-pin","click",()=>{S.pinModal=true;S.pin="";S.pinErr=false;render();setTimeout(()=>g("inp-pin")?.focus(),60);});
   on("pin-overlay","click",()=>{S.pinModal=false;S.pin="";S.pinErr=false;render();});
   on("inp-pin","input",e=>{S.pin=e.target.value;S.pinErr=false;});
@@ -1270,6 +1480,23 @@ function bind() {
   /* member nav */
   on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
   qa("[data-mtab]",el=>el.addEventListener("click",()=>{S.memberTab=el.dataset.mtab;render();}));
+  qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
+    const wid=parseInt(el.dataset.bdRecord);
+    const wod=WODS.find(w=>w.id===wid);
+    const m=members.find(x=>x.id===S.activeMemberId);
+    const rec=m?.records[wid]||{};
+    const wtype=wod?.type||"time";
+    S.memberTab="my";
+    S.editing={memberId:m.id,wodId:wid};
+    S.editVal={scale:rec.scale||"",value:rec.value||""};
+    if(wtype==="time"){const mt=rec.value?.match(/(\d+)'(\d+)/);S.timeVal=mt?{min:mt[1],sec:mt[2]}:{min:"",sec:""};}
+    else{S.timeVal={min:"",sec:""};S.editVal.value=rec.value?parseFloat(rec.value)||"":"";}
+    render();
+    setTimeout(()=>{
+      const el=document.querySelector('[data-owid="'+wid+'"]');
+      if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+    },100);
+  }));
 
   /* avatar picker */
   on("btn-pick-avatar","click",()=>{S.avatarModal=S.activeMemberId;render();});
@@ -1290,6 +1517,40 @@ function bind() {
 
   /* coach nav */
   on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();});
+  // Benchmark Day binds
+  const selBmday=document.getElementById("sel-bmday-wod");
+  if(selBmday) selBmday.addEventListener("change",e=>{S.bdWodId=parseInt(e.target.value)||null;render();});
+  const noteBmday=document.getElementById("inp-bmday-note");
+  if(noteBmday) noteBmday.addEventListener("input",e=>{S.bdNote=e.target.value;});
+  on("btn-bmday-save","click",()=>{
+    const wid=document.getElementById("sel-bmday-wod")?.value;
+    if(!wid){showToast("WOD를 선택해주세요");return;}
+    const note=document.getElementById("inp-bmday-note")?.value||"";
+    fbSet("benchmarkDay/"+todayKey(),{wodId:parseInt(wid),note});
+    S.bdWodId=undefined;S.bdNote=undefined;showToast("벤치마크 Day 등록 완료! 🎯");
+  });
+  on("btn-bmday-clear","click",()=>{
+    fbRemove("benchmarkDay/"+todayKey());
+    S.bdWodId=undefined;S.bdNote=undefined;showToast("오늘 등록이 취소됐어요");
+  });
+  // Home bd-record bind
+  qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
+    const wid=parseInt(el.dataset.bdRecord);
+    const wod=WODS.find(w=>w.id===wid);
+    const m=members.find(x=>x.id===S.activeMemberId);
+    const rec=m&&m.records[wid]||{};
+    const wtype=wod&&wod.type||"time";
+    S.memberTab="my";
+    S.editing={memberId:m.id,wodId:wid};
+    S.editVal={scale:rec.scale||"",value:rec.value||""};
+    if(wtype==="time"){const mt=rec.value&&rec.value.match(/(\d+)'(\d+)/);S.timeVal=mt?{min:mt[1],sec:mt[2]}:{min:"",sec:""};}
+    else{S.timeVal={min:"",sec:""};S.editVal.value=rec.value?parseFloat(rec.value)||"":"";}
+    render();
+    setTimeout(function(){
+      var el=document.querySelector('[data-oedit][data-owid="'+wid+'"]');
+      if(el)el.scrollIntoView({behavior:"smooth",block:"center"});
+    },150);
+  }));
   const coachSearchEl=document.getElementById("inp-coach-member-search");
   if(coachSearchEl){
     let cmp=false;
@@ -1552,8 +1813,8 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPro
 function showInstallBanner(){
   if(document.getElementById("install-banner"))return;
   const b=document.createElement("div");b.id="install-banner";
-  b.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:12px 20px;border-radius:14px;display:flex;align-items:center;gap:12px;z-index:9000;box-shadow:0 8px 32px rgba(0,0,0,.25);font-family:inherit;white-space:nowrap;font-size:14px;font-weight:600;";
-  b.innerHTML=`<span style="font-size:20px">📲</span><span>홈 화면에 추가하기</span><button id="install-btn" style="background:#3182F6;border:none;color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;">추가</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8B95A1;font-size:18px;cursor:pointer;padding:0 2px;">×</button>`;
+  b.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A2E;color:#fff;padding:12px 18px;border-radius:14px;display:flex;align-items:center;gap:12px;z-index:9000;box-shadow:0 8px 32px rgba(0,0,0,.25);font-family:inherit;white-space:nowrap;font-size:14px;font-weight:600;";
+  b.innerHTML=`<span style="font-size:18px">📲</span><span>홈 화면에 추가하기</span><button id="install-btn" style="background:#3182F6;border:none;color:#fff;border-radius:8px;height:36px;padding:0 14px;font-size:14px;font-weight:700;cursor:pointer;">추가</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8B95A1;font-size:18px;cursor:pointer;min-height:44px;padding:0 2px;">×</button>`;
   document.body.appendChild(b);
 }
 async function doInstall(){
