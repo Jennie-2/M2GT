@@ -1688,7 +1688,10 @@ function bind() {
 
   /* coach nav */
   on("btn-coach-back","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();});
-  on("btn-coach-logout","click",()=>{S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();});
+  on("btn-coach-logout","click",()=>{
+    localStorage.removeItem("mt_coach_logged");
+    S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();
+  });
   on("btn-member-detail-back","click",()=>{S.panelId=null;render();});
   on("btn-add-member","click",()=>{S.addingMember=true;S.newMemberName="";render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),50);});
   on("btn-add-member-cancel","click",()=>{S.addingMember=false;render();});
