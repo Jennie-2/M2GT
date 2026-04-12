@@ -94,6 +94,7 @@ let S = {
   // history view mode per wod: { [memberId_wodId]: "list"|"graph" }
   histView:{},
   memberWodGroup:"",
+
   // rank page gender filter
   rankGender:"male",
   // rank page expanded wod
@@ -105,23 +106,21 @@ let S = {
   selectedWodGroup:null,
 };
 
-/* ── 초기 세션 복원 ── */
-try {
-  if (localStorage.getItem("mt_coach_logged")==="1") {
-    S.view="coach"; S.coachSection="menu";
-  }
-} catch(e) {}
-
+/* ── 초기 세션 복원 없음 ── */
+// 새로고침 시 기본 진입점은 로그인/홈 화면입니다.
 /* ── Firebase sync ── */
-onValue(ref(db,"coachMessage"), snap => { coachMessage = snap.val()||""; render(); });
+// benchmarkDay가 최초 1회 응답했는지 추적 (로딩 전 "측정 DAY 아님" 오표시 방지)
+let _bdLoaded = false;
 
 let todayWod;
 let passes   = {};
 let classes  = {};
 const todayKey = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
-onValue(ref(db,"benchmarkDay"), snap => { todayWod = snap.val()||null; render(); });
-onValue(ref(db,"passes"),  snap => { passes  = snap.val()||{}; render(); });
-onValue(ref(db,"classes"), snap => { classes = snap.val()||{}; render(); });
+
+onValue(ref(db,"coachMessage"), snap => { coachMessage = snap.val()||""; if (!S.bdRecordModal && !S.editing) render(); });
+onValue(ref(db,"benchmarkDay"), snap => { todayWod = snap.val()||null; _bdLoaded=true; if (!S.bdRecordModal && !S.editing) render(); });
+onValue(ref(db,"passes"),  snap => { passes  = snap.val()||{}; if (!S.bdRecordModal && !S.editing) render(); });
+onValue(ref(db,"classes"), snap => { classes = snap.val()||{}; if (!S.bdRecordModal && !S.editing) render(); });
 onValue(ref(db,"wods"), snap => {
   const raw = snap.val();
   if (raw) {
@@ -135,25 +134,15 @@ onValue(ref(db,"wods"), snap => {
   } else {
     DEFAULT_WODS.forEach(w => set(ref(db,`wods/${w.id}`), {name:w.name, detail:w.detail, group:w.group||"WOD", type:w.type||"time", youtube:""}));
   }
-  render();
+  if (!S.bdRecordModal && !S.editing) render();
 });
 onValue(ref(db,"members"), snap => {
   const raw = snap.val()||{};
   members = Object.entries(raw)
     .map(([id,m]) => ({id, name:m.name, records:m.records||{}, avatar:m.avatar??null, gender:m.gender||"", dormant:!!m.dormant}))
     .sort((a,b) => a.name.localeCompare(b.name,"ko"));
-  // Auto-login: restore last member from localStorage
-  if (S.view==="login" && !S.activeMemberId) {
-    try {
-      const saved = localStorage.getItem("mt_last_member");
-      if (!saved || !members.find(m=>m.id===saved)) {
-        S.profileModal = true;
-      }
-    } catch(e) {
-      S.profileModal = true;
-    }
-  }
-  render();
+  // 새로고침 시에는 자동 복원을 하지 않고, 기본 로그인/홈 화면을 유지합니다.
+  if (!S.bdRecordModal && !S.editing) render();
 });
 
 /* ── DB helpers ── */
@@ -178,7 +167,7 @@ const ico = {
 const getMemberAvatar = (m) => m?.avatar != null ? AVATARS[m.avatar] : null;
 const av = (name,size=38,active=false,avatarIdx=null) => {
   const src = avatarIdx != null ? AVATARS[avatarIdx] : null;
-  if (src) return `<div class="avatar" style="width:${size}px;height:${size}px;background:#fff;border:2px solid ${active?"#3182F6":"#E8EBED"};overflow:hidden;padding:0"><img src="${src}" style="width:100%;height:100%;object-fit:cover"/></div>`;
+  if (src) return `<div class="avatar" style="width:${size}px;height:${size}px;background:#fff;border:1px solid ${active?"#3182F6":"#E8EBED"};overflow:hidden;padding:0"><img src="${src}" style="width:100%;height:100%;object-fit:cover"/></div>`;
   return `<div class="avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size*.38)}px;background:${active?"#3182F6":"#EBF3FE"};color:${active?"#fff":"#3182F6"}">${name[0]}</div>`;
 };
 
@@ -287,14 +276,9 @@ function renderYoutubeCard(url) {
 /* ══ RENDER ══ */
 function render() {
   const root = document.getElementById("app");
-  // 초기 진입 시 저장된 회원이 있으면 자동 로그인
+  // 새로고침 시 기본 페이지로 시작: 로그인/홈 화면
   if (!S.view && !S.viewingMemberId && !S.activeMemberId) {
-    const saved = loadLastMember();
-    const savedMember = saved && members.find(m => m.id === saved);
-    if (savedMember) {
-      S.activeMemberId = saved;
-      S.view = "myProfile";
-    }
+    S.view = "login";
   }
   
   if      (S.view==="coach")   root.innerHTML = renderCoach();
@@ -374,6 +358,15 @@ function renderLogin() {
       const td = todayWod && todayWod[tKey];
       const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
       if (!bdWod) {
+        // benchmarkDay 아직 로딩 중이면 스켈레톤 표시 (오표시 방지)
+        if (!_bdLoaded) {
+          return '<div style="margin-bottom:20px">'
+            +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 28px 20px;overflow:hidden">'
+            +'<span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">벤치마크 Day</span>'
+            +'<div style="height:22px;margin-top:14px;background:rgba(255,255,255,.2);border-radius:8px;width:55%"></div>'
+            +'<div style="height:14px;margin-top:10px;background:rgba(255,255,255,.15);border-radius:6px;width:70%"></div>'
+            +'</div></div>';
+        }
         let hasSaved=false;
         try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
         const bdActionText=hasSaved?"내 기록 등록하기 →":"프로필 설정 후 기록하기 →";
@@ -382,8 +375,8 @@ function renderLogin() {
           +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
           +'<span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">벤치마크 Day</span>'
           +'</div>'
-          +'<p style="font-size:20px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">오늘의 벤치마크가 없습니다</p>'
-          +'<p style="font-size:13px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">코치가 오늘의 벤치마크를 등록하면 이곳에서 바로 확인하고 기록할 수 있어요.</p>'
+          +'<p style="font-size:20px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">오늘은 측정 DAY가 아니에요 :)</p>'
+          +'<p style="font-size:13px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">뜨거우신 분들은 개인 측정 후 기록해주세요!</p>'
           +'<div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px">'
             +'<span style="font-size:14px;font-weight:700;color:#fff;opacity:.95">'+bdActionText+'</span>'
           +'</div>'
@@ -516,10 +509,10 @@ function renderMemberView() {
 
   const wodRows = WODS.map(function(wod) {
     const g = wod.group||"WOD";
-    const GL = {STRENGTH:"💪 STRENGTH", HYROX:"🏃 HYROX", WOD:"🔥 WOD"};
+    const GL = {STRENGTH:"STRENGTH", HYROX:"HYROX", WOD:"WOD"};
     let gh = "";
     if (g !== lastGroup) {
-      gh = '<div style="padding:16px 16px 8px;font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">'+(GL[g]||g)+'</div>';
+      gh = '<div style="padding:16px 18px;font-size:14px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">'+(GL[g]||g)+'</div>';
       lastGroup = g;
     }
     const rec = m.records[wod.id];
@@ -584,20 +577,19 @@ function renderBdRecordModal() {
     const rValBd = rMatchBd ? rMatchBd[1] : (S.editVal.value ? S.editVal.value.replace(/R.*/,"") : "");
     const repValBd = rMatchBd ? rMatchBd[2] : "";
     inputHtml = '<div class="time-input-row">'
-      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+rValBd+'"/><span class="time-field-label">라운드</span></div>'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+rValBd+'"/><span class="time-field-label">R</span></div>'
       +'<span class="time-sep">+</span>'
-      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+repValBd+'"/><span class="time-field-label">렙</span></div>'
+      +'<div class="time-field-wrap"><input class="time-field" id="inp-bd-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+repValBd+'"/><span class="time-field-label">reps</span></div>'
       +'</div>';
   } else {
     const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
-    inputHtml = '<div class="time-input-row"><div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-bd-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+prev+'"/><span class="time-field-label">횟수</span></div></div>';
+    inputHtml = '<div class="time-input-row"><div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-bd-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="'+prev+'"/><span class="time-field-label">개</span></div></div>';
   }
 
   return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center" id="bd-record-overlay">'
     +'<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px calc(24px + env(safe-area-inset-bottom))">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'
     +'<div>'
-    +'<p style="font-size:12px;font-weight:700;color:#3182F6;letter-spacing:.4px;margin-bottom:4px">🎯 벤치마크 Day</p>'
     +'<p style="font-size:22px;font-weight:900;color:#1A1A2E;letter-spacing:-.4px;margin-bottom:6px">'+wod.name+'</p>'
     +(wod.detail?'<p style="font-size:14px;color:#8B95A1;margin-top:0;line-height:1.55">'+wod.detail+'</p>':'')
     +'</div>'
@@ -609,7 +601,7 @@ function renderBdRecordModal() {
     +'<div style="display:flex;gap:6px;margin-top:10px">'
     +['RXD','A','B'].map(function(s){
       var active=S.editVal.scale===s;
-      return '<button data-bd-scale-btn="'+s+'" style="flex:1;height:36px;border-radius:10px;border:2px solid '+(active?'#3182F6':'#E8EBED')+';background:'+(active?'#EBF3FE':'#F2F4F6')+';color:'+(active?'#3182F6':'#8B95A1')+';font-size:13px;font-weight:700;cursor:pointer">'+s+'</button>';
+      return '<button data-bd-scale-btn="'+s+'" style="flex:1;height:36px;border-radius:10px;border:1px solid '+(active?'#3182F6':'#E8EBED')+';background:'+(active?'#EBF3FE':'#F2F4F6')+';color:'+(active?'#3182F6':'#8B95A1')+';font-size:13px;font-weight:700;cursor:pointer">'+s+'</button>';
     }).join('')
     +'</div>'
     +(S.editVal.scale==="A"&&wod.scaleA?'<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-top:4px">'+wod.scaleA+'</div>':'')
@@ -653,7 +645,6 @@ function renderRank() {
     }).join('');
 
     return '<div style="margin-bottom:8px">'
-      +'<p style="font-size:11px;font-weight:800;color:#8B95A1;letter-spacing:.5px;padding:8px 0 4px">'+(gender==="male"?"남성":"여성")+'</p>'
       +rows+'</div>';
   };
 
@@ -803,7 +794,7 @@ function renderMember() {
     <div class="nav">
       <button class="nav-back icon-btn" id="btn-member-back">${ico.chevL}</button>
       <button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;min-height:32px;gap:6px;border-radius:10px">
-        ${src ? `<img src="${src}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>` : `<div style="width:30px;height:30px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
+        ${src ? `<img src="${src}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid #E8EBED"/>` : `<div style="width:30px;height:30px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center">${m.name[0]}</div>`}
         <span style="font-size:16px;font-weight:700;color:#1A1A2E">${m.name}</span>
       </button>
       <div style="flex:1"></div>
@@ -864,11 +855,11 @@ function renderCoach() {
   const allGroups = [...new Set(WODS.map(w => w.group))].sort();
   const filteredWods = S.selectedWodGroup ? WODS.filter(w => w.group === S.selectedWodGroup) : WODS;
   
-  const wodManager = `<div style="flex:1;overflow-y:auto;padding:20px">
+  const wodManager = `<div style="flex:1;overflow-y:auto">
     <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
         <div class="card-label" style="margin-bottom:0">WOD 목록 (${filteredWods.length}개)</div>
-        <button id="btn-wod-add-toggle" style="display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px">
+        <button id="btn-wod-add-toggle" style="display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:14px;font-weight:700;color:#fff;min-height:32px">
           ${ico.plus} WOD 추가
         </button>
       </div>
@@ -984,7 +975,7 @@ function renderCoach() {
     : S.coachTab==="rank" ? `<div style="overflow-y:auto;flex:1">${lbPanel}</div>`
     : S.coachTab==="bmday" ? renderBenchmarkDayMgr()
     : S.coachTab==="wod"  ? wodManager
-    : `<div style="flex:1;padding:24px 18px;max-width:480px;width:100%;margin:0 auto">
+    : `<div style="flex:1;max-width:480px;width:100%;margin:0 auto">
         <div class="card">
           <div class="card-label">코치의 한마디</div>
           <div style="font-size:14px;color:#8B95A1;margin-bottom:12px">메인 화면 상단에 표시됩니다</div>
@@ -1010,11 +1001,11 @@ function renderWodEditChips(wod) {
   const t = wod.type  || "time";
   const gChips = groups.map(function(v){
     const a=g===v;
-    return '<button data-wod-group="'+v+'" style="flex:1;height:48px;border-radius:12px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">'+v+'</button>';
+    return '<button data-wod-group="'+v+'" style="flex:1;height:44px;border-radius:12px;border:1px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">'+v+'</button>';
   }).join("");
   const tChips = types.map(function(v){
     const a=t===v.key;
-    return '<button data-wod-type="'+v.key+'" style="flex:1;height:48px;border-radius:12px;border:2px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
+    return '<button data-wod-type="'+v.key+'" style="flex:1;height:44px;border-radius:12px;border:1px solid '+(a?"#3182F6":"#E8EBED")+';background:'+(a?"#EBF3FE":"#F2F4F6")+';color:'+(a?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">'+v.label+'</button>';
   }).join("");
   return '<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">그룹</div>'
     +'<div style="display:flex;gap:6px;margin-bottom:12px">'+gChips+'</div>'
@@ -1036,12 +1027,12 @@ function renderWodAddForm() {
 
   const groupChips = groups.map(function(v) {
     const active = g === v;
-    return '<button data-wod-form-group="' + v + '" style="flex:1;height:48px;border-radius:12px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer">' + v + '</button>';
+    return '<button data-wod-form-group="' + v + '" style="flex:1;height:48px;border-radius:12px;border:1px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer">' + v + '</button>';
   }).join("");
 
   const typeChips = types.map(function(v) {
     const active = t === v.key;
-    return '<button data-wod-form-type="' + v.key + '" style="flex:1;height:48px;border-radius:12px;border:2px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">' + v.label + '</button>';
+    return '<button data-wod-form-type="' + v.key + '" style="flex:1;height:48px;border-radius:12px;border:1px solid ' + (active?"#3182F6":"#E8EBED") + ';background:' + (active?"#EBF3FE":"#F2F4F6") + ';color:' + (active?"#3182F6":"#8B95A1") + ';font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">' + v.label + '</button>';
   }).join("");
 
   return '<div class="wod-add-form">'
@@ -1065,10 +1056,10 @@ function renderWodGroupChips() {
   const groups = [...new Set(WODS.map(w => w.group||"WOD"))].sort();
   const all = S.memberWodGroup === "";
   let html = '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:16px 20px;background:#fff;border-bottom:1px solid #F2F4F6">';
-  html += '<button data-member-wod-group="" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px solid '+(all?"#3182F6":"#E8EBED")+';background:'+(all?"#EBF3FE":"#F2F4F6")+';color:'+(all?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">전체</button>';
+  html += '<button data-member-wod-group="" style="height:32px;padding:0 14px;border-radius:99px;border:1px solid '+(all?"#3182F6":"#E8EBED")+';background:'+(all?"#EBF3FE":"#ffffff")+';color:'+(all?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">전체</button>';
   groups.forEach(g => {
     const active = S.memberWodGroup === g;
-    html += '<button data-member-wod-group="'+g+'" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px solid '+(active?"#3182F6":"#E8EBED")+';background:'+(active?"#EBF3FE":"#F2F4F6")+';color:'+(active?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">'+g+'</button>';
+    html += '<button data-member-wod-group="'+g+'" style="height:32px;padding:0 14px;border-radius:99px;border:1px solid '+(active?"#3182F6":"#E8EBED")+';background:'+(active?"#EBF3FE":"#ffffff")+';color:'+(active?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">'+g+'</button>';
   });
   return html + '</div>';
 }
@@ -1082,7 +1073,7 @@ function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
   wods.forEach(wod => {
     const g = wod.group || "WOD";
     if (g !== lastGroup) {
-      html += '<div style="padding:18px 8px;font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">' + (GROUP_LABELS[g] || g) + '</div>';
+      html += '<div style="padding:16px 18px;font-size:14px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">' + (GROUP_LABELS[g] || g) + '</div>';
       lastGroup = g;
     }
     const rec = member.records[wod.id];
@@ -1115,8 +1106,8 @@ function renderProfileModal() {
     +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">새 프로필 등록</p>'
     +'<input id="inp-profile-name" class="modal-input" placeholder="이름 입력" value="'+(S.profileNewName||'')+'"/>'
     +'<div style="display:flex;gap:8px;margin-top:12px;margin-bottom:8px">'
-    +'<button id="btn-gender-male" style="flex:1;height:44px;border-radius:12px;border:2px solid '+(S.profileGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.profileGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.profileGender==="male"?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">남성</button>'
-    +'<button id="btn-gender-female" style="flex:1;height:44px;border-radius:12px;border:2px solid '+(S.profileGender==="female"?"#F04452":"#E8EBED")+';background:'+(S.profileGender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(S.profileGender==="female"?"#F04452":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">여성</button>'
+    +'<button id="btn-gender-male" style="flex:1;height:44px;border-radius:12px;border:1px solid '+(S.profileGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.profileGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.profileGender==="male"?"#3182F6":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">남성</button>'
+    +'<button id="btn-gender-female" style="flex:1;height:44px;border-radius:12px;border:1px solid '+(S.profileGender==="female"?"#F04452":"#E8EBED")+';background:'+(S.profileGender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(S.profileGender==="female"?"#F04452":"#8B95A1")+';font-size:14px;font-weight:700;cursor:pointer">여성</button>'
     +'</div>'
     +'<button id="btn-profile-add" class="modal-btn-save" style="width:100%;display:flex;align-items:center;justify-content:center">등록</button>'
     +(S.profileNameErr ? '<p style="font-size:12px;color:#F04452;margin-top:6px">'+S.profileNameErr+'</p>' : '')
@@ -1155,12 +1146,20 @@ function renderMemberHome(m) {
   // Benchmark Day card
   let bdCard = "";
   if (!bdWod) {
-    bdCard = '<div class="card" style="text-align:center;padding:32px 18px">'
-      +'<div style="font-size:28px;margin-bottom:10px">🏋️</div>'
-      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E;margin-bottom:6px">오늘은 벤치마크 Day가 없어요</p>'
-      +'<p style="font-size:14px;color:#B0B8C1;margin-bottom:18px">코치가 등록하면 여기에 나타나요</p>'
-      +'<button id="btn-add-my-record" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">+ 내 기록 추가</button>'
-      +'</div>';
+    if (!_bdLoaded) {
+      // benchmarkDay 아직 로딩 중 → 스켈레톤
+      bdCard = '<div class="card" style="padding:32px 18px">'
+        +'<div style="height:20px;background:#F2F4F6;border-radius:8px;width:50%;margin:0 auto 10px"></div>'
+        +'<div style="height:14px;background:#F2F4F6;border-radius:6px;width:70%;margin:0 auto"></div>'
+        +'</div>';
+    } else {
+      bdCard = '<div class="card" style="text-align:center;padding:32px 18px">'
+        +'<div style="font-size:28px;margin-bottom:10px">🏋️</div>'
+        +'<p style="font-size:16px;font-weight:700;color:#1A1A2E;margin-bottom:6px">오늘은 벤치마크 Day가 없어요</p>'
+        +'<p style="font-size:14px;color:#B0B8C1;margin-bottom:18px">코치가 등록하면 여기에 나타나요</p>'
+        +'<button id="btn-add-my-record" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">+ 내 기록 추가</button>'
+        +'</div>';
+    }
   } else {
     const hasRecord = !!myRec;
     const trendHtml = (() => {
@@ -1234,14 +1233,14 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
       const rVal = rMatch ? rMatch[1] : (S.editVal.value ? S.editVal.value.replace(/R.*/, "") : "");
       const repVal = rMatch ? rMatch[2] : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap"><input class="time-field" id="inp-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + rVal + '"/><span class="time-field-label">라운드</span></div>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-rounds" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + rVal + '"/><span class="time-field-label">R</span></div>'
         + '<span class="time-sep">+</span>'
-        + '<div class="time-field-wrap"><input class="time-field" id="inp-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + repVal + '"/><span class="time-field-label">렙</span></div>'
+        + '<div class="time-field-wrap"><input class="time-field" id="inp-reps-extra" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + repVal + '"/><span class="time-field-label">reps</span></div>'
         + '</div>';
     } else {
       const prev = S.editVal.value ? parseFloat(S.editVal.value)||"" : "";
       inputHtml = '<div class="time-input-row">'
-        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">횟수</span></div>'
+        + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">개</span></div>'
         + '</div>';
     }
     const scaleHint = (S.editVal.scale==="A"&&wod.scaleA) ? `<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-top:4px">${wod.scaleA}</div>`
@@ -1249,7 +1248,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
     body = `<div class="edit-area">
       ${inputHtml}
       <div style="display:flex;gap:6px;margin-top:6px">
-        ${["RXD","A","B"].map(s=>`<button data-scale-btn="${s}" style="flex:1;height:36px;border-radius:10px;border:2px solid ${S.editVal.scale===s?"#3182F6":"#E8EBED"};background:${S.editVal.scale===s?"#EBF3FE":"#F2F4F6"};color:${S.editVal.scale===s?"#3182F6":"#8B95A1"};font-size:13px;font-weight:700;cursor:pointer">${s}</button>`).join("")}
+        ${["RXD","A","B"].map(s=>`<button data-scale-btn="${s}" style="flex:1;height:36px;border-radius:10px;border:1px solid ${S.editVal.scale===s?"#3182F6":"#E8EBED"};background:${S.editVal.scale===s?"#EBF3FE":"#F2F4F6"};color:${S.editVal.scale===s?"#3182F6":"#8B95A1"};font-size:13px;font-weight:700;cursor:pointer">${s}</button>`).join("")}
       </div>
       ${scaleHint}
       <div class="edit-btns" style="margin-top:2px">
@@ -1381,8 +1380,8 @@ function renderCoachMembers() {
   const addBox = S.addingMember
     ? '<div class="add-box">'
       +'<div style="display:flex;gap:6px">'
-      +'<button id="btn-new-gender-male" style="flex:1;height:38px;border-radius:10px;border:2px solid '+(S.newMemberGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.newMemberGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.newMemberGender==="male"?"#3182F6":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">남성</button>'
-      +'<button id="btn-new-gender-female" style="flex:1;height:38px;border-radius:10px;border:2px solid '+(S.newMemberGender==="female"?"#F04452":"#E8EBED")+';background:'+(S.newMemberGender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(S.newMemberGender==="female"?"#F04452":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">여성</button>'
+      +'<button id="btn-new-gender-male" style="flex:1;height:38px;border-radius:10px;border:1px solid '+(S.newMemberGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.newMemberGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.newMemberGender==="male"?"#3182F6":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">남성</button>'
+      +'<button id="btn-new-gender-female" style="flex:1;height:38px;border-radius:10px;border:1px solid '+(S.newMemberGender==="female"?"#3182F6":"#E8EBED")+';background:'+(S.newMemberGender==="female"?"#EBF3FE":"#F2F4F6")+';color:'+(S.newMemberGender==="female"?"#3182F6":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">여성</button>'
       +'</div>'
       +'<input id="inp-new-member-name" class="add-input" placeholder="이름 입력" value="'+(S.newMemberName||'')+'"/>'
       +'<div class="edit-btns">'
@@ -1462,12 +1461,12 @@ function renderMyProfilePage() {
     // 콘텐츠
     +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:0 0 40px">'
     // 프로필 카드
-    +'<div style="background:#fff;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="background:#fff;padding:18px;margin-bottom:12px">'
     +'<div style="display:flex;align-items:center;gap:14px">'
     // 아바타
     +'<button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">'
     +(src
-      ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>'
+      ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #E8EBED"/>'
       : '<div style="width:56px;height:56px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>')
     +'<span style="position:absolute;bottom:0;right:0;font-size:14px;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1)">✏️</span>'
     +'</button>'
@@ -1517,7 +1516,7 @@ function renderCoachMemberDetail() {
 
   return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:0 0 40px">'
     // 프로필 카드
-    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px">'
+    +'<div style="background:#fff;padding:18px;margin-bottom:12px">'
     // 아바타 + 이름 + 삭제 아이콘
     +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'+av
     +'<div style="flex:1"><p style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</p>'
@@ -1525,10 +1524,8 @@ function renderCoachMemberDetail() {
     +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+'">'+gL+'</span>'
     +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.dormant?"#FFF0E0":"#E6FAF0")+';color:'+(m.dormant?"#E06000":"#00C471")+'">'+dL+'</span>'
     +'</div></div>'
-    // 삭제 아이콘 버튼 (우측)
     +'<button data-delconfirm="'+m.id+'" style="background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0">'+trashIcon+'</button>'
     +'</div>'
-    // 이름수정 / 성별 / 상태 — 동일한 width 3열
     +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">'
     +'<button data-rename="'+m.id+'" data-rname="'+m.name+'" style="'+btnStyle+'">이름 수정</button>'
     +'<select data-select-gender="'+m.id+'" style="'+selectStyle+'">'
@@ -1542,7 +1539,7 @@ function renderCoachMemberDetail() {
     +'</div>'
     +'</div>'
     // 기록 탭
-    +'<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="background:#fff;overflow:hidden">'
     +'<div style="display:flex;border-bottom:1px solid #E8EBED">'
     +'<button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="list"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="list"?"#3182F6":"#8B95A1")+';cursor:pointer">리스트</button>'
     +'<button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="graph"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="graph"?"#3182F6":"#8B95A1")+';cursor:pointer">그래프</button>'
@@ -1561,7 +1558,7 @@ function renderBenchmarkDayMgr() {
     return '<option value="'+w.id+'"'+(active?' selected':'')+'>'+w.name+(w.detail?' · '+w.detail:'')+'</option>';
   }).join('');
 
-  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:18px">'
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6">'
     +'<div class="card" style="margin-bottom:12px">'
     +'<p style="font-size:12px;font-weight:800;color:#8B95A1;letter-spacing:.5px;margin-bottom:14px">오늘 등록된 벤치마크 Day</p>'
     +(td
@@ -1915,25 +1912,36 @@ function bind() {
   if(selBmday) selBmday.addEventListener("change",e=>{S.bdWodId=parseInt(e.target.value)||null;render();});
   const noteBmday=document.getElementById("inp-bmday-note");
   if(noteBmday) noteBmday.addEventListener("input",e=>{S.bdNote=e.target.value;});
-  on("btn-bmday-save","click",()=>{
+  on("btn-bmday-save","click",async ()=>{
     const wid=document.getElementById("sel-bmday-wod")?.value;
     if(!wid){showToast("WOD를 선택해주세요");return;}
     const note=document.getElementById("inp-bmday-note")?.value||"";
     const payload = {wodId:parseInt(wid),note};
-    fbSet("benchmarkDay/"+todayKey(), payload);
-    if (!todayWod || typeof todayWod !== 'object') todayWod = {};
-    todayWod[todayKey()] = payload;
-    S.bdWodId=undefined;S.bdNote=undefined;showToast("벤치마크 Day 등록 완료! 🎯");
-    render();
-  });
-  on("btn-bmday-clear","click",()=>{
-    fbRemove("benchmarkDay/"+todayKey());
-    if (todayWod && typeof todayWod === 'object') {
-      delete todayWod[todayKey()];
-      if (Object.keys(todayWod).length === 0) todayWod = null;
+    try {
+      await fbSet("benchmarkDay/"+todayKey(), payload);
+      if (!todayWod || typeof todayWod !== 'object') todayWod = {};
+      todayWod[todayKey()] = payload;
+      S.bdWodId=undefined;S.bdNote=undefined;
+      showToast("벤치마크 Day 등록 완료! 🎯");
+      render();
+    } catch(e) {
+      console.error(e);
+      showToast("등록에 실패했습니다. 다시 시도해주세요.");
     }
-    S.bdWodId=undefined;S.bdNote=undefined;showToast("오늘 등록이 취소됐어요");
-    render();
+  });
+  on("btn-bmday-clear","click",async ()=>{
+    try {
+      await fbRemove("benchmarkDay/"+todayKey());
+      if (todayWod && typeof todayWod === 'object') {
+        delete todayWod[todayKey()];
+        if (Object.keys(todayWod).length === 0) todayWod = null;
+      }
+      S.bdWodId=undefined;S.bdNote=undefined;showToast("오늘 등록이 취소됐어요");
+      render();
+    } catch(e) {
+      console.error(e);
+      showToast("취소에 실패했습니다. 다시 시도해주세요.");
+    }
   });
   // Home bd-record bind
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{

@@ -25,11 +25,11 @@ input,textarea{font-family:inherit}
 .login-scroll{flex:1;overflow-y:auto;max-width:480px;width:100%;margin:0 auto;display:flex;flex-direction:column}
 .login-header{padding:24px 18px 24px;background:#fff}
 .login-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.login-logo{font-size:16px;font-weight:800;color:#3182F6;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.login-logo{font-size:16px;font-weight:800;color:#1A1A2E;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .login-coach-btn{display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;
   padding:8px 14px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
 .login-coach-btn:active{background:#E8EBED}
-.login-greeting{font-size:24px;font-weight:800;line-height:1.3;letter-spacing:-.5px;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
+.login-greeting{font-size:28px;font-weight:800;line-height:1.3;letter-spacing:-.5px;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
 .login-greeting span{color:#3182F6}
 
 /* COACH MSG */
@@ -60,11 +60,11 @@ input,textarea{font-family:inherit}
 
 /* ACTION CARDS */
 .login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.action-card{background:#fff;border:1.5px solid #E8EBED;border-radius:16px;padding:18px;cursor:pointer;text-align:left;transition:transform .12s;-webkit-tap-highlight-color:transparent}
+.action-card{background:#F5F7F8;border:.5px solid #ffffff;border-radius:16px;padding:16px;cursor:pointer;text-align:left;transition:transform .12s;-webkit-tap-highlight-color:transparent}
 .action-card:active{transform:scale(.97)}
-.action-card-icon{font-size:28px;margin-bottom:10px}
-.action-card-title{font-size:14px;font-weight:800;color:#1A1A2E;margin-bottom:4px}
-.action-card-sub{font-size:12px;color:#8B95A1;line-height:1.4}
+.action-card-icon{font-size:28px;margin-bottom:16px}
+.action-card-title{font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:8px}
+.action-card-sub{font-size:14px;color:#8B95A1;line-height:1.4}
 
 
 
@@ -76,8 +76,8 @@ input,textarea{font-family:inherit}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;user-select:none}
 
 /* CARD (coach) */
-.card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06)}
-.card-label{font-size:12px;font-weight:700;color:#8B95A1;letter-spacing:.3px;margin-bottom:14px}
+.card{background:#fff;padding:18px}
+.card-label{font-size:14px;font-weight:700;color:#8B95A1;letter-spacing:.3px;margin-bottom:14px}
 
 /* PIN MODAL */
 .pin-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:200;animation:fadeIn .18s ease}
@@ -101,7 +101,7 @@ input,textarea{font-family:inherit}
 .progress-pct{font-size:12px;font-weight:700;color:#8B95A1;flex-shrink:0}
 
 /* WOD ROWS */
-.wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:18px}
+.wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:16px}
 .wod-row.done{border-left:4px solid #3182F6;background:#fff}
 .wod-badge{width:32px;height:32px;border-radius:10px;background:#F2F4F6;color:#8B95A1;font-size:12px;font-weight:700;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
@@ -115,12 +115,12 @@ input,textarea{font-family:inherit}
 .rec-scale{font-size:12px;color:#3182F6;background:#EBF3FE;padding:2px 9px;border-radius:99px;font-weight:600}
 .rec-date{font-size:12px;color:#B0B8C1}
 .icon-btn{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
-.add-rec-btn{margin-top:10px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:12px;padding:10px 18px;font-size:14px;font-weight:600;color:#8B95A1;min-height:44px;display:inline-flex;align-items:center}
+.add-rec-btn{margin-top:12px;background:#F2F4F6;border:1.5px dashed #E8EBED;border-radius:12px;padding:12px 18px;font-size:14px;font-weight:600;color:#8B95A1;display:inline-flex;align-items:center}
 
 /* TIME INPUT */
 .edit-area{margin-top:10px;display:flex;flex-direction:column;gap:8px}
 .time-input-row{display:flex;align-items:center;gap:6px;margin-top:10px}
-.time-field-wrap{display:flex;flex-direction:column;align-items:center;flex:1}
+.time-field-wrap{display:flex;flex-direction:row;gap: 8px;align-items:end;flex:1}
 .time-field{width:100%;height:48px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:12px;
   padding:0;font-size:24px;font-weight:800;text-align:center;outline:none;color:#1A1A2E;-moz-appearance:textfield}
 .time-field::-webkit-inner-spin-button,.time-field::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
