@@ -69,6 +69,7 @@ let S = {
   view:"login", activeMemberId:null, memberTab:"my",
   profileModal:false, profileNewName:"", profileNameErr:"", profileGender:"",
   allMembersModal:false,
+  allMembersPage:0,
   viewingMemberId:null,
   bdRecordModal:false,
   coachTab:"members", coachSection:"menu", coachSheetView:"list", panelId:null, coachMemberSearch:"", bdWodId:undefined, bdNote:undefined,
@@ -472,30 +473,53 @@ function renderLogin() {
 
 /* ── ALL MEMBERS MODAL ── */
 function renderAllMembersModal() {
-  const rows = members.map(function(m) {
+  const pageSize = 10;
+  const pageCount = Math.max(1, Math.ceil(members.length / pageSize));
+  const page = Math.min(Math.max(0, S.allMembersPage || 0), pageCount - 1);
+  const pageMembers = members.slice(page * pageSize, page * pageSize + pageSize);
+  const rows = pageMembers.map(function(m) {
     const src = getMemberAvatar(m);
     const done = Object.keys(m.records).length;
     const pct  = Math.round(done / WODS.length * 100);
     const avHtml = src
       ? '<img src="'+src+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover"/>'
       : '<div style="width:44px;height:44px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>';
-    return '<button data-view-member="'+m.id+'" style="display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid #F2F4F6;padding:14px 0;cursor:pointer;-webkit-tap-highlight-color:transparent">'
+    return '<button data-view-member="'+m.id+'" style="display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:#fff;border:1px solid #F2F4F6;border-radius:18px;padding:16px;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:left">'
+      +'<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">'
       +'<div style="flex-shrink:0">'+avHtml+'</div>'
-      +'<div style="flex:1;min-width:0;text-align:left">'
-      +'<p style="font-size:16px;font-weight:700;color:#1A1A2E">'+m.name+'</p>'
-      +'<p style="font-size:12px;color:#8B95A1;margin-top:2px">'+done+'/'+WODS.length+' 완료 · '+pct+'%</p>'
+      +'<div style="min-width:0;width:100%">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      +'<p style="font-size:15px;font-weight:700;color:#1A1A2E;margin:0;line-height:1.2">'+m.name+'</p>'
+      +'<p style="font-size:12px;color:#8B95A1;margin:0;flex-shrink:0">'+pct+'%</p>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:#8B95A1"><span>'+done+'</span><span>/</span><span>'+WODS.length+'</span></div>'
+      +'<div style="width:100%;height:6px;background:#E5E9F2;border-radius:3px;overflow:hidden;margin-top:6px">'
+      +'<div style="height:100%;background:#3182F6;width:'+pct+'%"></div>'
+      +'</div>'
+      +'</div>'
       +'</div>'
       +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'
       +'</button>';
   }).join('');
 
   return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center" id="all-members-overlay">'
-    +'<div style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)">'
+    +'<div id="all-members-sheet" style="background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)">' 
     +'<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;flex-shrink:0">'
-    +'<p style="font-size:18px;font-weight:800;color:#1A1A2E">전체 회원</p>'
+    +'<div style="display:flex;align-items:center;gap:8px"><p style="font-size:18px;font-weight:800;color:#1A1A2E;margin:0">전체 회원</p><p style="font-size:15px;color:#8B95A1;margin:0">'+members.length+'명</p></div>'
     +'<button id="btn-all-members-close" style="background:none;border:none;cursor:pointer;padding:6px;color:#8B95A1">'+ico.close+'</button>'
     +'</div>'
-    +'<div style="overflow-y:auto;padding:0 20px 20px">'+rows+'</div>'
+    +'<div style="overflow-y:auto;padding:0 20px 20px;min-height:0;flex:1">'
+    +'<div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px 10px">'+rows+'</div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px 20px;flex-shrink:0">'
+    +'<button id="btn-all-members-prev" style="background:none;border:none;cursor:pointer;padding:8px;color:#8B95A1"'+(page===0?' disabled style="opacity:.3;cursor:default;"':'')+'>'+
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 19l-7-7 7-7"/></svg>'+
+    '</button>'
+    +'<div style="text-align:center;color:#8B95A1;font-size:13px;min-width:60px">'+(page+1)+' / '+pageCount+'</div>'
+    +'<button id="btn-all-members-next" style="background:none;border:none;cursor:pointer;padding:8px;color:#8B95A1"'+(page===pageCount-1?' disabled style="opacity:.3;cursor:default;"':'')+'>'+
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>'+
+    '</button>'
+    +'</div>'
     +'</div></div>';
 }
 
@@ -1413,7 +1437,23 @@ function renderCoachMembers() {
 /* ── MY PROFILE PAGE ── */
 function renderMyProfilePage() {
   const m = members.find(x=>x.id===S.activeMemberId);
-  if (!m) return "";
+  if (!m) {
+    // 프로필 등록이 안 된 상태 - 프로필 등록 화면 표시
+    return '<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">'
+      +'<div class="nav">'
+      +'<button class="nav-back icon-btn" id="btn-my-profile-back">'+ico.chevL+'</button>'
+      +'<div class="nav-title">내 프로필</div>'
+      +'<div style="flex:1"></div>'
+      +'</div>'
+      +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center">'
+      +'<div style="text-align:center">'
+      +'<p style="font-size:18px;font-weight:700;color:#1A1A2E;margin-bottom:8px">프로필이 등록되지 않았어요</p>'
+      +'<p style="font-size:14px;color:#8B95A1;margin-bottom:32px">새로운 프로필을 등록해서 시작하세요</p>'
+      +'<button id="btn-show-register" style="height:48px;border-radius:12px;border:none;background:#3182F6;color:#fff;font-size:16px;font-weight:700;cursor:pointer;padding:0 24px;min-width:160px">프로필 등록</button>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  }
   const src = getMemberAvatar(m);
   const gL = m.gender==="male"?"남성":m.gender==="female"?"여성":"미설정";
   const hv = S.histView[m.id]||'list';
@@ -1426,20 +1466,30 @@ function renderMyProfilePage() {
   <div class="modal-overlay" id="mo-avatar">
     <div class="modal-box" onclick="event.stopPropagation()" style="padding:18px;width:calc(100% - 40px);max-width:320px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="modal-title">캐릭터 선택</div>
+        <div class="modal-title">프로필 수정</div>
         ${m.avatar!=null?`<button id="btn-avatar-reset" style="background:none;border:none;font-size:14px;font-weight:600;color:#F04452;cursor:pointer;min-height:44px;padding:0 12px;padding:4px 0">초기화</button>`:""}
       </div>
-      <div style="overflow-y:auto;max-height:380px;margin:0 -2px">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px">
-          ${renderPickAvatarGrid(m.avatar)}
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:600;color:#8B95A1;display:block;margin-bottom:6px">이름</label>
+        <input class="modal-input" id="inp-rename" value="${S.editingMember?.name||m.name}" placeholder="이름 입력" style="width:100%;height:40px;border:1px solid #E8EBED;border-radius:8px;padding:0 10px;font-size:14px;box-sizing:border-box"/>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:12px;font-weight:600;color:#8B95A1;display:block;margin-bottom:6px">캐릭터 선택</label>
+        <div style="overflow-y:auto;max-height:280px;margin:0 -2px">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px">
+            ${renderPickAvatarGrid(m.avatar)}
+          </div>
         </div>
       </div>
-      <button class="btn-cancel" id="btn-avatar-cancel" style="width:auto;align-self:center;height:36px;padding:0 24px;margin-top:10px;border-radius:99px;display:block;margin-left:auto;margin-right:auto;font-size:14px">취소</button>
+      <div style="display:flex;gap:8px">
+        <button class="modal-btn-cancel" id="btn-avatar-cancel" style="flex:1;height:40px;border-radius:8px;font-size:14px">취소</button>
+        <button class="modal-btn-save" id="btn-rename-save" style="flex:1;height:40px;border-radius:8px;font-size:14px">저장</button>
+      </div>
     </div>
   </div>` : "";
 
-  // 이름 수정 모달
-  const renameModal = S.editingMember ? `
+  // 이름 수정 모달 (avatarModal 아닐 때만 표시)
+  const renameModal = S.editingMember && !S.avatarModal ? `
   <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px">
     <div class="modal-box" onclick="event.stopPropagation()" style="width:100%;max-width:320px">
       <div class="modal-title">이름 수정</div>
@@ -1456,7 +1506,7 @@ function renderMyProfilePage() {
     +'<div class="nav">'
     +'<button class="nav-back icon-btn" id="btn-my-profile-back">'+ico.chevL+'</button>'
     +'<div class="nav-title">내 프로필</div>'
-    +'<div style="flex:1"></div>'
+    +'<button id="btn-member-logout" style="background:none;border:none;cursor:pointer;padding:0 14px;color:#8B95A1;font-size:14px;font-weight:600">로그아웃</button>'
     +'</div>'
     // 콘텐츠
     +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:0 0 40px">'
@@ -1464,12 +1514,11 @@ function renderMyProfilePage() {
     +'<div style="background:#fff;padding:18px;margin-bottom:12px">'
     +'<div style="display:flex;align-items:center;gap:14px">'
     // 아바타
-    +'<button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">'
+    +'<div style="display:flex;align-items:center;justify-content:center;flex-shrink:0">'
     +(src
       ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:1px solid #E8EBED"/>'
       : '<div style="width:56px;height:56px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>')
-    +'<span style="position:absolute;bottom:0;right:0;font-size:14px;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1)">✏️</span>'
-    +'</button>'
+    +'</div>'
     // 이름 + 연필 아이콘
     +'<div style="flex:1;min-width:0">'
     +'<div style="display:flex;align-items:center;gap:6px">'
@@ -1709,10 +1758,44 @@ function bind() {
     showToast("기록 저장! 🎉");
   });
   // 전체 회원 보기
-  on("btn-all-members","click",()=>{S.allMembersModal=true;render();});
-  on("btn-all-members-card","click",()=>{S.allMembersModal=true;render();});
+  on("btn-all-members","click",()=>{S.allMembersModal=true;S.allMembersPage=0;render();});
+  on("btn-all-members-card","click",()=>{S.allMembersModal=true;S.allMembersPage=0;render();});
   on("btn-all-members-close","click",()=>{S.allMembersModal=false;render();});
+  on("btn-all-members-prev","click",()=>{
+    const pageCount = Math.max(1, Math.ceil(members.length / 10));
+    S.allMembersPage = Math.max(0, (S.allMembersPage||0) - 1);
+    if (S.allMembersPage >= pageCount) S.allMembersPage = pageCount - 1;
+    render();
+  });
+  on("btn-all-members-next","click",()=>{
+    const pageCount = Math.max(1, Math.ceil(members.length / 10));
+    S.allMembersPage = Math.min(pageCount - 1, (S.allMembersPage||0) + 1);
+    render();
+  });
   on("all-members-overlay","click",function(e){if(e.target.id==="all-members-overlay"){S.allMembersModal=false;render();}});
+  const allMembersSheet = document.getElementById("all-members-sheet");
+  if (allMembersSheet) {
+    let touchStartX = 0;
+    let touchStartTime = 0;
+    allMembersSheet.addEventListener("touchstart", function(e){
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartTime = Date.now();
+    });
+    allMembersSheet.addEventListener("touchend", function(e){
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dt = Date.now() - touchStartTime;
+      if (Math.abs(dx) > 40 && dt < 500) {
+        const pageCount = Math.max(1, Math.ceil(members.length / 10));
+        if (dx < 0) {
+          S.allMembersPage = Math.min(pageCount - 1, (S.allMembersPage||0) + 1);
+          render();
+        } else {
+          S.allMembersPage = Math.max(0, (S.allMembersPage||0) - 1);
+          render();
+        }
+      }
+    });
+  }
   qa("[data-view-member]",function(el){el.addEventListener("click",function(){
     S.viewingMemberId=el.dataset.viewMember;
     S.allMembersModal=false;
@@ -1722,6 +1805,15 @@ function bind() {
   on("btn-member-view-back","click",()=>{S.viewingMemberId=null;render();});
   // My Profile back
   on("btn-my-profile-back","click",()=>{
+    S.view="login";
+    S.activeMemberId=null;
+    S.editingMember=null;
+    S.avatarModal=false;
+    render();
+  });
+  // Member logout
+  on("btn-member-logout","click",()=>{
+    localStorage.removeItem("mt_last_member");
     S.view="login";
     S.activeMemberId=null;
     S.editingMember=null;
@@ -1870,20 +1962,26 @@ function bind() {
   }));
 
   /* avatar picker */
-  on("btn-pick-avatar","click",()=>{S.avatarModal=S.activeMemberId;render();});
-  on("btn-avatar-cancel","click",()=>{S.avatarModal=false;render();});
+  on("btn-avatar-cancel","click",()=>{S.avatarModal=false;S.editingMember=null;render();});
   on("btn-avatar-reset","click",()=>{
     fbUpdate(`members/${S.activeMemberId}`,{avatar:null});
     S.avatarModal=false;
+    S.editingMember=null;
+    render();
   });
-  g("mo-avatar")?.addEventListener("click",()=>{S.avatarModal=false;render();});
+  g("mo-avatar")?.addEventListener("click",()=>{S.avatarModal=false;S.editingMember=null;render();});
   qa("[data-pick-avatar]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
+    // 먼저 이름을 저장
+    const name=(document.getElementById("inp-rename")?.value||S.editingMember?.name||"").trim();
+    if(name&&S.editingMember)fbUpdate(`members/${S.editingMember.id}`,{name});
+    // 이미지 저장
     const idx=parseInt(el.dataset.pickAvatar);
     fbUpdate(`members/${S.activeMemberId}`,{avatar:idx});
     S.avatarModal=false;
+    S.editingMember=null;
     render();
-    showToast("캐릭터가 저장됐어요! 🐾");
+    showToast("프로필이 저장됐어요! 🐾");
   }));
 
   /* coach nav */
@@ -2001,15 +2099,18 @@ function bind() {
   on("btn-add-cancel","click",()=>{S.addingMember=false;S.newName="";render();});
   on("btn-add-save","click",doAddMember);
 
-  /* rename member */
+  /* avatar & rename picker */
   qa("[data-rename]",el=>el.addEventListener("click",e=>{
-    e.stopPropagation();S.editingMember={id:el.dataset.rename,name:el.dataset.rname};
-    render();setTimeout(()=>g("inp-rename")?.focus(),50);
+    e.stopPropagation();
+    const mid=el.dataset.rename;
+    S.editingMember={id:mid,name:el.dataset.rname};
+    S.avatarModal=mid;
+    render();
   }));
-  on("btn-rename-cancel","click",()=>{S.editingMember=null;render();});
+  on("btn-rename-cancel","click",()=>{S.editingMember=null;S.avatarModal=false;render();});
   on("btn-rename-save","click",doRename);
   on("inp-rename","keydown",e=>{if(e.key==="Enter")doRename();});
-  g("mo-rename")?.addEventListener("click",()=>{S.editingMember=null;render();});
+  g("mo-rename")?.addEventListener("click",()=>{S.editingMember=null;S.avatarModal=false;render();});
 
   /* delete member */
   qa("[data-delconfirm]",el=>el.addEventListener("click",e=>{
