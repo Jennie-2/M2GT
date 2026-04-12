@@ -857,7 +857,7 @@ function renderCoach() {
   }).join("");
 
   const sheet = pm ? `
-    ${renderWodListWithGroups(WODS, pm, true, true)}`
+    ${renderWodListWithGroups(WODS, pm, true, false)}`
   : `<div class="empty-panel"><div style="font-size:28px">←</div><div class="empty-panel-text">회원을 선택하세요</div></div>`;
 
   const lbPanel = `<div style="padding:18px 40px">
@@ -1390,7 +1390,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
       ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""}
       ${body}
       ${hideYoutube ? "" : wod.youtube
-        ? `<a href="https://youtu.be/${getYoutubeId(wod.youtube)||wod.youtube}" target="_blank" rel="noopener" class="add-rec-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+        ? `<a href="https://youtu.be/${getYoutubeId(wod.youtube)||wod.youtube}" target="_blank" rel="noopener" class="add-rec-btn" style="text-decoration:none;gap:5px">
             🎬 동작 영상
           </a>`
         : `<button class="add-rec-btn" style="cursor:default;color:#B0B8C1;border-color:#F2F4F6">동작 영상 준비 중 · 코치에게 문의</button>`}
@@ -1459,7 +1459,7 @@ function renderMyProfilePage() {
   const hv = S.histView[m.id]||'list';
   const filteredWods = S.memberWodGroup ? WODS.filter(w=>(w.group||"WOD")===S.memberWodGroup) : WODS;
   const chips = renderWodGroupChips();
-  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, true);
+  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, false);
 
   // 아바타 선택 모달
   const avatarModalHtml = S.avatarModal===m.id ? `
@@ -1555,7 +1555,7 @@ function renderCoachMemberDetail() {
   const hv = S.histView[m.id]||'list';
   const filteredWods = S.memberWodGroup ? WODS.filter(w=>(w.group||"WOD")===S.memberWodGroup) : WODS;
   const chips = renderWodGroupChips();
-  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, true);
+  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, false);
 
   // 삭제 아이콘 SVG
   const trashIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F04452" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
