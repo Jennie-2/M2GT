@@ -98,6 +98,9 @@ let S = {
   rankGender:"male",
   // rank page expanded wod
   expandedWod:null,
+  // total rank show-more per gender
+  totalRankExpanded:{male:false,female:false},
+  totalRankOpen:true,
   // coach wod filter by group
   selectedWodGroup:null,
 };
@@ -228,12 +231,14 @@ const lb = (wid, gender) => {
 // Calculate points for a ranked board
 const calcPoints = (board) => {
   // board is already sorted
+  // If nobody has a record for this WOD, unrecorded = 0 pts; otherwise 100 pts
+  const anyRecorded = board.some(m => m.value);
+  const noRecordPts = anyRecorded ? 100 : 0;
   const points = [];
   let i = 0;
   while (i < board.length) {
     if (!board[i].value) {
-      // No record = 100 points
-      points.push(100);
+      points.push(noRecordPts);
       i++;
       continue;
     }
@@ -688,42 +693,29 @@ function renderRank() {
   const renderTotalRank = (gender) => {
     const pool = members.filter(m=>!m.dormant && m.gender===gender);
     if (pool.length===0) return "";
+    const medals = ["🥇","🥈","🥉"];
     const sorted = pool.map(m=>({...m, total:allPoints[m.id]||0})).sort((a,b)=>a.total-b.total);
-    const topCards = sorted.slice(0,3).map((m,i)=>{
-      const rank = i+1;
-      const textColor = '#ffffff';
+    const isExpanded = S.totalRankExpanded[gender];
+    const visible = isExpanded ? sorted : sorted.slice(0, 20);
+    const rows = visible.map((m,i)=>{
       const src = m.avatar!=null ? AVATARS[m.avatar] : null;
-      const avatarHtml = src
-        ? '<img src="'+src+'" class="rank-top-avatar"/>'
-        : '<div class="rank-top-avatar-initial">'+m.name[0]+'</div>';
-      return '<div class="rank-top-card rank-top-card-'+rank+'" style="color:'+textColor+'">'
-        +'<div class="rank-top-left">'
-          +'<div class="rank-top-avatar-wrap">'+avatarHtml+'</div>'
-          +'<div class="rank-top-title">'
-            +'<div class="rank-top-num">'+rank+'등</div>'
-            +'<div class="rank-top-name">'+m.name+'</div>'
-          +'</div>'
-        +'</div>'
-        +'<div class="rank-top-score-wrap">'
-          +'<div class="rank-top-score">'+m.total+'점</div>'
-        +'</div>'
+      const avHtml = src
+        ? '<img src="'+src+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0"/>'
+        : '<div style="width:28px;height:28px;border-radius:50%;background:#F2F4F6;color:#3182F6;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+m.name[0]+'</div>';
+      const rankCell = i < 3
+        ? '<span style="font-size:18px;width:24px;text-align:center;flex-shrink:0">'+medals[i]+'</span>'
+        : '<span style="font-size:14px;width:24px;text-align:center;flex-shrink:0"><span style="font-size:12px;color:#B0B8C1">'+(i+1)+'</span></span>';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F8F9FA">'
+        +rankCell
+        +avHtml
+        +'<div style="flex:1;min-width:0"><p style="font-size:14px;font-weight:700;color:#1A1A2E">'+m.name+'</p></div>'
+        +'<span style="font-size:12px;font-weight:700;color:#8B95A1;flex-shrink:0">'+m.total+'점</span>'
         +'</div>';
     }).join('');
-    const listRows = sorted.slice(3).map((m,i)=>{
-      const pos = i+4;
-      const src = m.avatar!=null ? AVATARS[m.avatar] : null;
-      const avatarHtml = src
-        ? '<img src="'+src+'" class="rank-list-avatar"/>'
-        : '<div class="rank-list-initial">'+m.name[0]+'</div>';
-      return '<div class="rank-list-row">'
-        +'<div class="rank-list-rank">'+pos+'</div>'
-        +'<div class="rank-list-avatar-wrap">'+avatarHtml+'</div>'
-        +'<div class="rank-list-name">'+m.name+'</div>'
-        +'<div class="rank-list-score">'+m.total+'점</div>'
-      +'</div>';
-    }).join('');
-    return '<div class="rank-top-cards">'+topCards+'</div>'
-      +'<div class="rank-list-card">'+listRows+'</div>';
+    const moreBtn = !isExpanded && sorted.length > 20
+      ? '<button data-total-rank-more="'+gender+'" style="width:100%;margin-top:8px;padding:10px;background:none;border:1px solid #E8EBED;border-radius:10px;font-size:13px;font-weight:700;color:#8B95A1;cursor:pointer">더보기 (+'+(sorted.length-20)+'명)</button>'
+      : '';
+    return rows + moreBtn;
   };
 
   // Note: allPoints is accumulated during wodCards rendering above
@@ -739,10 +731,15 @@ function renderRank() {
       +(renderTotalRank("male")||'<div></div>')+(renderTotalRank("female")||'<div></div>')
       +'</div>';
   }
-  const totalSection = '<div class="rank-row-card">'
-    +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin-bottom:4px">🏆 종합 순위</p>'
-    +'<p style="font-size:12px;color:#8B95A1;margin-bottom:24px">낮을수록 높은 등수 · 미측정 100점</p>'
-    +totalSectionContent
+  const isOpen = S.totalRankOpen !== false;
+  const totalSection = '<div class="rank-row-card" style="padding:0">'
+    +'<button id="btn-total-rank-toggle" style="width:100%;text-align:left;padding:18px;border:none;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:'+(isOpen?'1px solid #E8EBED':'none')+'">'
+      +'<div>'
+        +'<p style="font-size:16px;font-weight:800;color:#1A1A2E;margin:0">🏆 종합 순위</p>'
+      +'</div>'
+      +'<span style="color:#8B95A1;transform:rotate('+(isOpen?'180':'0')+'deg);transition:transform .2s">'+ico.chevD+'</span>'
+    +'</button>'
+    +(isOpen ? '<div style="padding:8px 18px 12px">'+totalSectionContent+'</div>' : '')
     +'</div>';
 
   return `<div class="rank-page">
@@ -752,8 +749,8 @@ function renderRank() {
       <div style="width:32px"></div>
     </div>
     <div style="background:#fff;border-bottom:1px solid #E8EBED;padding:0;display:flex;gap:0">
-      <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male" style="flex:1;border-radius:0;margin:0">남자</button>
-      <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female" style="flex:1;border-radius:0;margin:0">여자</button>
+      <button class="tab-btn${S.rankGender==="male"?" active":""}" data-rank-gender="male" style="flex:1;border-radius:0;margin:0">남성</button>
+      <button class="tab-btn${S.rankGender==="female"?" active":""}" data-rank-gender="female" style="flex:1;border-radius:0;margin:0">여성</button>
     </div>
     <div class="rank-page-body">
       ${totalSection}
@@ -1067,7 +1064,7 @@ function renderWodAddForm() {
 function renderWodGroupChips() {
   const groups = [...new Set(WODS.map(w => w.group||"WOD"))].sort();
   const all = S.memberWodGroup === "";
-  let html = '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid #F2F4F6">';
+  let html = '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:16px 20px;background:#fff;border-bottom:1px solid #F2F4F6">';
   html += '<button data-member-wod-group="" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px solid '+(all?"#3182F6":"#E8EBED")+';background:'+(all?"#EBF3FE":"#F2F4F6")+';color:'+(all?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">전체</button>';
   groups.forEach(g => {
     const active = S.memberWodGroup === g;
@@ -1463,33 +1460,30 @@ function renderMyProfilePage() {
     +'<div style="flex:1"></div>'
     +'</div>'
     // 콘텐츠
-    +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:16px 18px 40px">'
+    +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:0 0 40px">'
     // 프로필 카드
-    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
-    // 아바타 + 이름
-    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'
+    +'<div style="background:#fff;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="display:flex;align-items:center;gap:14px">'
+    // 아바타
     +'<button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">'
     +(src
       ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>'
       : '<div style="width:56px;height:56px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>')
-    +'<span style="position:absolute;bottom:0;right:0;font-size:16px;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1)">✏️</span>'
+    +'<span style="position:absolute;bottom:0;right:0;font-size:14px;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1)">✏️</span>'
     +'</button>'
-    +'<div style="flex:1"><p style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</p>'
-    +'<div style="display:flex;gap:6px;margin-top:6px">'
-    +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+'">'+gL+'</span>'
-    +'</div></div>'
+    // 이름 + 연필 아이콘
+    +'<div style="flex:1;min-width:0">'
+    +'<div style="display:flex;align-items:center;gap:6px">'
+    +'<p style="font-size:18px;font-weight:800;color:#1A1A2E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+m.name+'</p>'
+    +'<button data-rename="'+m.id+'" data-rname="'+m.name+'" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;color:#B0B8C1;flex-shrink:0">'+ico.edit+'</button>'
     +'</div>'
-    // 이름수정 / 성별 — 2열
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-    +'<button data-rename="'+m.id+'" data-rname="'+m.name+'" style="'+btnStyle+'">이름 수정</button>'
-    +'<select data-select-gender="'+m.id+'" style="'+selectStyle+'">'
-    +'<option value="male"'+(m.gender==="male"?" selected":"")+'>남성</option>'
-    +'<option value="female"'+(m.gender==="female"?" selected":"")+'>여성</option>'
-    +'</select>'
+    +'</div>'
+    // 성별 토글 아이콘
+    +'<button data-toggle-gender="'+m.id+'" style="background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';border:none;cursor:pointer;padding:6px 12px;border-radius:99px;font-size:13px;font-weight:700;color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+';flex-shrink:0">'+(m.gender==="male"?"♂ 남성":m.gender==="female"?"♀ 여성":"미설정")+'</button>'
     +'</div>'
     +'</div>'
     // 기록 탭
-    +'<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="background:#fff;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
     +'<div style="display:flex;border-bottom:1px solid #E8EBED">'
     +'<button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="list"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="list"?"#3182F6":"#8B95A1")+';cursor:pointer">리스트</button>'
     +'<button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="graph"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="graph"?"#3182F6":"#8B95A1")+';cursor:pointer">그래프</button>'
@@ -1521,9 +1515,9 @@ function renderCoachMemberDetail() {
   const btnStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
   const selectStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
 
-  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:16px 18px 40px">'
+  return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:0 0 40px">'
     // 프로필 카드
-    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px">'
     // 아바타 + 이름 + 삭제 아이콘
     +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'+av
     +'<div style="flex:1"><p style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</p>'
@@ -1846,7 +1840,12 @@ function bind() {
 
   /* rank */
   on("btn-rank-back","click",()=>{S.view="login";render();});
-  qa("[data-rank-gender]",el=>el.addEventListener("click",()=>{S.rankGender=el.dataset.rankGender;render();}));
+  qa("[data-rank-gender]",el=>el.addEventListener("click",()=>{S.rankGender=el.dataset.rankGender;S.totalRankExpanded={male:false,female:false};render();}));
+  on("btn-total-rank-toggle","click",()=>{S.totalRankOpen=!S.totalRankOpen;render();});
+  qa("[data-total-rank-more]",el=>el.addEventListener("click",()=>{
+    const g=el.dataset.totalRankMore;
+    S.totalRankExpanded={...S.totalRankExpanded,[g]:true};render();
+  }));
   qa("[data-wod-id]",el=>el.addEventListener("click",()=>{
     const wodId=parseInt(el.dataset.wodId);
     S.expandedWod = S.expandedWod === wodId ? null : wodId;
@@ -2162,6 +2161,14 @@ function bind() {
     e.stopPropagation();
     const label=el.value==="male"?"남성":el.value==="female"?"여성":"미설정";
     fbUpdate("members/"+el.dataset.selectGender,{gender:el.value});
+    showToast("성별이 "+label+"으로 변경됐어요");
+  }));
+  qa("[data-toggle-gender]",el=>el.addEventListener("click",()=>{
+    const m=members.find(x=>x.id===el.dataset.toggleGender);
+    if(!m) return;
+    const next=m.gender==="male"?"female":"male";
+    const label=next==="male"?"남성":"여성";
+    fbUpdate("members/"+m.id,{gender:next});
     showToast("성별이 "+label+"으로 변경됐어요");
   }));
   // 드롭다운 상태 선택
