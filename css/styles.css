@@ -3,7 +3,7 @@
 html,
 body{height:100%}
 body{font-family:'SUIT Variable','SUIT','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
-  background:#F2F4F6;color:#1A1A2E;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+  background:#ffffff;color:#1A1A2E;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 button{font-family:inherit;cursor:pointer;min-height:32px;-webkit-tap-highlight-color:transparent;line-height:1}
 input,textarea{font-family:inherit}
 
@@ -12,8 +12,6 @@ input,textarea{font-family:inherit}
   background:#fff;border-bottom:1px solid #E8EBED;padding:0 18px;height:56px}
 .nav-back{background:none;border:none;padding:6px;display:flex;align-items:center;border-radius:8px;min-width:32px;min-height:32px;justify-content:center}
 .nav-title{flex:1;font-size:18px;font-weight:800;letter-spacing:-.4px}
-.nav-badge{background:#EBF3FE;color:#3182F6;border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700}
-.tab-group{display:flex;gap:2px;background:#F2F4F6;border-radius:10px;padding:3px}
 .tab-btn{border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#8B95A1;background:none;white-space:nowrap;min-height:32px;transition:all .15s}
 .tab-btn.active{background:#fff;color:#1A1A2E;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
 /* Rank page fill tabs */
@@ -23,28 +21,12 @@ input,textarea{font-family:inherit}
 /* LOGIN PAGE */
 .login-page{display:flex;flex-direction:column;min-height:100vh;background:#fff}
 .login-scroll{flex:1;overflow-y:auto;max-width:480px;width:100%;margin:0 auto;display:flex;flex-direction:column}
-.login-header{padding:24px 18px 24px;background:#fff}
-.login-header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .login-logo{font-size:16px;font-weight:800;color:#1A1A2E;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
-.login-coach-btn{display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;
-  padding:8px 14px;font-size:14px;font-weight:600;color:#8B95A1;cursor:pointer;transition:background .12s}
-.login-coach-btn:active{background:#E8EBED}
 .login-greeting{font-size:28px;font-weight:800;line-height:1.3;letter-spacing:-.5px;letter-spacing:-.5px;line-height:1.35;color:#1A1A2E}
 .login-greeting span{color:#3182F6}
-
-/* COACH MSG */
-.coach-msg-wrap{padding:0}
 .coach-msg-text{font-size:15px;font-weight:600;color:#1A1A2E;line-height:1.7;word-break:keep-all;white-space:pre-line}
 .coach-msg-input{width:100%;min-height:120px;background:#F9FBFF;border:1.5px solid #E8EBED;border-radius:16px;padding:14px 16px;font-size:15px;line-height:1.6;color:#1A1A2E;outline:none;resize:none;box-sizing:border-box}
 .coach-msg-input:focus{border-color:#3182F6;background:#fff}
-
-/* MEMBER CONTAINER */
-.member-container{background:#fff}
-.search-wrap{display:flex;align-items:center;gap:10px;background:#F2F4F6;border-radius:12px;padding:0 14px;height:46px}
-.search-wrap input{flex:1;background:none;border:none;outline:none;font-size:16px;color:#1A1A2E}
-.search-clear{background:none;border:none;display:flex;align-items:center;min-width:32px;min-height:32px;justify-content:center}
-.member-container-divider{height:1px;background:#F2F4F6;margin:14px 0 0}
-.member-container-label{font-size:14px;font-weight:700;letter-spacing:.2px;color:#8B95A1;letter-spacing:.2px;padding:12px 4px 4px}
 .empty-search{font-size:14px;color:#8B95A1;text-align:center;padding:20px 0}
 
 /* MEMBER GRID */
@@ -93,12 +75,8 @@ input,textarea{font-family:inherit}
 .err-msg{font-size:14px;color:#F04452;margin-top:8px;text-align:center}
 .pin-confirm-btn{width:100%;height:54px;margin-top:14px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;transition:background .15s}
 .pin-confirm-btn:active{background:#1B64DA}
-
-/* PROGRESS */
-.progress-strip{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E8EBED}
 .progress-track{flex:1;height:5px;background:#E8EBED;border-radius:99px;overflow:hidden}
 .progress-fill{height:100%;background:#3182F6;border-radius:99px;transition:width .4s}
-.progress-pct{font-size:12px;font-weight:700;color:#8B95A1;flex-shrink:0}
 
 /* WOD ROWS */
 .wod-row{display:flex;align-items:flex-start;gap:14px;background:#fff;border-bottom:1px solid #F2F4F6;padding:16px}
@@ -109,7 +87,6 @@ input,textarea{font-family:inherit}
 .wod-content{flex:1}
 .wod-name{font-size:16px;font-weight:800;line-height:1.35;letter-spacing:-.3px}
 .wod-detail{font-size:12px;color:#8B95A1;margin-top:4px}
-.rec-row{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
 .rec-val{display:block;font-size:18px;font-weight:800;letter-spacing:-.4px;margin-top:8px}
 .rec-meta{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
 .rec-scale{font-size:12px;color:#3182F6;background:#EBF3FE;padding:2px 9px;border-radius:99px;font-weight:600}
@@ -126,19 +103,10 @@ input,textarea{font-family:inherit}
 .time-field::-webkit-inner-spin-button,.time-field::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .time-field-label{font-size:12px;font-weight:700;color:#8B95A1;margin-top:4px;letter-spacing:.3px}
 .time-sep{font-size:24px;font-weight:800;color:#B0B8C1;padding-bottom:18px;flex-shrink:0}
-.edit-main{width:100%;height:44px;background:#F2F4F6;border:1.5px solid #3182F6;border-radius:10px;padding:0 13px;font-size:16px;font-weight:600;outline:none;color:#1A1A2E}
-.edit-sub{width:100%;height:40px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:10px;padding:0 13px;font-size:14px;outline:none;color:#1A1A2E}
 .edit-btns{display:flex;gap:8px}
 .btn-cancel{flex:1;height:48px;background:#fff;border:1.5px solid #E8EBED;border-radius:14px;font-size:14px;font-weight:700;color:#1A1A2E}
 .btn-save{flex:2;height:48px;background:#3182F6;border:none;border-radius:14px;font-size:14px;font-weight:700;color:#fff}
-.btn-delete{flex:2;height:48px;background:#F04452;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff}
-
-/* COACH LAYOUT */
-.coach-layout{display:flex;height:calc(100vh - 56px);overflow:hidden}
 .sidebar{width:185px;flex-shrink:0;background:#fff;border-right:1px solid #E8EBED;overflow-y:auto;padding:12px 8px}
-.sidebar-head{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 12px}
-.sidebar-count{font-size:12px;color:#8B95A1;font-weight:600}
-.add-member-btn{display:flex;align-items:center;gap:4px;background:#3182F6;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;color:#fff;min-height:32px}
 .sidebar-row{display:flex;align-items:center;gap:10px;border-radius:12px;padding:12px;cursor:default;margin-bottom:4px;min-height:52px}
 .sidebar-row.active{background:#EBF3FE}
 .sidebar-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
@@ -150,36 +118,7 @@ input,textarea{font-family:inherit}
 .add-box{background:#F2F4F6;border-radius:12px;padding:10px 8px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px}
 .add-input{width:100%;height:38px;background:#fff;border:1.5px solid #E8EBED;border-radius:9px;padding:0 10px;font-size:14px;outline:none;color:#1A1A2E}
 .add-input:focus{border-color:#3182F6}
-.podium-steps{display:flex;align-items:flex-end;justify-content:center;gap:12px}
-.podium-step{width:100%;max-width:110px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border-radius:22px;padding:16px 10px 12px;color:#fff;position:relative;min-width:90px}
-.podium-step-1{background:#3182F6;order:2;min-height:150px}
-.podium-step-2{background:#60A5FA;order:1;min-height:130px}
-.podium-step-3{background:#A3C4F3;order:3;min-height:110px}
-.podium-rank{font-size:12px;font-weight:800;opacity:.9;margin-bottom:10px}
-.podium-avatar-wrap{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden}
-.podium-avatar-img{width:100%;height:100%;object-fit:cover}
-.podium-avatar-initial{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
-.podium-name{font-size:14px;font-weight:800;line-height:1.2;text-align:center}
-.podium-score{font-size:13px;font-weight:700;margin-top:8px}
-.podium-extra{margin-top:16px;border-top:1px solid #F2F4F6;padding-top:12px}
-.podium-extra-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #F8F9FA}
-.podium-extra-row:last-child{border-bottom:none}
-.podium-extra-rank{font-size:13px;font-weight:700;color:#1A1A2E;flex-shrink:0}
-.podium-extra-name{font-size:13px;color:#1A1A2E;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.podium-extra-score{font-size:13px;font-weight:700;color:#3182F6;flex-shrink:0}
-.podium-list{margin-top:18px;background:#F8F9FA;border-radius:16px;padding:12px}
-.podium-list-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #E8EBED}
-.podium-list-row:last-child{border-bottom:none}
-.podium-list-rank{width:24px;font-size:13px;font-weight:800;color:#1A1A2E;flex-shrink:0}
-.podium-list-avatar-wrap{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.podium-list-avatar{width:100%;height:100%;object-fit:cover}
-.podium-list-initial{width:100%;height:100%;border-radius:50%;background:#E8F1FF;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#3182F6}
-.podium-list-name{font-size:14px;font-weight:700;color:#1A1A2E;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.podium-list-score{font-size:13px;font-weight:700;color:#3182F6;flex-shrink:0}
 .sheet-panel{flex:1;overflow-y:auto;padding:0;background:#fff}
-.sheet-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.sheet-name{font-size:18px;font-weight:800;letter-spacing:-.5px}
-.sheet-sub{font-size:14px;color:#8B95A1;margin-top:3px}
 .empty-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:10px}
 .empty-panel-text{font-size:16px;color:#8B95A1}
 
@@ -202,38 +141,6 @@ input,textarea{font-family:inherit}
 
 /* 세로 레이아웃 카드 */
 .rank-row-card{background:#fff;padding:14px 14px;}
-.rank-row-wod-info{display:flex;flex-direction:column;gap:3px;padding-bottom:12px;border-bottom:1px solid #F2F4F6}
-.rank-row-wod-num{font-size:12px;font-weight:700;color:#8B95A1;letter-spacing:.5px}
-.rank-row-wod-name{font-size:16px;font-weight:800;color:#1A1A2E;letter-spacing:-.3px}
-.rank-row-wod-detail{font-size:12px;color:#B0B8C1;margin-top:1px}
-.rank-row-result{display:flex;align-items:center;gap:12px;padding-top:12px}
-.rank-first-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.rank-first-name{font-size:14px;font-weight:600;color:#8B95A1}
-.rank-first-val{font-size:24px;font-weight:800;letter-spacing:-.5px;color:#3182F6}
-.rank-row-empty-box{font-size:14px;color:#B0B8C1;padding-top:12px}
-.rank-top-cards{display:flex;flex-direction:column;gap:10px}
-.rank-top-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:16px;min-height:62px;color:#fff}
-.rank-top-card-1{background:#3B82F6}
-.rank-top-card-2{background:#60A5FA}
-.rank-top-card-3{background:#93C5FD}
-.rank-top-left{display:flex;align-items:center;gap:10px}
-.rank-top-avatar-wrap{width:42px;height:42px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.rank-top-avatar{width:100%;height:100%;object-fit:cover}
-.rank-top-avatar-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
-.rank-top-title{display:flex;flex-direction:row;gap:4px;min-width:0}
-.rank-top-num{font-size:12px;font-weight:800;background:rgba(255,255,255,.24);color:#fff;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}
-.rank-top-name{font-size:15px;font-weight:800;line-height:1.2}
-.rank-top-score-wrap{display:flex;align-items:center;justify-content:flex-end;min-width:0}
-.rank-top-score{font-size:16px;font-weight:800;letter-spacing:-.3px}
-.rank-list-card{background:#fff;border-radius:16px;padding:12px 0;}
-.rank-list-row{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #F3F4F6}
-.rank-list-row:last-child{border-bottom:none}
-.rank-list-rank{width:30px;font-size:14px;font-weight:700;color:#1A1A2E;flex-shrink:0}
-.rank-list-avatar-wrap{width:34px;height:34px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#F2F4F6;flex-shrink:0}
-.rank-list-avatar{width:100%;height:100%;object-fit:cover}
-.rank-list-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#3182F6}
-.rank-list-name{flex:1;min-width:0;font-size:14px;color:#1A1A2E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rank-list-score{font-size:14px;font-weight:800;color:#3182F6;flex-shrink:0}
 
 /* MEMBER RANK TAB */
 .my-rank-card{background:#fff;border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}

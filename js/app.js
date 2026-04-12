@@ -98,8 +98,8 @@ let S = {
 
   // rank page gender filter
   rankGender:"male",
-  // rank page expanded wod
-  expandedWod:null,
+  // rank page expanded wods
+  expandedWods:[],
   // total rank show-more per gender
   totalRankExpanded:{male:false,female:false},
   totalRankOpen:true,
@@ -281,6 +281,9 @@ function render() {
   if (!S.view && !S.viewingMemberId && !S.activeMemberId) {
     S.view = "login";
   }
+
+  const rankBody = root.querySelector(".rank-page-body");
+  const rankScroll = rankBody ? rankBody.scrollTop : 0;
   
   if      (S.view==="coach")   root.innerHTML = renderCoach();
   else if (S.view==="rank")    root.innerHTML = renderRank();
@@ -288,6 +291,12 @@ function render() {
   else if (S.viewingMemberId)  root.innerHTML = renderMemberView();
   else                         root.innerHTML = renderLogin();
   bind();
+
+  if (rankBody && S.view === "rank") {
+    requestAnimationFrame(() => {
+      root.querySelector(".rank-page-body")?.scrollTo(0, rankScroll);
+    });
+  }
 }
 
 /* ── Avatar grid helpers (separate fns to avoid nested template literals) ── */
@@ -694,7 +703,7 @@ function renderRank() {
     }
     
     // 드롭다운 형태
-    const isExpanded = S.expandedWod === wod.id;
+    const isExpanded = Array.isArray(S.expandedWods) && S.expandedWods.includes(wod.id);
     return '<div class="rank-row-card" style="padding:0">'
       +'<button class="wod-dropdown-btn" data-wod-id="'+wod.id+'" style="width:100%;text-align:left;padding:18px 18px;border:none;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E8EBED">'
         +'<span style="font-size:16px;font-weight:800;color:#1A1A2E">'+wod.name+'</span>'
@@ -1317,11 +1326,15 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
           }
         }
         const isLast = i === arr.length - 1;
+        const deleteBtn = !isLast
+          ? `<button class="icon-btn" data-drec="${memberId}" data-dwid="${wod.id}" data-didx="${i}" style="background:none;border:none;color:#F04452;cursor:pointer;padding:0;min-width:24px;height:24px">${ico.trash}</button>`
+          : "";
         return `<tr style="background:transparent;border-bottom:${isLast?"none":"1px solid #F2F4F6"}">
           <td style="padding:5px 8px;font-size:12px;color:#8B95A1;white-space:nowrap">${h.date}</td>
           <td style="padding:5px 8px;font-size:14px;font-weight:${isLast?"800":"600"};color:${isLast?"#3182F6":"#1A1A2E"}">${h.value}</td>
           <td style="padding:5px 8px;font-size:12px;text-align:center">${arrow}</td>
           <td style="padding:5px 8px;font-size:12px;color:#8B95A1">${h.scale||""}</td>
+          <td style="padding:5px 8px;text-align:center">${deleteBtn}</td>
         </tr>`;
       }).join("");
       const listHtml = `<div style="border-radius:10px;overflow:hidden;border:1px solid #E8EBED">
@@ -1331,6 +1344,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
             <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:left">기록</th>
             <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:center">추이</th>
             <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:left">스케일</th>
+            <th style="padding:5px 8px;font-size:12px;font-weight:700;color:#8B95A1;text-align:center">삭제</th>
           </tr></thead>
           <tbody>${listRows}</tbody>
         </table>
@@ -1929,15 +1943,23 @@ function bind() {
 
   /* rank */
   on("btn-rank-back","click",()=>{S.view="login";render();});
-  qa("[data-rank-gender]",el=>el.addEventListener("click",()=>{S.rankGender=el.dataset.rankGender;S.totalRankExpanded={male:false,female:false};render();}));
+  qa("[data-rank-gender]",el=>el.addEventListener("click",(e)=>{e.preventDefault();e.stopPropagation();S.rankGender=el.dataset.rankGender;S.totalRankExpanded={male:false,female:false};render();}));
   on("btn-total-rank-toggle","click",()=>{S.totalRankOpen=!S.totalRankOpen;render();});
-  qa("[data-total-rank-more]",el=>el.addEventListener("click",()=>{
+  qa("[data-total-rank-more]",el=>el.addEventListener("click",(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
     const g=el.dataset.totalRankMore;
     S.totalRankExpanded={...S.totalRankExpanded,[g]:true};render();
   }));
-  qa("[data-wod-id]",el=>el.addEventListener("click",()=>{
+  qa("[data-wod-id]",el=>el.addEventListener("click",(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
     const wodId=parseInt(el.dataset.wodId);
-    S.expandedWod = S.expandedWod === wodId ? null : wodId;
+    const expanded = Array.isArray(S.expandedWods) ? [...S.expandedWods] : [];
+    const idx = expanded.indexOf(wodId);
+    if (idx >= 0) expanded.splice(idx,1);
+    else expanded.push(wodId);
+    S.expandedWods = expanded;
     render();
   }));
 
@@ -2156,7 +2178,27 @@ function bind() {
   on("inp-rounds", "input",e=>{S.editVal.value=e.target.value;});
   on("inp-reps",   "input",e=>{S.editVal.value=e.target.value;});
   qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid),el.dataset.wtype)));
-  qa("[data-drec]",el=>el.addEventListener("click",()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
+  qa("[data-drec]",el=>el.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    const mid = el.dataset.drec;
+    const wid = parseInt(el.dataset.dwid);
+    const idx = el.dataset.didx;
+    if (idx !== undefined) {
+      if (!confirm("이전 기록을 삭제할까요?")) return;
+      const member = members.find(m=>m.id===mid);
+      if (!member) return;
+      const rec = member.records[wid];
+      if (!rec || !Array.isArray(rec.history)) return;
+      const history = [...rec.history];
+      const index = parseInt(idx, 10);
+      if (Number.isNaN(index) || index < 0 || index >= history.length) return;
+      history.splice(index,1);
+      fbSet(`members/${mid}/records/${wid}`, {...rec, history});
+      return;
+    }
+    if (!confirm("이 기록을 모두 삭제할까요?")) return;
+    fbRemove(`members/${mid}/records/${wid}`);
+  }));
 
   /* WOD group filter chips */
   qa("[data-member-wod-group]",el=>el.addEventListener("click",e=>{
@@ -2327,12 +2369,25 @@ function doSaveRecord(mid,wid,wtype) {
 
   // render() 전에 existing 캡처
   const existing = members.find(m=>m.id===mid)?.records[wid];
-  const newRecord = {value, scale, date:today()};
-  // 기존 기록이 있으면 반드시 history에 추가
+  const todayDate = today();
+  const newRecord = {value, scale, date:todayDate};
+
+  // 기존 기록이 있으면 history에 추가하되, 같은 날짜 기록은 최신 하나만 보관
   let history = existing?.history ? [...existing.history] : [];
-  if (existing?.value) {
+  if (existing?.value && existing.date !== todayDate) {
     history = [...history, {value:existing.value, scale:existing.scale||"", date:existing.date}];
   }
+  const seenDates = new Set();
+  history = history
+    .slice()
+    .reverse()
+    .filter(h => {
+      if (seenDates.has(h.date)) return false;
+      seenDates.add(h.date);
+      return true;
+    })
+    .reverse();
+
   fbSet(`members/${mid}/records/${wid}`, {...newRecord, history});
 
   S.editing=null;S.timeVal={min:"",sec:""};S.editVal={value:"",scale:""};render();
