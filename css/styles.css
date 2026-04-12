@@ -211,6 +211,29 @@ input,textarea{font-family:inherit}
 .rank-first-name{font-size:14px;font-weight:600;color:#8B95A1}
 .rank-first-val{font-size:24px;font-weight:800;letter-spacing:-.5px;color:#3182F6}
 .rank-row-empty-box{font-size:14px;color:#B0B8C1;padding-top:12px}
+.rank-top-cards{display:flex;flex-direction:column;gap:10px}
+.rank-top-card{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:16px;min-height:62px;color:#fff}
+.rank-top-card-1{background:#3B82F6}
+.rank-top-card-2{background:#60A5FA}
+.rank-top-card-3{background:#93C5FD}
+.rank-top-left{display:flex;align-items:center;gap:10px}
+.rank-top-avatar-wrap{width:42px;height:42px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-top-avatar{width:100%;height:100%;object-fit:cover}
+.rank-top-avatar-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff}
+.rank-top-title{display:flex;flex-direction:row;gap:4px;min-width:0}
+.rank-top-num{font-size:12px;font-weight:800;background:rgba(255,255,255,.24);color:#fff;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center}
+.rank-top-name{font-size:15px;font-weight:800;line-height:1.2}
+.rank-top-score-wrap{display:flex;align-items:center;justify-content:flex-end;min-width:0}
+.rank-top-score{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.rank-list-card{background:#fff;border-radius:16px;padding:12px 0;}
+.rank-list-row{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid #F3F4F6}
+.rank-list-row:last-child{border-bottom:none}
+.rank-list-rank{width:30px;font-size:14px;font-weight:700;color:#1A1A2E;flex-shrink:0}
+.rank-list-avatar-wrap{width:34px;height:34px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#F2F4F6;flex-shrink:0}
+.rank-list-avatar{width:100%;height:100%;object-fit:cover}
+.rank-list-initial{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#3182F6}
+.rank-list-name{flex:1;min-width:0;font-size:14px;color:#1A1A2E;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-list-score{font-size:14px;font-weight:800;color:#3182F6;flex-shrink:0}
 
 /* MEMBER RANK TAB */
 .my-rank-card{background:#fff;border-radius:16px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)}

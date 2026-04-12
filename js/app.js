@@ -77,11 +77,11 @@ let S = {
   addingMember:false, newName:"",
   editingMember:null, confirmDelete:null,
   pinModal:false,
-  newMemberName:"",
+  newMemberName:"", newMemberGender:"female",
   timeVal:{min:"",sec:""},
   // WOD manager
   showWodForm:false,
-  wodFormVal:{name:"",detail:"",group:"WOD",type:"time",youtube:""},
+  wodFormVal:{name:"",detail:"",group:"WOD",type:"time",youtube:"",scaleA:"",scaleB:""},
   editingWod:null,  // {id,name,detail,group,type}
   // avatar picker
   avatarModal:false,  // memberId being picked for
@@ -93,6 +93,7 @@ let S = {
   registerAvatar:null, // 선택한 캐릭터 인덱스
   // history view mode per wod: { [memberId_wodId]: "list"|"graph" }
   histView:{},
+  memberWodGroup:"",
   // rank page gender filter
   rankGender:"male",
   // rank page expanded wod
@@ -123,7 +124,7 @@ onValue(ref(db,"wods"), snap => {
   if (raw) {
     const GOM = {STRENGTH:0, HYROX:1, WOD:2};
     WODS = Object.entries(raw)
-      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time", youtube:v.youtube||""}))
+      .map(([k,v]) => ({id:parseInt(k), name:v.name, detail:v.detail||"", group:v.group||"WOD", type:v.type||"time", youtube:v.youtube||"", scaleA:v.scaleA||"", scaleB:v.scaleB||""}))
       .sort((a,b) => {
         const ga=GOM[a.group]??9, gb=GOM[b.group]??9;
         return ga!==gb ? ga-gb : a.id-b.id;
@@ -162,6 +163,7 @@ const fbPush   = (path,val) => push(ref(db,path),val);
 const ico = {
   chevL: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1A2E" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>`,
   chevR: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>`,
+  chevD: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>`,
   search:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B0B8C1" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>`,
   close: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
   edit:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>`,
@@ -280,9 +282,19 @@ function renderYoutubeCard(url) {
 /* ══ RENDER ══ */
 function render() {
   const root = document.getElementById("app");
-  if      (S.view==="member")  root.innerHTML = renderMember();
-  else if (S.view==="coach")   root.innerHTML = renderCoach();
+  // 초기 진입 시 저장된 회원이 있으면 자동 로그인
+  if (!S.view && !S.viewingMemberId && !S.activeMemberId) {
+    const saved = loadLastMember();
+    const savedMember = saved && members.find(m => m.id === saved);
+    if (savedMember) {
+      S.activeMemberId = saved;
+      S.view = "myProfile";
+    }
+  }
+  
+  if      (S.view==="coach")   root.innerHTML = renderCoach();
   else if (S.view==="rank")    root.innerHTML = renderRank();
+  else if (S.view==="myProfile") root.innerHTML = renderMyProfilePage();
   else if (S.viewingMemberId)  root.innerHTML = renderMemberView();
   else                         root.innerHTML = renderLogin();
   bind();
@@ -337,7 +349,7 @@ function renderLogin() {
             }
             const saved = localStorage.getItem("mt_last_member");
             const savedMember = saved && members.find(m=>m.id===saved);
-            if (!savedMember) return '<button id="btn-show-profile-modal" style="display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;padding:7px 14px;height:36px;cursor:pointer;font-size:13px;font-weight:600;color:#8B95A1">프로필 설정</button>';
+            if (!savedMember) return '<button id="btn-show-profile-modal" style="display:flex;align-items:center;gap:6px;background:#F2F4F6;border:none;border-radius:99px;padding:7px 14px;height:36px;cursor:pointer;font-size:13px;font-weight:600;color:#8B95A1">프로필 등록하기</button>';
             const src = getMemberAvatar(savedMember);
             const avHtml = src
               ? '<img src="'+src+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover"/>'
@@ -354,44 +366,45 @@ function renderLogin() {
     <!-- ② 벤치마크 Day 카드 -->
     ${(() => {
       const tKey = todayKey();
-      const td = todayWod===undefined ? undefined : (todayWod && todayWod[tKey]);
+      const td = todayWod && todayWod[tKey];
       const bdWod = td ? WODS.find(w=>w.id===parseInt(td.wodId)) : null;
-      if (todayWod===undefined) {
-        return '<div style="margin-bottom:24px">'
-          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;color:#fff">'
-          +'<p style="font-size:18px;font-weight:700;margin:0 0 10px">벤치마크 Day를 불러오는 중입니다…</p>'
-          +'<p style="font-size:14px;line-height:1.5;margin:0;opacity:.9">잠시만 기다려주세요.</p>'
-          +'</div>'
-          +'</div>';
-      }
       if (!bdWod) {
-        return '<div style="margin-bottom:24px">'
-          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;color:#fff">'
-          +'<p style="font-size:18px;font-weight:900;margin:0 0 10px">오늘의 벤치마크가 없습니다</p>'
-          +'<p style="font-size:14px;line-height:1.6;margin:0;opacity:.92">코치가 오늘의 벤치마크를 등록하면 이곳에서 바로 확인하고 기록할 수 있어요.</p>'
+        let hasSaved=false;
+        try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
+        const bdActionText=hasSaved?"내 기록 등록하기 →":"프로필 설정 후 기록하기 →";
+        return '<div style="margin-bottom:20px">'
+          +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;cursor:pointer;overflow:hidden" id="btn-login-bmday">'
+          +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
+          +'<span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">벤치마크 Day</span>'
+          +'</div>'
+          +'<p style="font-size:20px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">오늘의 벤치마크가 없습니다</p>'
+          +'<p style="font-size:13px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">코치가 오늘의 벤치마크를 등록하면 이곳에서 바로 확인하고 기록할 수 있어요.</p>'
+          +'<div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px">'
+            +'<span style="font-size:14px;font-weight:700;color:#fff;opacity:.95">'+bdActionText+'</span>'
+          +'</div>'
           +'</div>'
           +'</div>';
       }
       let hasSaved=false;
       try{const sv=localStorage.getItem("mt_last_member");hasSaved=!!(sv&&members.find(function(m){return m.id===sv;}));}catch(e){}
-      const bdActionText=hasSaved?"탭해서 기록하기 →":"프로필 설정 후 기록하기 →";
-      return '<div style="margin-bottom:0">'
-        +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;cursor:pointer" id="btn-login-bmday">'
+      const bdActionText=hasSaved?"기록 입력하기 →":"프로필 설정 후 기록하기 →";
+      return '<div style="margin-bottom:20px">'
+        +'<div style="background:linear-gradient(135deg,#3182F6,#60A5FA);padding:24px 20px 20px 20px;cursor:pointer;overflow:hidden" id="btn-login-bmday">'
         +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'
-        +'<span style="font-size:12px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">🎯 벤치마크 Day</span>'
+        +'<span style="font-size:13px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.6px">벤치마크 Day</span>'
         +'</div>'
-        +'<p style="font-size:24px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">'+(bdWod.name)+'</p>'
-        +(bdWod.detail?'<p style="font-size:15px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">'+(bdWod.detail)+'</p>':'')
+        +'<p style="font-size:20px;font-weight:900;color:#fff;line-height:1.05;letter-spacing:-.5px;margin-bottom:10px">'+(bdWod.name)+'</p>'
+        +(bdWod.detail?'<p style="font-size:14px;color:rgba(255,255,255,.92);margin-top:0;line-height:1.5">'+(bdWod.detail)+'</p>':'')
         +(td.note?'<p style="font-size:13px;color:rgba(255,255,255,.85);margin-top:12px;background:rgba(0,0,0,.14);border-radius:10px;padding:10px 12px;line-height:1.5">'+(td.note)+'</p>':'')
+        +'<div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between;gap:12px">'
+          +'<span style="font-size:14px;font-weight:700;color:#fff;opacity:.95">'+bdActionText+'</span>'
         +'</div>'
         +'</div>'
-        +(hasSaved
-          ? '<div style="padding:0 20px 24px"><button id="btn-open-bd-record" style="width:100%;height:52px;background:#1A1A2E;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:12px">기록 입력하기</button></div>'
-          : '<div style="height:24px"></div>');
+        +'</div>';
     })()}
 
     <!-- ④ 액션 카드 -->
-    <div class="login-actions" style="padding:8px 20px 24px">
+    <div class="login-actions" style="padding:12px 20px 20px">
       ${hasAny ? `<button class="action-card" id="btn-rank">
         <div class="action-card-icon">🏆</div>
         <div class="action-card-title">순위 보기</div>
@@ -594,6 +607,8 @@ function renderBdRecordModal() {
       return '<button data-bd-scale-btn="'+s+'" style="flex:1;height:36px;border-radius:10px;border:2px solid '+(active?'#3182F6':'#E8EBED')+';background:'+(active?'#EBF3FE':'#F2F4F6')+';color:'+(active?'#3182F6':'#8B95A1')+';font-size:13px;font-weight:700;cursor:pointer">'+s+'</button>';
     }).join('')
     +'</div>'
+    +(S.editVal.scale==="A"&&wod.scaleA?'<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-top:4px">'+wod.scaleA+'</div>':'')
+    +(S.editVal.scale==="B"&&wod.scaleB?'<div style="font-size:12px;color:#8B95A1;background:#F2F4F6;border-radius:8px;padding:6px 10px;margin-top:4px">'+wod.scaleB+'</div>':'')
     +'<button id="btn-bd-save" data-save="'+mid+'" data-wid="'+wid+'" data-wtype="'+wtype+'" style="width:100%;height:52px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:12px">저장</button>'
     +'</div></div>';
 }
@@ -663,7 +678,7 @@ function renderRank() {
     return '<div class="rank-row-card" style="padding:0">'
       +'<button class="wod-dropdown-btn" data-wod-id="'+wod.id+'" style="width:100%;text-align:left;padding:18px 18px;border:none;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E8EBED">'
         +'<span style="font-size:16px;font-weight:800;color:#1A1A2E">'+wod.name+'</span>'
-        +'<span style="color:#8B95A1;transform:rotate('+(isExpanded?'180':'0')+'deg);transition:transform .2s">${ico.chevD}</span>'
+        +'<span style="color:#8B95A1;transform:rotate('+(isExpanded?'180':'0')+'deg);transition:transform .2s">'+ico.chevD+'</span>'
       +'</button>'
       +(isExpanded ? '<div style="padding:12px 16px;border-bottom:1px solid #E8EBED">'+content+'</div>' : '')
       +'</div>';
@@ -674,37 +689,41 @@ function renderRank() {
     const pool = members.filter(m=>!m.dormant && m.gender===gender);
     if (pool.length===0) return "";
     const sorted = pool.map(m=>({...m, total:allPoints[m.id]||0})).sort((a,b)=>a.total-b.total);
-    const podium = sorted.slice(0,3);
-    const listRows = sorted.map((m,i)=>{
-      const pos = i+1;
+    const topCards = sorted.slice(0,3).map((m,i)=>{
+      const rank = i+1;
+      const textColor = '#ffffff';
       const src = m.avatar!=null ? AVATARS[m.avatar] : null;
       const avatarHtml = src
-        ? '<img src="'+src+'" class="podium-list-avatar"/>'
-        : '<div class="podium-list-initial">'+m.name[0]+'</div>';
-      return '<div class="podium-list-row">'
-        +'<div class="podium-list-rank">'+pos+'</div>'
-        +'<div class="podium-list-avatar-wrap">'+avatarHtml+'</div>'
-        +'<div class="podium-list-name">'+m.name+'</div>'
-        +'<div class="podium-list-score">'+m.total+'점</div>'
-      +'</div>';
+        ? '<img src="'+src+'" class="rank-top-avatar"/>'
+        : '<div class="rank-top-avatar-initial">'+m.name[0]+'</div>';
+      return '<div class="rank-top-card rank-top-card-'+rank+'" style="color:'+textColor+'">'
+        +'<div class="rank-top-left">'
+          +'<div class="rank-top-avatar-wrap">'+avatarHtml+'</div>'
+          +'<div class="rank-top-title">'
+            +'<div class="rank-top-num">'+rank+'등</div>'
+            +'<div class="rank-top-name">'+m.name+'</div>'
+          +'</div>'
+        +'</div>'
+        +'<div class="rank-top-score-wrap">'
+          +'<div class="rank-top-score">'+m.total+'점</div>'
+        +'</div>'
+        +'</div>';
     }).join('');
-    const podiumItems = podium.map((m,i)=>{
-      const pos = i+1;
+    const listRows = sorted.slice(3).map((m,i)=>{
+      const pos = i+4;
       const src = m.avatar!=null ? AVATARS[m.avatar] : null;
       const avatarHtml = src
-        ? '<img src="'+src+'" class="podium-avatar-img"/>'
-        : '<div class="podium-avatar-initial">'+m.name[0]+'</div>';
-      return '<div class="podium-step podium-step-'+pos+'">'
-        +'<div class="podium-rank">'+pos+'</div>'
-        +'<div class="podium-avatar-wrap">'+avatarHtml+'</div>'
-        +'<div class="podium-name">'+m.name+'</div>'
-        +'<div class="podium-score">'+m.total+'점</div>'
+        ? '<img src="'+src+'" class="rank-list-avatar"/>'
+        : '<div class="rank-list-initial">'+m.name[0]+'</div>';
+      return '<div class="rank-list-row">'
+        +'<div class="rank-list-rank">'+pos+'</div>'
+        +'<div class="rank-list-avatar-wrap">'+avatarHtml+'</div>'
+        +'<div class="rank-list-name">'+m.name+'</div>'
+        +'<div class="rank-list-score">'+m.total+'점</div>'
       +'</div>';
     }).join('');
-    return '<div class="podium-block">'
-      +'<div class="podium-steps">'+podiumItems+'</div>'
-      +'<div class="podium-list">'+listRows+'</div>'
-      +'</div>';
+    return '<div class="rank-top-cards">'+topCards+'</div>'
+      +'<div class="rank-list-card">'+listRows+'</div>';
   };
 
   // Note: allPoints is accumulated during wodCards rendering above
@@ -887,6 +906,8 @@ function renderCoach() {
       ${renderWodEditChips(S.editingWod)}
       <input class="wod-input" id="wod-edit-name" placeholder="WOD 이름" value="${S.editingWod.name}"/>
       <input class="wod-input" id="wod-edit-detail" placeholder="세부사항 (선택)" value="${S.editingWod.detail||""}"/>
+      <input class="wod-input" id="wod-edit-scaleA" placeholder="A Scale 설명 (선택)" value="${S.editingWod.scaleA||""}"/>
+      <input class="wod-input" id="wod-edit-scaleB" placeholder="B Scale 설명 (선택)" value="${S.editingWod.scaleB||""}"/>
       <input class="wod-input" id="wod-edit-youtube" placeholder="유튜브 링크 (선택)" value="${S.editingWod.youtube||""}"/>
       <div style="display:flex;gap:8px">
         <button class="btn-cancel" id="btn-wod-edit-cancel">취소</button>
@@ -1032,12 +1053,27 @@ function renderWodAddForm() {
     + '<div style="font-size:14px;font-weight:700;color:#8B95A1;margin-bottom:6px">측정 방식</div>'
     + '<div style="display:flex;gap:6px;margin-bottom:12px">' + typeChips + '</div>'
     + '<input class="wod-input" id="wod-inp-name" placeholder="WOD 이름 (예: BSQ 5RM)" value="' + (S.wodFormVal.name||"") + '"/>'
-    + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 선택사항" value="' + (S.wodFormVal.detail||"") + '"/>'
+    + '<input class="wod-input" id="wod-inp-detail" placeholder="세부사항 (선택)" value="' + (S.wodFormVal.detail||"") + '"/>'
+    + '<input class="wod-input" id="wod-inp-scaleA" placeholder="A Scale 설명 (선택, 예: 75% 중량)" value="' + (S.wodFormVal.scaleA||"") + '"/>'
+    + '<input class="wod-input" id="wod-inp-scaleB" placeholder="B Scale 설명 (선택, 예: 50% 중량)" value="' + (S.wodFormVal.scaleB||"") + '"/>'
     + '<input class="wod-input" id="wod-inp-youtube" placeholder="유튜브 링크 (선택)" value="' + (S.wodFormVal.youtube||"") + '"/>'
     + '<div style="display:flex;gap:7px">'
     + '<button class="btn-cancel" id="btn-wod-add-cancel">취소</button>'
     + '<button class="btn-save" id="btn-wod-add-save">추가</button>'
     + '</div></div>';
+}
+
+/* ── WOD group filter chips ── */
+function renderWodGroupChips() {
+  const groups = [...new Set(WODS.map(w => w.group||"WOD"))].sort();
+  const all = S.memberWodGroup === "";
+  let html = '<div style="display:flex;gap:6px;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid #F2F4F6">';
+  html += '<button data-member-wod-group="" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px solid '+(all?"#3182F6":"#E8EBED")+';background:'+(all?"#EBF3FE":"#F2F4F6")+';color:'+(all?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">전체</button>';
+  groups.forEach(g => {
+    const active = S.memberWodGroup === g;
+    html += '<button data-member-wod-group="'+g+'" style="height:32px;padding:0 14px;border-radius:99px;border:1.5px solid '+(active?"#3182F6":"#E8EBED")+';background:'+(active?"#EBF3FE":"#F2F4F6")+';color:'+(active?"#3182F6":"#8B95A1")+';font-size:12px;font-weight:700;cursor:pointer">'+g+'</button>';
+  });
+  return html + '</div>';
 }
 
 /* ── WOD list with group headers ── */
@@ -1211,11 +1247,14 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
         + '<div class="time-field-wrap" style="flex:2"><input class="time-field" id="inp-reps" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + prev + '" inputmode="numeric"/><span class="time-field-label">횟수</span></div>'
         + '</div>';
     }
+    const scaleHint = (S.editVal.scale==="A"&&wod.scaleA) ? `<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-top:4px">${wod.scaleA}</div>`
+      : (S.editVal.scale==="B"&&wod.scaleB) ? `<div style="font-size:12px;color:#8B95A1;background:#F2F4F6;border-radius:8px;padding:6px 10px;margin-top:4px">${wod.scaleB}</div>` : "";
     body = `<div class="edit-area">
       ${inputHtml}
       <div style="display:flex;gap:6px;margin-top:6px">
         ${["RXD","A","B"].map(s=>`<button data-scale-btn="${s}" style="flex:1;height:36px;border-radius:10px;border:2px solid ${S.editVal.scale===s?"#3182F6":"#E8EBED"};background:${S.editVal.scale===s?"#EBF3FE":"#F2F4F6"};color:${S.editVal.scale===s?"#3182F6":"#8B95A1"};font-size:13px;font-weight:700;cursor:pointer">${s}</button>`).join("")}
       </div>
+      ${scaleHint}
       <div class="edit-btns" style="margin-top:2px">
         <button class="btn-cancel" id="btn-edit-cancel">취소</button>
         <button class="btn-save" data-save="${memberId}" data-wid="${wod.id}" data-wtype="${wod.type||'time'}" data-isnew="${S.isAddingNew?'1':'0'}">저장</button>
@@ -1344,6 +1383,10 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
 function renderCoachMembers() {
   const addBox = S.addingMember
     ? '<div class="add-box">'
+      +'<div style="display:flex;gap:6px">'
+      +'<button id="btn-new-gender-male" style="flex:1;height:38px;border-radius:10px;border:2px solid '+(S.newMemberGender==="male"?"#3182F6":"#E8EBED")+';background:'+(S.newMemberGender==="male"?"#EBF3FE":"#F2F4F6")+';color:'+(S.newMemberGender==="male"?"#3182F6":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">남성</button>'
+      +'<button id="btn-new-gender-female" style="flex:1;height:38px;border-radius:10px;border:2px solid '+(S.newMemberGender==="female"?"#F04452":"#E8EBED")+';background:'+(S.newMemberGender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(S.newMemberGender==="female"?"#F04452":"#8B95A1")+';font-size:13px;font-weight:700;cursor:pointer">여성</button>'
+      +'</div>'
       +'<input id="inp-new-member-name" class="add-input" placeholder="이름 입력" value="'+(S.newMemberName||'')+'"/>'
       +'<div class="edit-btns">'
       +'<button id="btn-add-member-cancel" class="btn-cancel">취소</button>'
@@ -1371,6 +1414,92 @@ function renderCoachMembers() {
   return '<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:14px 16px 40px">'+hdr+addBox+rows+'</div>';
 }
 
+/* ── MY PROFILE PAGE ── */
+function renderMyProfilePage() {
+  const m = members.find(x=>x.id===S.activeMemberId);
+  if (!m) return "";
+  const src = getMemberAvatar(m);
+  const gL = m.gender==="male"?"남성":m.gender==="female"?"여성":"미설정";
+  const hv = S.histView[m.id]||'list';
+  const filteredWods = S.memberWodGroup ? WODS.filter(w=>(w.group||"WOD")===S.memberWodGroup) : WODS;
+  const chips = renderWodGroupChips();
+  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, true);
+
+  // 아바타 선택 모달
+  const avatarModalHtml = S.avatarModal===m.id ? `
+  <div class="modal-overlay" id="mo-avatar">
+    <div class="modal-box" onclick="event.stopPropagation()" style="padding:18px;width:calc(100% - 40px);max-width:320px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="modal-title">캐릭터 선택</div>
+        ${m.avatar!=null?`<button id="btn-avatar-reset" style="background:none;border:none;font-size:14px;font-weight:600;color:#F04452;cursor:pointer;min-height:44px;padding:0 12px;padding:4px 0">초기화</button>`:""}
+      </div>
+      <div style="overflow-y:auto;max-height:380px;margin:0 -2px">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px">
+          ${renderPickAvatarGrid(m.avatar)}
+        </div>
+      </div>
+      <button class="btn-cancel" id="btn-avatar-cancel" style="width:auto;align-self:center;height:36px;padding:0 24px;margin-top:10px;border-radius:99px;display:block;margin-left:auto;margin-right:auto;font-size:14px">취소</button>
+    </div>
+  </div>` : "";
+
+  // 이름 수정 모달
+  const renameModal = S.editingMember ? `
+  <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div class="modal-box" onclick="event.stopPropagation()" style="width:100%;max-width:320px">
+      <div class="modal-title">이름 수정</div>
+      <input class="modal-input" id="inp-rename" value="${S.editingMember.name}" placeholder="이름 입력"/>
+      <div class="modal-btns"><button class="modal-btn-cancel" id="btn-rename-cancel">취소</button><button class="modal-btn-save" id="btn-rename-save">저장</button></div>
+    </div></div>` : "";
+
+  const btnStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
+  const selectStyle = 'height:44px;border-radius:10px;border:1.5px solid #E8EBED;background:#fff;font-size:13px;font-weight:600;color:#1A1A2E;padding:0 10px;cursor:pointer;width:100%';
+
+  return avatarModalHtml + renameModal + (
+    '<div style="min-height:100vh;background:#F2F4F6;display:flex;flex-direction:column">'
+    // 네비게이션 바
+    +'<div class="nav">'
+    +'<button class="nav-back icon-btn" id="btn-my-profile-back">'+ico.chevL+'</button>'
+    +'<div class="nav-title">내 프로필</div>'
+    +'<div style="flex:1"></div>'
+    +'</div>'
+    // 콘텐츠
+    +'<div style="flex:1;overflow-y:auto;background:#F2F4F6;padding:16px 18px 40px">'
+    // 프로필 카드
+    +'<div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    // 아바타 + 이름
+    +'<div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">'
+    +'<button id="btn-pick-avatar" style="background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative">'
+    +(src
+      ? '<img src="'+src+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #E8EBED"/>'
+      : '<div style="width:56px;height:56px;border-radius:50%;background:#EBF3FE;color:#3182F6;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center">'+m.name[0]+'</div>')
+    +'<span style="position:absolute;bottom:0;right:0;font-size:16px;background:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.1)">✏️</span>'
+    +'</button>'
+    +'<div style="flex:1"><p style="font-size:18px;font-weight:800;color:#1A1A2E">'+m.name+'</p>'
+    +'<div style="display:flex;gap:6px;margin-top:6px">'
+    +'<span style="font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:'+(m.gender==="male"?"#EBF3FE":m.gender==="female"?"#FEF2F2":"#F2F4F6")+';color:'+(m.gender==="male"?"#3182F6":m.gender==="female"?"#F04452":"#B0B8C1")+'">'+gL+'</span>'
+    +'</div></div>'
+    +'</div>'
+    // 이름수정 / 성별 — 2열
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    +'<button data-rename="'+m.id+'" data-rname="'+m.name+'" style="'+btnStyle+'">이름 수정</button>'
+    +'<select data-select-gender="'+m.id+'" style="'+selectStyle+'">'
+    +'<option value="male"'+(m.gender==="male"?" selected":"")+'>남성</option>'
+    +'<option value="female"'+(m.gender==="female"?" selected":"")+'>여성</option>'
+    +'</select>'
+    +'</div>'
+    +'</div>'
+    // 기록 탭
+    +'<div style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05)">'
+    +'<div style="display:flex;border-bottom:1px solid #E8EBED">'
+    +'<button data-memberhistview="list" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="list"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="list"?"#3182F6":"#8B95A1")+';cursor:pointer">리스트</button>'
+    +'<button data-memberhistview="graph" style="flex:1;height:44px;border:none;border-bottom:2px solid '+(hv==="graph"?"#3182F6":"transparent")+';background:transparent;font-size:15px;font-weight:700;color:'+(hv==="graph"?"#3182F6":"#8B95A1")+';cursor:pointer">그래프</button>'
+    +'</div><div class="sheet-panel">'+sheet+'</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+  );
+}
+
 /* ── COACH MEMBER DETAIL ── */
 function renderCoachMemberDetail() {
   const m = members.find(x=>x.id===S.panelId);
@@ -1382,7 +1511,9 @@ function renderCoachMemberDetail() {
   const gL = m.gender==="male"?"남성":m.gender==="female"?"여성":"미설정";
   const dL = m.dormant?"휴면":"활성";
   const hv = S.histView[m.id]||'list';
-  const sheet = renderWodListWithGroups(WODS, m, true, true);
+  const filteredWods = S.memberWodGroup ? WODS.filter(w=>(w.group||"WOD")===S.memberWodGroup) : WODS;
+  const chips = renderWodGroupChips();
+  const sheet = chips + renderWodListWithGroups(filteredWods, m, true, true);
 
   // 삭제 아이콘 SVG
   const trashIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F04452" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
@@ -1454,7 +1585,7 @@ function renderBenchmarkDayMgr() {
     +wodOptions
     +'</select>'
     +'<p style="font-size:12px;font-weight:700;color:#8B95A1;margin-bottom:8px">코치 메모 (선택)</p>'
-    +'<input id="inp-bmday-note" class="input" placeholder="오늘의 목표나 주의사항을 입력하세요" value="'+(S.bdNote!==undefined?S.bdNote:(td?.note||''))+'" style="margin-bottom:12px"/>'
+    +'<input id="inp-bmday-note" class="input" placeholder="오늘의 목표나 주의사항을 입력하세요" value="'+(S.bdNote!==undefined?S.bdNote:(td?.note||''))+'" style="width:100%;height:48px;background:#F2F4F6;border:1.5px solid #E8EBED;border-radius:12px;padding:0 14px;margin-bottom:20px"/>'
     +'<button id="btn-bmday-save" style="width:100%;height:48px;background:#3182F6;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">오늘 벤치마크 Day 등록</button>'
     +(td ? '<button id="btn-bmday-clear" style="width:100%;height:44px;background:none;border:none;color:#F04452;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px">오늘 등록 취소</button>' : '')
     +'</div>'
@@ -1505,7 +1636,7 @@ function updateMemberGrid() {
           <span class="member-cell-name">${m.name}</span></button>`;
       }).join("")}</div>`;
   container.querySelectorAll("[data-login]").forEach(el => {
-    el.addEventListener("click", () => { S.activeMemberId=el.dataset.login; S.memberTab="my"; S.view="member"; render(); });
+    el.addEventListener("click", () => { S.activeMemberId=el.dataset.login; S.view="myProfile"; render(); });
   });
   const cb = document.getElementById("btn-clear");
   if (cb) cb.style.display = S.search?"flex":"none";
@@ -1598,6 +1729,14 @@ function bind() {
   });});
   // Member view back
   on("btn-member-view-back","click",()=>{S.viewingMemberId=null;render();});
+  // My Profile back
+  on("btn-my-profile-back","click",()=>{
+    S.view="login";
+    S.activeMemberId=null;
+    S.editingMember=null;
+    S.avatarModal=false;
+    render();
+  });
   const openBdRecord = () => {
     try {
       const saved = localStorage.getItem("mt_last_member");
@@ -1607,6 +1746,12 @@ function bind() {
         const td = todayWod && todayWod[tKey];
         const wid = td ? parseInt(td.wodId) : null;
         const wod = wid ? WODS.find(w=>w.id===wid) : null;
+        if (!wid || !wod) {
+          S.activeMemberId = saved;
+          S.view = "myProfile";
+          render();
+          return;
+        }
         // Set active member and open bottom sheet
         S.activeMemberId = saved;
         S.bdRecordModal = true;
@@ -1632,13 +1777,28 @@ function bind() {
     render();
   };
   on("btn-login-bmday","click", openBdRecord);
-  on("btn-open-bd-record","click", openBdRecord);
   on("btn-add-my-record","click",()=>{
     // WOD 선택 모달을 보여줌
     S.bdWodId=undefined;S.bdNote=undefined;S.bdRecordModal=true;render();
   });
   on("btn-show-register","click",()=>{S.registerModal=true;S.registerStep=1;S.registerName="";S.registerErr="";S.registerAvatar=null;render();setTimeout(()=>document.getElementById("inp-register-name")?.focus(),60);});
-  on("btn-header-profile","click",()=>{S.profileModal=true;S.profileNewName="";S.profileNameErr="";S.profileGender="";render();});
+  on("btn-header-profile","click",()=>{
+    const saved = localStorage.getItem("mt_last_member");
+    const savedMember = saved && members.find(m=>m.id===saved);
+    if(savedMember){
+      // 저장된 프로필이 있으면 해당 회원으로 설정하고 프로필 페이지로 이동
+      S.activeMemberId = saved;
+      S.view = "myProfile";
+      render();
+    } else {
+      // 프로필이 설정되지 않음 - 프로필 설정 모달 열기
+      S.profileModal=true;
+      S.profileNewName="";
+      S.profileNameErr="";
+      S.profileGender="";
+      render();
+    }
+  });
   on("btn-show-profile-modal","click",()=>{S.profileModal=true;S.profileNewName="";S.profileNameErr="";S.profileGender="";render();});
   on("btn-gender-male","click",()=>{S.profileGender="male";render();});
   on("btn-gender-female","click",()=>{S.profileGender="female";render();});
@@ -1649,7 +1809,7 @@ function bind() {
     const mid=el.dataset.profileSelect;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     S.profileModal=false;
-    S.activeMemberId=mid;S.view="member";S.memberTab="my";
+    S.activeMemberId=mid;S.view="myProfile";
     render();
   }));
   const profNameEl=document.getElementById("inp-profile-name");
@@ -1680,7 +1840,7 @@ function bind() {
     const mid=el.dataset.login;
     try{localStorage.setItem("mt_last_member",mid);}catch(e){}
     if(S.view==="coach") return;
-    S.activeMemberId=mid;S.memberTab="my";S.view="member";S.viewingMemberId=null;
+    S.activeMemberId=mid;S.view="myProfile";S.viewingMemberId=null;
     render();
   }));
 
@@ -1694,7 +1854,7 @@ function bind() {
   }));
 
   /* member nav */
-  on("btn-member-back","click",()=>{S.view="login";S.editing=null;render();});
+  on("btn-member-back","click",()=>{S.view="login";S.activeMemberId=null;S.editing=null;render();});
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
     const wid=parseInt(el.dataset.bdRecord);
     const wod=WODS.find(w=>w.id===wid);
@@ -1737,17 +1897,19 @@ function bind() {
     S.view="login";S.editing=null;S.panelId=null;S.coachSection="menu";render();
   });
   on("btn-member-detail-back","click",()=>{S.panelId=null;render();});
-  on("btn-add-member","click",()=>{S.addingMember=true;S.newMemberName="";render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),50);});
+  on("btn-add-member","click",()=>{S.addingMember=true;S.newMemberName="";S.newMemberGender="female";S.newMemberDormant=false;render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),50);});
   on("btn-add-member-cancel","click",()=>{S.addingMember=false;render();});
   on("btn-add-member-save","click",()=>{
     const name=(document.getElementById("inp-new-member-name")?.value||"").trim();
     if(!name)return;
     if(members.find(m=>m.name===name)){showToast("이미 있는 이름이에요");return;}
-    fbPush("members",{name,records:{},avatar:null,gender:"",dormant:false});
-    S.addingMember=false; S.newMemberName=""; render();
+    fbPush("members",{name,records:{},avatar:null,gender:S.newMemberGender||"",dormant:false});
+    S.addingMember=false; S.newMemberName=""; S.newMemberGender="female"; S.newMemberDormant=false; render();
   });
   on("inp-new-member-name","keydown",e=>{if(e.key==="Enter")document.getElementById("btn-add-member-save")?.click();});
   on("inp-new-member-name","input",e=>{S.newMemberName=e.target.value;});
+  on("btn-new-gender-male","click",()=>{S.newMemberGender="male";render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),0);});
+  on("btn-new-gender-female","click",()=>{S.newMemberGender="female";render();setTimeout(()=>document.getElementById("inp-new-member-name")?.focus(),0);});
   document.querySelectorAll("[data-open-member]").forEach(el=>el.addEventListener("click",()=>{S.panelId=el.dataset.openMember;render();}));
   // Benchmark Day binds
   const selBmday=document.getElementById("sel-bmday-wod");
@@ -1758,12 +1920,21 @@ function bind() {
     const wid=document.getElementById("sel-bmday-wod")?.value;
     if(!wid){showToast("WOD를 선택해주세요");return;}
     const note=document.getElementById("inp-bmday-note")?.value||"";
-    fbSet("benchmarkDay/"+todayKey(),{wodId:parseInt(wid),note});
+    const payload = {wodId:parseInt(wid),note};
+    fbSet("benchmarkDay/"+todayKey(), payload);
+    if (!todayWod || typeof todayWod !== 'object') todayWod = {};
+    todayWod[todayKey()] = payload;
     S.bdWodId=undefined;S.bdNote=undefined;showToast("벤치마크 Day 등록 완료! 🎯");
+    render();
   });
   on("btn-bmday-clear","click",()=>{
     fbRemove("benchmarkDay/"+todayKey());
+    if (todayWod && typeof todayWod === 'object') {
+      delete todayWod[todayKey()];
+      if (Object.keys(todayWod).length === 0) todayWod = null;
+    }
     S.bdWodId=undefined;S.bdNote=undefined;showToast("오늘 등록이 취소됐어요");
+    render();
   });
   // Home bd-record bind
   qa("[data-bd-record]",el=>el.addEventListener("click",()=>{
@@ -1800,16 +1971,15 @@ function bind() {
   on("btn-sheet-back","click",()=>{S.coachSheetView="list";S.panelId=null;S.editing=null;render();});
 
   /* add member */
-  on("btn-add-member","click",()=>{S.addingMember=true;render();setTimeout(()=>g("inp-newname")?.focus(),50);});
+  on("btn-add-member","click",()=>{S.addingMember=true;S.newMemberGender="female";S.newMemberDormant=false;render();setTimeout(()=>g("inp-new-member-name")?.focus(),50);});
   // Coach members tab
   on("btn-add-member-cancel","click",()=>{S.addingMember=false;render();});
   on("btn-add-member-save","click",()=>{
     const name=(document.getElementById("inp-new-member-name")?.value||"").trim();
     if(!name)return;
     if(members.find(m=>m.name===name)){showToast("이미 있는 이름이에요");return;}
-    fbPush("members",{name,records:{},avatar:null,gender:"",dormant:false});
-    S.addingMember=false;
-    showToast(name+" 추가됐어요!");
+    fbPush("members",{name,records:{},avatar:null,gender:S.newMemberGender||"",dormant:false});
+    S.addingMember=false; S.newMemberName=""; S.newMemberGender="female";     showToast(name+" 추가됐어요!");
   });
   on("inp-new-member-name","input",e=>{S.newMemberName=e.target.value;});
   on("inp-new-member-name","keydown",e=>{if(e.key==="Enter")document.getElementById("btn-add-member-save")?.click();});
@@ -1880,6 +2050,13 @@ function bind() {
   qa("[data-save]",el=>el.addEventListener("click",()=>doSaveRecord(el.dataset.save,parseInt(el.dataset.wid),el.dataset.wtype)));
   qa("[data-drec]",el=>el.addEventListener("click",()=>fbRemove(`members/${el.dataset.drec}/records/${el.dataset.dwid}`)));
 
+  /* WOD group filter chips */
+  qa("[data-member-wod-group]",el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    S.memberWodGroup=el.dataset.memberWodGroup;
+    render();
+  }));
+
   /* history view toggle (member-level) */
   qa("[data-memberhistview]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
@@ -1892,11 +2069,31 @@ function bind() {
   on("btn-wod-add-toggle","click",()=>{S.showWodForm=!S.showWodForm;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time"};render();setTimeout(()=>g("wod-inp-name")?.focus(),50);});
   on("wod-inp-name","input",e=>{S.wodFormVal.name=e.target.value;});
   on("wod-inp-detail","input",e=>{S.wodFormVal.detail=e.target.value;});
+  on("wod-inp-scaleA","input",e=>{S.wodFormVal.scaleA=e.target.value;});
+  on("wod-inp-scaleB","input",e=>{S.wodFormVal.scaleB=e.target.value;});
   on("wod-inp-youtube","input",e=>{S.wodFormVal.youtube=e.target.value;});
   on("btn-wod-add-cancel","click",()=>{S.showWodForm=false;render();});
   on("btn-wod-add-save","click",doAddWod);
-  qa("[data-wod-form-group]",el=>el.addEventListener("click",()=>{S.wodFormVal={...S.wodFormVal,group:el.dataset.wodFormGroup};render();setTimeout(()=>g("wod-inp-name")?.focus(),0);}));
-  qa("[data-wod-form-type]",el=>el.addEventListener("click",()=>{S.wodFormVal={...S.wodFormVal,type:el.dataset.wodFormType};render();setTimeout(()=>g("wod-inp-name")?.focus(),0);}));
+  qa("[data-wod-form-group]",el=>el.addEventListener("click",()=>{
+    S.wodFormVal={...S.wodFormVal,
+      name:document.getElementById("wod-inp-name")?.value??S.wodFormVal.name,
+      detail:document.getElementById("wod-inp-detail")?.value??S.wodFormVal.detail,
+      scaleA:document.getElementById("wod-inp-scaleA")?.value??S.wodFormVal.scaleA,
+      scaleB:document.getElementById("wod-inp-scaleB")?.value??S.wodFormVal.scaleB,
+      youtube:document.getElementById("wod-inp-youtube")?.value??S.wodFormVal.youtube,
+      group:el.dataset.wodFormGroup};
+    render();setTimeout(()=>g("wod-inp-name")?.focus(),0);
+  }));
+  qa("[data-wod-form-type]",el=>el.addEventListener("click",()=>{
+    S.wodFormVal={...S.wodFormVal,
+      name:document.getElementById("wod-inp-name")?.value??S.wodFormVal.name,
+      detail:document.getElementById("wod-inp-detail")?.value??S.wodFormVal.detail,
+      scaleA:document.getElementById("wod-inp-scaleA")?.value??S.wodFormVal.scaleA,
+      scaleB:document.getElementById("wod-inp-scaleB")?.value??S.wodFormVal.scaleB,
+      youtube:document.getElementById("wod-inp-youtube")?.value??S.wodFormVal.youtube,
+      type:el.dataset.wodFormType};
+    render();setTimeout(()=>g("wod-inp-name")?.focus(),0);
+  }));
   qa("[data-wod-edit]",el=>el.addEventListener("click",()=>{
     const wod=WODS.find(w=>w.id===parseInt(el.dataset.wodEdit));
     if(wod){S.editingWod={...wod};render();setTimeout(()=>g("wod-edit-name")?.focus(),50);}
@@ -1909,11 +2106,29 @@ function bind() {
   g("wod-edit-overlay")?.addEventListener("click",()=>{S.editingWod=null;render();});
   qa("[data-wod-group]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
-    if(S.editingWod) { S.editingWod={...S.editingWod,group:el.dataset.wodGroup}; render(); }
+    if(S.editingWod) {
+      S.editingWod={...S.editingWod,
+        name:document.getElementById("wod-edit-name")?.value??S.editingWod.name,
+        detail:document.getElementById("wod-edit-detail")?.value??S.editingWod.detail,
+        scaleA:document.getElementById("wod-edit-scaleA")?.value??S.editingWod.scaleA,
+        scaleB:document.getElementById("wod-edit-scaleB")?.value??S.editingWod.scaleB,
+        youtube:document.getElementById("wod-edit-youtube")?.value??S.editingWod.youtube,
+        group:el.dataset.wodGroup};
+      render();
+    }
   }));
   qa("[data-wod-type]",el=>el.addEventListener("click",e=>{
     e.stopPropagation();
-    if(S.editingWod) { S.editingWod={...S.editingWod,type:el.dataset.wodType}; render(); }
+    if(S.editingWod) {
+      S.editingWod={...S.editingWod,
+        name:document.getElementById("wod-edit-name")?.value??S.editingWod.name,
+        detail:document.getElementById("wod-edit-detail")?.value??S.editingWod.detail,
+        scaleA:document.getElementById("wod-edit-scaleA")?.value??S.editingWod.scaleA,
+        scaleB:document.getElementById("wod-edit-scaleB")?.value??S.editingWod.scaleB,
+        youtube:document.getElementById("wod-edit-youtube")?.value??S.editingWod.youtube,
+        type:el.dataset.wodType};
+      render();
+    }
   }));
   qa("[data-wod-del]",el=>el.addEventListener("click",()=>doDeleteWod(parseInt(el.dataset.wodDel))));
   
@@ -2041,7 +2256,7 @@ function doRegisterNext() {
   const dup = members.find(m => m.name === name);
   if (dup) {
     S.registerModal=false; S.registerName=""; S.registerErr="";
-    S.activeMemberId=dup.id; S.memberTab="my"; S.view="member";
+    S.activeMemberId=dup.id; S.view="myProfile";
     saveLastMember(dup.id); render(); return;
   }
   S.registerName = name;
@@ -2056,7 +2271,7 @@ function doRegisterMember() {
   const data = avatarIdx !== null ? {name, records:{}, avatar:avatarIdx} : {name, records:{}};
   fbPush("members", data).then(ref=>{
     S.registerModal=false; S.registerName=""; S.registerErr=""; S.registerAvatar=null; S.registerStep=1;
-    S.activeMemberId=ref.key; S.memberTab="my"; S.view="member";
+    S.activeMemberId=ref.key; S.view="myProfile";
     saveLastMember(ref.key);
     render();
     showToast(`${name}님 환영해요! 🎉`);
@@ -2076,6 +2291,7 @@ function doDeleteMember(id) {
   fbRemove(`members/${id}`);
   if(S.panelId===id) S.panelId=null;
   S.confirmDelete=null;
+  render();
   showToast((m?.name||"회원")+" 삭제됐어요");
 }
 
@@ -2084,13 +2300,15 @@ function doAddWod() {
   const name=(document.getElementById("wod-inp-name")?.value||S.wodFormVal.name).trim();
   const detail=(document.getElementById("wod-inp-detail")?.value||S.wodFormVal.detail).trim();
   if(!name)return;
+  const scaleA=(document.getElementById("wod-inp-scaleA")?.value||S.wodFormVal.scaleA||"").trim();
+  const scaleB=(document.getElementById("wod-inp-scaleB")?.value||S.wodFormVal.scaleB||"").trim();
   const youtube=(document.getElementById("wod-inp-youtube")?.value||S.wodFormVal.youtube||"").trim();
   const maxId=WODS.length>0?Math.max(...WODS.map(w=>w.id)):0;
   const newId=maxId+1;
   const group = S.wodFormVal.group || "WOD";
   const type  = S.wodFormVal.type  || "time";
-  fbSet(`wods/${newId}`,{name,detail,group,type,youtube});
-  S.showWodForm=false;S.wodFormVal={name:"",detail:""};
+  fbSet(`wods/${newId}`,{name,detail,group,type,youtube,scaleA,scaleB});
+  S.showWodForm=false;S.wodFormVal={name:"",detail:"",group:"WOD",type:"time",youtube:"",scaleA:"",scaleB:""};
   showToast(`WOD ${newId} 추가됐어요!`);
 }
 
@@ -2100,9 +2318,11 @@ function doEditWod() {
   const group=S.editingWod?.group||"WOD";
   if(!name||!S.editingWod)return;
   const type = S.editingWod?.type || "time";
+  const scaleA = (document.getElementById("wod-edit-scaleA")?.value || S.editingWod?.scaleA || "").trim();
+  const scaleB = (document.getElementById("wod-edit-scaleB")?.value || S.editingWod?.scaleB || "").trim();
   const youtube = (document.getElementById("wod-edit-youtube")?.value || S.editingWod?.youtube || "").trim();
-  fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type,youtube});
-  S.editingWod=null;showToast("WOD가 수정됐어요!");
+  fbSet(`wods/${S.editingWod.id}`,{name,detail,group,type,youtube,scaleA,scaleB});
+  S.editingWod=null;render();showToast("WOD가 수정됐어요!");
 }
 
 function doDeleteWod(id) {
