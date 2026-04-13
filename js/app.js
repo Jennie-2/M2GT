@@ -1104,15 +1104,17 @@ function renderWodListWithGroups(wods, member, showDel, hideYoutube) {
   const GROUP_LABELS = {STRENGTH:"STRENGTH", HYROX:"HYROX", WOD:"WOD"};
   let html = "";
   let lastGroup = null;
+  let seq = 0;
   wods.forEach(wod => {
     const g = wod.group || "WOD";
     if (g !== lastGroup) {
       html += '<div style="padding:16px 18px;font-size:14px;font-weight:800;color:#8B95A1;letter-spacing:.8px;background:#F2F4F6">' + (GROUP_LABELS[g] || g) + '</div>';
       lastGroup = g;
     }
+    seq++;
     const rec = member.records[wod.id];
     const isEd = S.editing?.memberId === member.id && S.editing?.wodId === wod.id;
-    html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube);
+    html += wodRowHtml(wod, rec, isEd, member.id, showDel, hideYoutube, seq);
   });
   return html;
 }
@@ -1305,7 +1307,7 @@ function renderMemberHome(m) {
 }
 
 /* ── WOD ROW ── */
-function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
+function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube,displayNum) {
   let body="";
   if (rec) {
     const recWtype = wod.type || "time";
@@ -1417,7 +1419,7 @@ function wodRowHtml(wod,rec,isEd,memberId,showDel,hideYoutube) {
     body=`<button class="add-rec-btn" data-oedit="${memberId}" data-owid="${wod.id}">+ 기록 추가</button>`;
   }
   return `<div class="wod-row${rec?" done":""}">
-    <div class="wod-badge${rec?" done":""}">${wod.id}</div>
+    <div class="wod-badge${rec?" done":""}">${displayNum??wod.id}</div>
     <div class="wod-content">
       <div class="wod-name">${wod.name}</div>
       ${wod.detail?`<div class="wod-detail">${wod.detail}</div>`:""}
