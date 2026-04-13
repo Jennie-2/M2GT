@@ -266,7 +266,7 @@ function renderYoutubeCard(url) {
   if (!id) return "";
   const thumb = "https://img.youtube.com/vi/"+id+"/mqdefault.jpg";
   const link  = "https://youtu.be/"+id;
-  return '<a href="'+link+'" target="_blank" rel="noopener" style="display:block;margin-top:10px;border-radius:12px;overflow:hidden;text-decoration:none;position:relative">'
+  return '<a href="'+link+'" target="_blank" rel="noopener" style="display:block;margin-top:10px;margin-bottom:20px;border-radius:12px;overflow:hidden;text-decoration:none;position:relative">'
     +'<img src="'+thumb+'" style="width:100%;display:block;border-radius:12px"/>'
     +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'
     +'<div style="width:44px;height:44px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center">'
@@ -631,16 +631,16 @@ function renderBdRecordModal() {
     +'</div>'
     +(rec.value?'<p style="font-size:13px;color:#8B95A1;margin-bottom:14px;margin-top:4px">이전 기록: <strong style="color:#1A1A2E">'+rec.value+'</strong></p>':'<div style="height:14px"></div>')
     +(wod.youtube?renderYoutubeCard(wod.youtube):'')
-    +inputHtml
-    +'<div style="display:flex;gap:6px;margin-top:10px">'
+    +'<div style="display:flex;gap:6px;margin-bottom:10px">'
     +['RXD','A','B'].map(function(s){
       var active=S.editVal.scale===s;
       return '<button data-bd-scale-btn="'+s+'" style="flex:1;height:36px;border-radius:10px;border:1px solid '+(active?'#3182F6':'#E8EBED')+';background:'+(active?'#EBF3FE':'#F2F4F6')+';color:'+(active?'#3182F6':'#8B95A1')+';font-size:13px;font-weight:700;cursor:pointer">'+s+'</button>';
     }).join('')
     +'</div>'
-    +(S.editVal.scale==="A"&&wod.scaleA?'<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-top:4px">'+wod.scaleA+'</div>':'')
-    +(S.editVal.scale==="B"&&wod.scaleB?'<div style="font-size:12px;color:#8B95A1;background:#F2F4F6;border-radius:8px;padding:6px 10px;margin-top:4px">'+wod.scaleB+'</div>':'')
-    +'<button id="btn-bd-save" data-save="'+mid+'" data-wid="'+wid+'" data-wtype="'+wtype+'" style="width:100%;height:52px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:12px">저장</button>'
+    +(S.editVal.scale==="A"&&wod.scaleA?'<div style="font-size:12px;color:#3182F6;background:#EBF3FE;border-radius:8px;padding:6px 10px;margin-bottom:8px">'+wod.scaleA+'</div>':'')
+    +(S.editVal.scale==="B"&&wod.scaleB?'<div style="font-size:12px;color:#8B95A1;background:#F2F4F6;border-radius:8px;padding:6px 10px;margin-bottom:8px">'+wod.scaleB+'</div>':'')
+    +inputHtml
+    +'<button id="btn-bd-save" data-save="'+mid+'" data-wid="'+wid+'" data-wtype="'+wtype+'" style="width:100%;height:52px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-top:20px">저장</button>'
     +'</div></div>';
 }
 
@@ -1211,11 +1211,11 @@ function renderRecordEditSheet() {
     + '</div>'
     + '<button id="btn-edit-cancel" style="background:none;border:none;font-size:24px;line-height:1;color:#B0B8C1;cursor:pointer;padding:4px;min-height:32px">×</button>'
     + '</div>'
-    + inputHtml
     + '<div style="display:flex;gap:6px">'
     + ["RXD","A","B"].map(s => '<button data-scale-btn="' + s + '" style="flex:1;height:40px;border-radius:10px;border:1px solid ' + (S.editVal.scale===s?"#3182F6":"#E8EBED") + ';background:' + (S.editVal.scale===s?"#EBF3FE":"#F2F4F6") + ';color:' + (S.editVal.scale===s?"#3182F6":"#8B95A1") + ';font-size:13px;font-weight:700;cursor:pointer">' + s + '</button>').join("")
     + '</div>'
     + scaleHint
+    + inputHtml
     + '<button data-save="' + memberId + '" data-wid="' + wodId + '" data-wtype="' + wtype + '" data-isnew="' + isNew + '" style="width:100%;height:52px;background:#3182F6;border:none;border-radius:14px;font-size:16px;font-weight:700;color:#fff;cursor:pointer">저장</button>'
     + '</div>'
     + '</div>';
